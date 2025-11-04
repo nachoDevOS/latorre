@@ -219,6 +219,42 @@
                                 {{-- Campo oculto para el tipo de alquiler, se actualizará con JavaScript --}}
                                 <input type="hidden" name="rental_type" id="hidden_rental_type" value="por_hora">
 
+                                {{-- SECCIÓN PARA AÑADIR PRODUCTOS --}}
+                                <div class="panel details-panel" style="margin-top: 20px; box-shadow: none; border: 1px solid var(--border-color);">
+                                    <div class="panel-heading" style="border-top-left-radius: 8px; border-top-right-radius: 8px;">
+                                        <h3 class="panel-title" style="font-size: 1.2rem;"><i class="voyager-basket panel-title-icon"></i>Añadir Productos (Opcional)</h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div class="form-group">
+                                            <label for="product_id">Buscar producto</label>
+                                            <select class="form-control" id="select-product_id"></select>
+                                        </div>
+                                        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                                            <table id="dataTable" class="table table-bordered table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width: 30px">N&deg;</th>
+                                                        <th>Detalles</th>
+                                                        <th style="text-align: center; width:15%">Precio</th>
+                                                        <th style="text-align: center; width:12%">Cantidad</th>
+                                                        <th style="width: 30px"></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="table-body">
+                                                    <tr id="tr-empty">
+                                                        <td colspan="5" style="height: 150px; text-align: center;">
+                                                            <h4 class="text-muted" style="margin-top: 30px">
+                                                                <i class="glyphicon glyphicon-shopping-cart" style="font-size: 30px"></i><br><br>
+                                                                Lista de venta vacía
+                                                            </h4>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <button type="submit" class="btn btn-success btn-action"><i class="voyager-play"></i> Iniciar Alquiler</button>
                             </form>
                         @else
@@ -269,6 +305,11 @@
 @endsection
 
 @section('javascript')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/locale/es.min.js"></script>
+    <script src="{{ asset('vendor/tippy/popper.min.js') }}"></script>
+    <script src="{{ asset('vendor/tippy/tippy-bundle.umd.min.js') }}"></script>
+
     <script src="{{ asset('js/include/person-select.js') }}"></script>
     <script src="{{ asset('js/include/person-register.js') }}"></script>
     <script>
@@ -335,5 +376,105 @@
 
             toastr.success('Cliente eliminado', 'Eliminado');
         });
+
+        // =================================================================
+        // ================== LÓGICA DEL CARRITO DE VENTAS =================
+        // =================================================================
+        @if ($room->status == 'Disponible')
+            $(document).ready(function() {
+                var productSelected;
+
+                $('#select-product_id').select2({
+                    width: '100%',
+                    placeholder: '<i class="fa fa-search"></i> Buscar...',
+                    escapeMarkup: function(markup) { return markup; },
+                    language: {
+                        inputTooShort: function(data) { return `Por favor ingrese ${data.minimum - data.input.length} o más caracteres`; },
+                        noResults: function() { return `<i class="far fa-frown"></i> No hay resultados encontrados`; }
+                    },
+                    quietMillis: 250,
+                    minimumInputLength: 2,
+                    ajax: {
+                        url: "{{ url('admin/sales/item/stock/ajax') }}",
+                        processResults: function(data) {
+                            return { results: data };
+                        },
+                        cache: true
+                    },
+                    templateResult: formatResultProducts,
+                    templateSelection: (opt) => {
+                        productSelected = opt;
+                        return productSelected.id;
+                    }
+                }).change(function() {
+                    if ($('#select-product_id option:selected').val()) {
+                        let product = productSelected;
+                        let image = "{{ asset('images/default.jpg') }}";
+                        if(product.image){
+                            image = "{{ asset('storage') }}/"+product.image.replace('.avif','-cropped.webp');
+                        } else if (product.item.image) {
+                            image = "{{ asset('storage') }}/"+product.item.image.replace('.avif','-cropped.webp');
+                        }
+
+                        if ($('.table').find(`#tr-item-${product.id}`).length === 0) {
+                            $('#table-body').append(`
+                                <tr class="tr-item" id="tr-item-${product.id}">
+                                    <td class="td-item"></td>
+                                    <td>
+                                        <input type="hidden" name="products[${product.id}][id]" value="${product.id}"/>
+                                        <div style="display: flex; align-items: center;">
+                                            <div style="margin-right: 10px; flex-shrink: 0;">
+                                                <img src="${image}" width="50px" style="border-radius: 4px;"/>
+                                            </div>
+                                            <div style="line-height: 1.2;">
+                                                <div style="font-size: 13px; font-weight: bold;">${product.item.name}</div>
+                                                <small><b>Marca:</b> ${product.item.brand.name}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td width="100px" style="vertical-align: middle;">
+                                        <input type="number" name="products[${product.id}][price]" step="0.1" min="0.1" style="text-align: right" class="form-control" value="${product.priceSale}" required/>
+                                    </td>
+                                    <td width="100px" style="vertical-align: middle;">
+                                        <input type="number" name="products[${product.id}][quantity]" step="1" min="1" style="text-align: right" class="form-control" value="1" max="${product.stock}" required/>
+                                    </td>
+                                    <td width="50px" class="text-right" style="vertical-align: middle;">
+                                        <button type="button" onclick="removeTr(${product.id})" class="btn btn-link"><i class="voyager-trash text-danger"></i></button>
+                                    </td>
+                                </tr>
+                            `);
+                            setNumber();
+                            toastr.success(`+1 ${product.item.name}`, 'Producto agregado');
+                        } else {
+                            toastr.info('El producto ya está agregado', 'Información');
+                        }
+                        $('#select-product_id').val('').trigger('change');
+                    }
+                });
+            });
+
+            function setNumber() {
+                var length = 0;
+                $(".td-item").each(function(index) {
+                    $(this).text(index + 1);
+                    length++;
+                });
+                $('#tr-empty').css('display', length > 0 ? 'none' : 'table-row');
+            }
+
+            function removeTr(id) {
+                $(`#tr-item-${id}`).remove();
+                setNumber();
+                toastr.warning('Producto eliminado de la lista', 'Eliminado');
+            }
+
+            function formatResultProducts(option) {
+                if (option.loading) return '<span class="text-center"><i class="fas fa-spinner fa-spin"></i> Buscando...</span>';
+                let image = "{{ asset('images/default.jpg') }}";
+                if (option.item?.image) image = `{{ asset('storage') }}/${option.item.image.replace(/\.([^.]+)$/, '-cropped.webp')}`;
+                const fallbackImage = '{{ asset('images/default.jpg') }}';
+                return $(`<div style="display: flex; align-items: center; padding: 5px;"><img src="${image}" style="width: 50px; height: 50px; border-radius: 4px; margin-right: 10px; object-fit: cover;" onerror="this.onerror=null;this.src='${fallbackImage}';"/><div style="line-height: 1.2;"><div style="font-weight: bold;">${option.item.name}</div><small><b>Stock:</b> ${option.stock} Unid. | <b>Precio:</b> ${option.priceSale} Bs.</small></div></div>`);
+            }
+        @endif
     </script>
 @endsection

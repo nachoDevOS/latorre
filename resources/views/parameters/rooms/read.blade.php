@@ -57,7 +57,7 @@
                         <div class="row">
                             <div class="col-sm-6">
                                 <h4>
-                                    Detalles del Inventario
+                                    Detalles de la Sala
                                 </h4>
                             </div>
                             <div class="col-sm-6 text-right">
@@ -81,22 +81,7 @@
                                     </select> registros</label>
                                 </div>
                             </div>
-                            {{-- <div class="col-sm-3" style="margin-bottom: 10px">
-                                <select id="branch" name="branch" class="form-control select2">
-                                    <option value="" selected>Todos</option>
-                                    @foreach ($branches as $branch)
-                                        <option value="{{$branch->id}}">{{$branch->name}}</option>
-                                    @endforeach
-                                </select>
-                            </div> --}}
-
-                            <div class="col-sm-2" style="margin-bottom: 10px">
-                                <select id="status" name="status" class="form-control select2">
-                                    <option value="" selected>Todos</option>
-                                    <option value="Con stock">Con Stock</option>
-                                    <option value="Sin stock">Sin Stock</option>
-                                </select>
-                            </div>
+                           
                         </div>
                         <div class="row" id="div-results" style="min-height: 120px"></div>
 
@@ -105,7 +90,7 @@
             </div>
         </div>
         
-        <div class="row">
+        {{-- <div class="row">
             <div class="col-md-12">
                 <div class="panel panel-bordered">
                     <div class="panel-body">
@@ -133,11 +118,11 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
     </div>
 
 
-    <form action="{{ route('rooms-detail.store', ['id' => $room->id]) }}" class="form-submit" method="POST">
+    <form action="{{ route('rooms-detail.store', ['id' => $room->id]) }}" class="form-submit" method="POST" enctype="multipart/form-data">
         <div class="modal fade" data-backdrop="static" id="modal-register-stock" role="dialog">
             <div class="modal-dialog modal-success">
                 <div class="modal-content">
@@ -149,34 +134,18 @@
                         @csrf
                         <div class="row">
                             <div class="form-group col-md-12">
-                                <label for="lote">Lote</label>
-                                <input style="text-align: right" type="text" name="lote" class="form-control">
+                                <label for="name">Nombre</label>
+                                <input type="text" name="name" class="form-control" required>
                             </div>
-                            <div class="form-group col-md-4">
-                                <label for="full_name">Cantidad</label>
-                                <input style="text-align: right" type="number" step="1" min="1" name="quantity" class="form-control" required>
+                            <div class="form-group col-md-12">
+                                <label for="image">Imagen</label>
+                                <input type="file" name="image" class="form-control" accept="image/*">
                             </div>
-                            <div class="form-group col-md-4">
-                                <label for="full_name">P. Compra</label>
-                                <input style="text-align: right" type="number" step="1" min="0" name="pricePurchase" class="form-control" required>
+                            <div class="form-group col-md-12">
+                                <label for="observation">Detalle (opcional)</label>
+                                <textarea name="observation" class="form-control" rows="3"></textarea>
                             </div>
-                            <div class="form-group col-md-4">
-                                <label for="full_name">P. Unitario</label>
-                                <input style="text-align: right" type="number" step="1" min="1" name="priceSale" class="form-control" required>
-                            </div>
-                            {{-- <div class="form-group col-md-3">
-                                <label for="full_name">P. al Por Mayor</label>
-                                <input style="text-align: right" type="number" step="1" min="1" name="priceWhole" class="form-control" required>
-                            </div> --}}
-                        </div>    
-                        <div class="form-group">
-                            <label for="observation">Observación / Detalles</label>
-                            <textarea name="observation" class="form-control" rows="3"></textarea>
                         </div>
-
-                        <label class="checkbox-inline">
-                            <input type="checkbox" required>Confirmar..!
-                        </label>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
@@ -185,7 +154,6 @@
                 </div>
             </div>
         </div>
-
     </form>
     @include('partials.modal-delete')
     
@@ -201,12 +169,27 @@
     <script src="{{ asset('js/btn-submit.js') }}"></script>
 
     <script>
+        var page = 1;
+        var paginate = 10;
 
         $(document).ready(() => {
-           
+            listDetails();
+            $('#select-paginate').change(function(){
+                paginate = $(this).val();
+                listDetails();
+            });
         });
 
-       
+        function listDetails(){
+            let url = '{{ url("admin/rooms/".$room->id."/details/ajax/list") }}';
+            $.ajax({
+                url: `${url}?page=${page}&paginate=${paginate}`,
+                type: 'get',
+                success: function(response){
+                    $('#div-results').html(response);
+                }
+            });
+        }
 
         function deleteItem(url){
             $('#delete_form').attr('action', url);

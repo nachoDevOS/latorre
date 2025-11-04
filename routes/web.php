@@ -69,6 +69,10 @@ Route::group(['prefix' => 'admin', 'middleware' => ['loggin', 'system']], functi
     Route::get('rooms/ajax/list', [RoomController::class, 'list']);
     Route::post('rooms', [RoomController::class, 'store'])->name('voyager.rooms.store');
     Route::put('rooms/{id}', [RoomController::class, 'update'])->name('voyager.rooms.update');
+    Route::get('rooms/{id}', [RoomController::class, 'show'])->name('voyager.rooms.show');
+    Route::post('rooms/{id}/detail', [RoomController::class, 'storeDetail'])->name('rooms-detail.store');
+
+
 
 
 

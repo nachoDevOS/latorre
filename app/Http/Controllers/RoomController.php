@@ -107,4 +107,16 @@ class RoomController extends Controller
             return redirect()->route('voyager.rooms.index')->with(['message' => $th->getMessage(), 'alert-type' => 'error']);
         }
     }
+
+
+    public function show($id)
+    {
+        $this->custom_authorize('read_rooms');
+
+        $room = Room::where('id', $id)
+            ->where('deleted_at', null)
+            ->first();
+
+        return view('parameters.rooms.read', compact('room'));
+    }
 }

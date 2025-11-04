@@ -1,11 +1,11 @@
 @extends('voyager::master')
 
-@section('page_title', 'Ver Accesorios / Items')
+@section('page_title', 'Ver Sala de juegos')
 
 @section('page_header')
     <h1 class="page-title">
-        <i class="fa-brands fa-steam-symbol"></i> Accesorios / Items &nbsp;
-        <a href="{{ route('voyager.items.index') }}" class="btn btn-warning">
+        <i class="fa-solid fa-gamepad"></i> Salas De Juegos &nbsp;
+        <a href="{{ route('voyager.rooms.index') }}" class="btn btn-warning">
             <span class="glyphicon glyphicon-list"></span>&nbsp;
             Volver a la lista
         </a> 
@@ -20,19 +20,19 @@
                     <div class="row">
                         <div class="col-md-4">
                             <div class="panel-heading" style="border-bottom:0;">
-                                <h3 class="panel-title">Categoría</h3>
+                                <h3 class="panel-title">Tipo</h3>
                             </div>
                             <div class="panel-body" style="padding-top:0;">
-                                <p>{{ $item->category?strtoupper($item->category->name):'SN' }} </p>
+                                <p>{{ $room->type?strtoupper($room->type):'SN' }} </p>
                             </div>
                             <hr style="margin:0;">
                         </div>
                         <div class="col-md-4">
                             <div class="panel-heading" style="border-bottom:0;">
-                                <h3 class="panel-title">Productos/ Items</h3>
+                                <h3 class="panel-title">Nombre</h3>
                             </div>
                             <div class="panel-body" style="padding-top:0;">
-                                <p>{{ $item->name }}</p>
+                                <p>{{ $room->name }}</p>
                             </div>
                             <hr style="margin:0;">
                         </div>
@@ -41,7 +41,7 @@
                                 <h3 class="panel-title">Observación / Descripción</h3>
                             </div>
                             <div class="panel-body" style="padding-top:0;">
-                                <p>{{$item->observation??'Sin Detalles'}}</small></p>
+                                <p>{{$item->room??'Sin Detalles'}}</small></p>
                             </div>
                             <hr style="margin:0;">
                         </div>
@@ -137,26 +137,17 @@
     </div>
 
 
-    <form action="{{ route('items-stock.store', ['id' => $item->id]) }}" class="form-submit" method="POST">
+    <form action="{{ route('rooms-detail.store', ['id' => $room->id]) }}" class="form-submit" method="POST">
         <div class="modal fade" data-backdrop="static" id="modal-register-stock" role="dialog">
             <div class="modal-dialog modal-success">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" style="color: #ffffff !important"><i class="voyager-plus" ></i> Registrar Stock</h4>
+                        <h4 class="modal-title" style="color: #ffffff !important"><i class="voyager-plus" ></i> Registrar Detalle</h4>
                     </div>
                     <div class="modal-body">
                         @csrf
                         <div class="row">
-                            {{-- <div class="form-group col-md-8">
-                                <label for="branch_id">Surcursal</label>
-                                <select name="branch_id" id="branch_id" class="form-control select2" required>
-                                    <option value="" selected disabled>--Seleccione una opción--</option>
-                                    @foreach ($branches as $branch)
-                                        <option value="{{$branch->id}}">{{$branch->name}}</option>
-                                    @endforeach
-                                </select>
-                            </div> --}}
                             <div class="form-group col-md-12">
                                 <label for="lote">Lote</label>
                                 <input style="text-align: right" type="text" name="lote" class="form-control">
@@ -211,80 +202,11 @@
 
     <script>
 
-        var countPage = 10, order = 'id', typeOrder = 'desc';
-        var countPageSales = 10;
         $(document).ready(() => {
-            list();
-            listSales();
-
-            $('#status').change(function(){
-                list();
-            });
-            $('#branch').change(function(){
-                list();
-            });
-            
-            $('#input-search').on('keyup', function(e){
-                if(e.keyCode == 13) {
-                    list();
-                }
-            });
-
-            $('#select-paginate').change(function(){
-                countPage = $(this).val();               
-                list();
-            });
-
-            $('#select-paginate-sales').change(function(){
-                countPageSales = $(this).val();               
-                listSales();
-            });
+           
         });
 
-        function list(page = 1){
-            $('#div-results').loading({message: 'Cargando...'});
-            let url = '{{ url("admin/items/".$item->id."/stock/ajax/list") }}';
-            let status =$("#status").val();            
-            let branch =$("#branch").val();          
-
-            $.ajax({
-                url: `${url}?paginate=${countPage}&page=${page}&status=${status}&branch=${branch}`,
-
-                type: 'get',
-                
-                success: function(result){
-                    $("#div-results").html(result);
-                    $('#div-results').loading('toggle');
-                }
-            });
-        }
-
-        function listSales(page = 1){
-            $('#div-results-sales').loading({message: 'Cargando...'});
-            let url = '{{ url("admin/items/".$item->id."/sales/ajax/list") }}';
-
-            $.ajax({
-                url: `${url}?paginate=${countPageSales}&page=${page}`,
-                type: 'get',
-                success: function(result){
-                    $("#div-results-sales").html(result);
-                    $('#div-results-sales').loading('toggle');
-                }
-            });
-        }
-
-
-        $(document).ready(function(){   
-            $('.form-submit').submit(function(e){
-                $('.btn-form-submit').attr('disabled', true);
-                $('.btn-form-submit').val('Guardando...');
-            });
-
-            $('#delete_form').submit(function(e){
-                $('.btn-form-delete').attr('disabled', true);
-                $('.btn-form-delete').val('Eliminando...');
-            });
-        });
+       
 
         function deleteItem(url){
             $('#delete_form').attr('action', url);

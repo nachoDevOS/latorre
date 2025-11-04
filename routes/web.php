@@ -41,8 +41,8 @@ Route::get('/info/{id?}', [ErrorController::class , 'error'])->name('errors');
 Route::group(['prefix' => 'admin', 'middleware' => ['loggin', 'system']], function () {
     Voyager::routes();
 
-    Route::get('services', [ServiceController::class, 'index'])->name('voyager.services.index');
-    Route::get('services/{id}', [ServiceController::class, 'show'])->name('voyager.services.show');
+    Route::get('services', [ServiceController::class, 'index'])->name('services.index');
+    Route::get('services/{id}', [ServiceController::class, 'show'])->name('services.show');
     Route::post('services/rental/start', [ServiceController::class, 'startRental'])->name('services.rental.start');
 
 

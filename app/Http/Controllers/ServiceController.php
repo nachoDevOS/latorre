@@ -42,7 +42,7 @@ class ServiceController extends Controller
         }
 
         // Devuelve la vista 'services.show' y le pasa la información de la sala.
-        return view('services.show', [
+        return view('services.register', [
             'room' => $room,
             'activeRental' => $activeRental
         ]);
@@ -86,14 +86,14 @@ class ServiceController extends Controller
 
             DB::commit();
 
-            return redirect()->route('voyager.services.show', $room->id)->with([
+            return redirect()->route('services.show', $room->id)->with([
                 'message'    => 'Alquiler iniciado exitosamente para la sala: ' . $room->name,
                 'alert-type' => 'success',
             ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->route('voyager.services.index')->with([
+            return redirect()->route('services.index')->with([
                 'message'    => 'Ocurrió un error al iniciar el alquiler: ' . $e->getMessage(),
                 'alert-type' => 'error',
             ]);

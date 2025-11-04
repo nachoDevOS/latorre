@@ -217,7 +217,7 @@
                                 </p>
                             </div>
                             <div>
-                                <a href="{{ route('voyager.services.show', $room->id) }}" class="btn btn-primary btn-manage">Gestionar</a>
+                                <a href="{{ route('services.show', $room->id) }}" class="btn btn-primary btn-manage">Gestionar</a>
                             </div>
                         </div>
                     </div>

@@ -4,28 +4,30 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #4f46e5;
-            --secondary-color: #10b981;
-            --danger-color: #ef4444;
+            --primary-color: #4A90E2;      /* Un azul más brillante y amigable */
+            --primary-dark-color: #357ABD;
+            --secondary-color: #50E3C2;    /* Un verde menta vibrante */
+            --danger-color: #E94E77;       /* Un rosa/rojo para contraste */
             --background-color: #f8f9fa;
             --card-background-color: #ffffff;
-            --text-color: #333;
+            --text-color: #4A4A4A;
             --text-light-color: #6c757d;
             --border-color: #e5e7eb;
-            --shadow-color: rgba(0, 0, 0, 0.05);
+            --shadow-color: rgba(0, 0, 0, 0.08);
         }
 
         /* General Page Style */
         .page-content {
             background-color: var(--background-color);
             font-family: 'Roboto', sans-serif;
+            color: var(--text-color);
         }
 
         /* Welcome Header */
         .welcome-header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, #3b82f6 100%);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             color: #fff;
-            padding: 2rem 1.5rem; /* Reducido para hacerlo más compacto */
+            padding: 2.5rem 1.5rem;
             margin-bottom: 20px;
             border-radius: 12px;
             text-align: center;
@@ -33,12 +35,12 @@
         }
         .welcome-header h1 {
             font-weight: 600; /* Ligeramente menos negrita */
-            font-size: 2rem;   /* Tamaño de fuente reducido */
+            font-size: 2.2rem;
             text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .welcome-header .lead {
-            font-size: 1rem;   /* Tamaño de fuente reducido */
-            font-weight: 300;
+            font-size: 1.1rem;
+            font-weight: 400;
             opacity: 0.9;
         }
 
@@ -62,11 +64,11 @@
         .room-card {
             border: none;
             border-radius: 12px;
-            box-shadow: 0 4px 6px -1px var(--shadow-color), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 4px 12px var(--shadow-color);
             transition: all 0.3s ease;
             margin-bottom: 25px;
             overflow: hidden;
-            display: flex;
+            display: flex; /* Flexbox para alinear contenido */
             flex-direction: column;
             height: 100%;
         }
@@ -75,7 +77,7 @@
             box-shadow: 0 10px 15px -3px var(--shadow-color), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
         .room-card .panel-heading {
-            background-color: var(--card-background-color);
+            background-color: #fff;
             border-bottom: 1px solid var(--border-color);
             padding: 20px;
             display: flex;
@@ -83,7 +85,7 @@
         }
         .room-card .panel-title {
             font-weight: 600;
-            color: var(--text-color);
+            color: var(--primary-dark-color);
             font-size: 1.25rem;
             margin: 0;
         }
@@ -94,7 +96,7 @@
         }
         .room-card .panel-body {
             padding: 25px;
-            text-align: center;
+            text-align: center; /* Centrado de contenido */
             flex-grow: 1;
             display: flex;
             flex-direction: column;
@@ -102,7 +104,7 @@
         }
         .room-card .room-type {
             color: var(--text-light-color);
-            font-size: 1rem;
+            font-size: 0.95rem;
             margin-bottom: 15px;
             font-weight: 500;
         }
@@ -117,12 +119,12 @@
             margin-bottom: 20px;
         }
         .label-success.status-badge {
-            background-color: rgba(16, 185, 129, 0.1);
-            color: var(--secondary-color);
+            background-color: rgba(80, 227, 194, 0.2);
+            color: #1a9a7a;
         }
         .label-danger.status-badge {
-            background-color: rgba(239, 68, 68, 0.1);
-            color: var(--danger-color);
+            background-color: rgba(233, 78, 119, 0.15);
+            color: #c7355d;
         }
         .room-card .btn-manage {
             margin-top: 20px;
@@ -136,27 +138,32 @@
             letter-spacing: 0.5px;
         }
         .room-card .btn-manage:hover {
-            background-color: #4338ca;
-            border-color: #4338ca;
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+            background-color: var(--primary-dark-color);
+            border-color: var(--primary-dark-color);
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
             transform: translateY(-2px);
         }
 
         /* Empty State */
         .empty-state {
-            border: 2px dashed #ddd;
+            border: 2px dashed var(--border-color);
             padding: 60px;
             border-radius: 12px;
-            background-color: #fff;
+            background-color: var(--card-background-color);
             margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        .empty-state:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 12px var(--shadow-color);
         }
         .empty-state i {
             font-size: 4rem;
-            color: #d1d5db;
+            color: var(--primary-color);
+            opacity: 0.6;
             margin-bottom: 20px;
         }
         .empty-state h4 {
-            font-size: 1.5rem;
             font-weight: 500;
             color: var(--text-color);
         }
@@ -202,7 +209,7 @@
                             <div>
                                 <p class="room-type">{{ $room->type }}</p>
                                 <p>
-                                    @if ($room->status)
+                                    @if ($room->status=='Disponible')
                                         <span class="label label-success status-badge">Disponible</span>
                                     @else
                                         <span class="label label-danger status-badge">Ocupada</span>
@@ -210,7 +217,7 @@
                                 </p>
                             </div>
                             <div>
-                                <a href="#" class="btn btn-primary btn-manage">Gestionar</a>
+                                <a href="{{ route('voyager.services.show', $room->id) }}" class="btn btn-primary btn-manage">Gestionar</a>
                             </div>
                         </div>
                     </div>

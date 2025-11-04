@@ -1,4 +1,4 @@
-<form action="#" id="delete_form" method="POST">
+<form action="#" class="form-edit-add" id="delete_form" method="POST">
     {{ method_field('DELETE') }}
     {{ csrf_field() }}
     <div class="modal modal-danger fade" data-backdrop="static"  id="modal-delete" role="dialog">
@@ -23,8 +23,8 @@
 
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-                    <input type="submit" class="btn btn-danger btn-form-delete" value="Sí, eliminar">
+                    <button type="button" class="btn btn-default btn-cancel" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger btn-submit">Sí, eliminar</button>
                 </div>
             </div>
         </div>

@@ -60,7 +60,20 @@ class PersonController extends Controller
     {
         $this->custom_authorize('add_people');
         $request->validate([
-            'image' => 'image|mimes:jpeg,jpg,png,bmp,webp'
+            'ci' => 'required|string|max:255|unique:people,ci', // Agregar unique aquí
+            'birth_date' => 'required|date',
+            'gender' => 'required|string|in:Masculino,Femenino',
+            'first_name' => 'required|string|max:255',
+            'image' => 'nullable|image|mimes:jpeg,jpg,png,bmp,webp|max:2048' // 🎉 CAMBIO AQUÍ: Se añade max:3072
+        ],
+        [
+            'ci.required' => 'El número de cédula es obligatorio',
+            'ci.unique' => 'Esta cédula ya está registrada',
+            'birth_date.required' => 'La fecha de nacimiento es obligatoria.',
+            'first_name.required' => 'El nombre es obligatorio.',
+            'image.image' => 'El archivo debe ser una imagen.',
+            'image.mimes' => 'La imagen debe tener uno de los siguientes formatos: jpeg, jpg, png, bmp, webp.',
+            'image.max' => 'La imagen no puede pesar más de 2 megabytes (MB).' // ✍️ CAMBIO AQUÍ: Mensaje personalizado para el tamaño
         ]);
         try {
             // Si envian las imágenes
@@ -90,8 +103,26 @@ class PersonController extends Controller
 
     public function update(Request $request, $id){
         $this->custom_authorize('edit_people');
+        $ci_validation_rule = 'required|string|max:255|unique:people,ci,' . $id;
+
         $request->validate([
-            'image' => 'image|mimes:jpeg,jpg,png,bmp,webp'
+            // Use the new variable here
+            'ci' => $ci_validation_rule, 
+            
+            'birth_date' => 'required|date',
+            'gender' => 'required|string|in:Masculino,Femenino',
+            'first_name' => 'required|string|max:255',
+            'image' => 'nullable|image|mimes:jpeg,jpg,png,bmp,webp|max:2048' 
+        ],
+
+        [
+            'ci.required' => 'El número de cédula es obligatorio',
+            'ci.unique' => 'Esta cédula ya está registrada',
+            'birth_date.required' => 'La fecha de nacimiento es obligatoria.',
+            'first_name.required' => 'El nombre es obligatorio.',
+            'image.image' => 'El archivo debe ser una imagen.',
+            'image.mimes' => 'La imagen debe tener uno de los siguientes formatos: jpeg, jpg, png, bmp, webp.',
+            'image.max' => 'La imagen no puede pesar más de 2 megabytes (MB).' 
         ]);
 
         DB::beginTransaction();

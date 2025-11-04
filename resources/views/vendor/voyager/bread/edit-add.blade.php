@@ -115,7 +115,7 @@
 
                         <div class="panel-footer">
                             @section('submit-buttons')
-                                <button type="submit" class="btn btn-primary save">{{ __('voyager::generic.save') }}</button>
+                                <button type="submit" class="btn btn-primary save btn-submit">{{ __('voyager::generic.save') }}</button>
                             @stop
                             @yield('submit-buttons')
                         </div>
@@ -155,7 +155,7 @@
 @stop
 
 @section('javascript')
-    <script src="{{ asset('js/btn-submit.bread.js') }}"></script>  {{-- Para desactivar el boton al guardar --}}
+    <script src="{{ asset('js/btn-submit.js') }}"></script>  {{-- Para desactivar el boton al guardar --}}
     <script>
         var params = {};
         var $file;

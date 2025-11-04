@@ -322,7 +322,8 @@
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal --> --}}
-    <form action="#" id="delete_form" method="POST">
+
+    <form action="#" class="form-edit-add" id="delete_form" method="POST">
         {{ method_field('DELETE') }}
         {{ csrf_field() }}
         <div class="modal modal-danger fade" data-backdrop="static"  id="delete_modal" role="dialog">
@@ -344,16 +345,17 @@
                         <label class="checkbox-inline">
                             <input type="checkbox" required>Confirmar eliminación..!
                         </label>
-    
+
                     </div>
                     <div class="modal-footer">
-                        <input type="submit" class="btn btn-danger pull-right delete-confirm" value="Sí, eliminar">
-                        <button type="button" class="btn btn-default pull-right" data-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-default btn-cancel" data-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger btn-submit">Sí, eliminar</button>
                     </div>
                 </div>
             </div>
         </div>
     </form>
+
 @stop
 
 @section('css')
@@ -363,6 +365,8 @@
 @stop
 
 @section('javascript')
+    <script src="{{ asset('js/btn-submit.js') }}"></script>  {{-- Para desactivar el boton al guardar --}}
+
     <!-- DataTables -->
     @if(!$dataType->server_side && config('dashboard.data_tables.responsive'))
         <script src="{{ voyager_asset('lib/js/dataTables.responsive.min.js') }}"></script>

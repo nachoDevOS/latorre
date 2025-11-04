@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('image',600)->nullable();      
             $table->text('observation')->nullable();
 
-            $table->smallInteger('status')->default(1);
+            $table->string('status')->nullable()->default('Disponible');
 
             $table->timestamps();            
             $table->foreignId('registerUser_id')->nullable()->constrained('users');

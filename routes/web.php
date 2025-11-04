@@ -11,6 +11,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\MicroServiceController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RoomController;
+use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\WhatsappController;
 
 /*
@@ -39,6 +40,10 @@ Route::get('/info/{id?}', [ErrorController::class , 'error'])->name('errors');
 
 Route::group(['prefix' => 'admin', 'middleware' => ['loggin', 'system']], function () {
     Voyager::routes();
+
+    Route::resource('services', ServiceController::class);
+
+
 
     Route::resource('cashiers', CashierController::class);
     Route::get('cashiers/list/ajax', [CashierController::class, 'list'])->name('cashiers.list');

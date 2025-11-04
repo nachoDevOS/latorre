@@ -7,7 +7,7 @@
                     <th style="text-align: center; width: 30%">Nombre</th>
                     <th style="text-align: center">Detalles</th>
                     <th style="text-align: center">Descripción</th>
-                    <th style="text-align: center; width: 5%">Estado</th>
+                    <th style="text-align: center; width: 5%">Disponibilidad</th>
                     <th style="text-align: center; width: 15%">Acciones</th>
                 </tr>
             </thead>
@@ -68,9 +68,9 @@
 
                         <td style="text-align: center">
                             @if ($item->status==1)  
-                                <label class="label label-success">Activo</label>
+                                <label class="label label-success">Disponible</label>
                             @else
-                                <label class="label label-warning">Inactivo</label>
+                                <label class="label label-danger">Ocupada</label>
                             @endif                        
                         </td>
                         <td class="no-sort no-click bread-actions text-right">

@@ -72,6 +72,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['loggin', 'system']], functi
     Route::get('rooms/{id}', [RoomController::class, 'show'])->name('voyager.rooms.show');
     Route::get('rooms/{id}/details/ajax/list', [RoomController::class, 'listDetails']);
     Route::post('rooms/{id}/detail', [RoomController::class, 'storeDetail'])->name('rooms-detail.store');
+    Route::delete('rooms/detail/{id}', [RoomController::class, 'destroyDetail'])->name('rooms-detail.destroy');
 
 
 

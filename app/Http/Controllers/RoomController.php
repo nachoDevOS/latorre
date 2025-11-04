@@ -161,4 +161,19 @@ class RoomController extends Controller
                         ->paginate($paginate);
         return view('parameters.rooms.partials.list-details', compact('data'));
     }
+
+    public function destroyDetail($id)
+    {
+        $this->custom_authorize('delete_rooms');
+        DB::beginTransaction();
+        try {
+            $room_detail = RoomDetail::find($id);
+            $room_detail->delete();
+            DB::commit();
+            return redirect()->route('voyager.rooms.show', ['id' => $room_detail->room_id])->with(['message' => 'Eliminado exitosamente', 'alert-type' => 'success']);
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return redirect()->route('voyager.rooms.show', ['id' => $room_detail->room_id])->with(['message' => $th->getMessage(), 'alert-type' => 'error']);
+        }
+    }
 }

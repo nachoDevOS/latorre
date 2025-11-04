@@ -10,23 +10,34 @@
     <div class="page-content browse container-fluid">
         @include('voyager::alerts')
         <div class="row">
-            <div class="col-md-7">
+            <div class="col-12">
                 <div class="panel details-panel">
-                    <div class="panel-heading">
-                        <h3 class="panel-title"><i class="voyager-info-circled"></i> Detalles de la Sala</h3>
+                    <div class="panel-heading bg-primary text-white text-center p-3 rounded-top">
+                        <h3 class="panel-title" style="margin: 0;"><i class="voyager-info-circled"></i> Detalles de la Sala</h3>
                     </div>
-                    <div class="panel-body">
-                        <div class="detail-item"><strong>Nombre:</strong> <span>{{ $room->name }}</span></div>
-                        <div class="detail-item"><strong>Tipo:</strong> <span>{{ $room->type }}</span></div>
-                        <div class="detail-item">
-                            <strong>Estado:</strong>
-                            @if ($room->status == 'Disponible')
-                                <span class="label label-success status-badge">Disponible</span>
-                            @else
-                                <span class="label label-danger status-badge">Ocupada</span>
-                            @endif
-                        </div>
-                        <div class="detail-item"><strong>Observación:</strong> <span>{{ $room->observation ?: 'Ninguna.' }}</span></div>
+                    <div class="panel-body p-4 shadow-sm">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div><i class="voyager-tag"></i> <strong>Nombre:</strong></div>
+                                <span>{{ $room->name }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div><i class="voyager-bookmark"></i> <strong>Tipo:</strong></div>
+                                <span>{{ $room->type }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div><i class="voyager-check-circle"></i> <strong>Estado:</strong></div>
+                                @if ($room->status == 'Disponible')
+                                    <span class="badge badge-success badge-pill text-uppercase">Disponible</span>
+                                @else
+                                    <span class="badge badge-danger badge-pill text-uppercase">Ocupada</span>
+                                @endif
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div><i class="voyager-bubble-hear"></i> <strong>Observación:</strong></div>
+                                <span>{{ $room->observation ?: 'Ninguna.' }}</span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>

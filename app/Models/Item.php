@@ -30,7 +30,7 @@ class Item extends Model
 
     public function itemCategory()
     {
-        return $this->belongsTo(itemCategory::class, 'itemCategory_id')->withTrashed();
+        return $this->belongsTo(ItemCategory::class, 'itemCategory_id')->withTrashed();
     }
 
     public function itemStocks()

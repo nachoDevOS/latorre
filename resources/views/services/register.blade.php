@@ -3,6 +3,18 @@
 @section('css')
     {{-- Enlazamos la hoja de estilos externa --}}
     <link rel="stylesheet" href="{{ asset('css/services.css') }}">
+    <style>
+        .detail-card strong {
+            font-size: 1.5rem !important; /* Aumento drástico para los títulos */
+        }
+        .detail-card span.text-muted,
+        .detail-card span.badge {
+            font-size: 1.2rem !important; /* Aumento drástico para los valores y badges */
+        }
+        .detail-card .voyager-tag, .detail-card .voyager-bookmark, .detail-card .voyager-check-circle, .detail-card .voyager-bubble-hear {
+            font-size: 1.5rem; /* Agrandar también los iconos */
+        }
+    </style>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 @endsection
 
@@ -11,33 +23,43 @@
         @include('voyager::alerts')
         <div class="row">
             <div class="col-12">
-                <div class="panel details-panel">
-                    <div class="panel-heading bg-primary text-white text-center p-3 rounded-top">
-                        <h3 class="panel-title" style="margin: 0;"><i class="voyager-info-circled"></i> Detalles de la Sala</h3>
+                <div class="panel details-panel rounded shadow-lg">
+                    <div class="panel-heading bg-primary text-white text-center p-3">
+                        <h3 class="panel-title" style="margin: 0;"><i class="voyager-info-circled me-2"></i> Detalles de la Sala</h3>
                     </div>
-                    <div class="panel-body p-4 shadow-sm">
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <div><i class="voyager-tag"></i> <strong>Nombre:</strong></div>
-                                <span>{{ $room->name }}</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <div><i class="voyager-bookmark"></i> <strong>Tipo:</strong></div>
-                                <span>{{ $room->type }}</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <div><i class="voyager-check-circle"></i> <strong>Estado:</strong></div>
-                                @if ($room->status == 'Disponible')
-                                    <span class="badge badge-success badge-pill text-uppercase">Disponible</span>
-                                @else
-                                    <span class="badge badge-danger badge-pill text-uppercase">Ocupada</span>
-                                @endif
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <div><i class="voyager-bubble-hear"></i> <strong>Observación:</strong></div>
-                                <span>{{ $room->observation ?: 'Ninguna.' }}</span>
-                            </li>
-                        </ul>
+                    <div class="panel-body p-4">
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <div class="detail-card p-3 border rounded h-100 d-flex flex-column justify-content-between">
+                                    <div><i class="voyager-tag me-2 text-primary"></i> <strong class="fw-bold">Nombre:</strong></div>
+                                    <span class="text-muted text-end">{{ $room->name }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="detail-card p-3 border rounded h-100 d-flex flex-column justify-content-between">
+                                    <div><i class="voyager-bookmark me-2 text-primary"></i> <strong class="fw-bold">Tipo:</strong></div>
+                                    <span class="text-muted text-end">{{ $room->type }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="detail-card p-3 border rounded h-100 d-flex flex-column justify-content-between">
+                                    <div><i class="voyager-check-circle me-2 text-primary"></i> <strong class="fw-bold">Estado:</strong></div>
+                                    <div class="text-end">
+                                        @if ($room->status == 'Disponible')
+                                            <span class="badge badge-success badge-pill text-uppercase">Disponible</span>
+                                        @else
+                                            <span class="badge badge-danger badge-pill text-uppercase">Ocupada</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="detail-card p-3 border rounded h-100 d-flex flex-column justify-content-between">
+                                    <div><i class="voyager-bubble-hear me-2 text-primary"></i> <strong class="fw-bold">Observación:</strong></div>
+                                    <span class="text-muted text-end">{{ $room->observation ?: 'Ninguna.' }}</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -56,7 +78,6 @@
                                 <ul class="nav nav-tabs">
                                     <li class="active"><a data-toggle="tab" href="#alquiler">Alquiler</a></li>
                                     <li><a data-toggle="tab" href="#consumo">Consumo</a></li>
-                                    <li><a data-toggle="tab" href="#notas">Notas</a></li>
                                 </ul>
 
                                 <!-- Contenido de las Pestañas -->
@@ -112,13 +133,6 @@
                                                     </tr>
                                                 </tbody>
                                             </table>
-                                        </div>
-                                    </div>
-                                    <!-- Pestaña Notas -->
-                                    <div id="notas" class="tab-pane fade">
-                                        <div class="form-group">
-                                            <label for="rental_observation">Observaciones del Alquiler (Opcional)</label>
-                                            <textarea name="observation" class="form-control" rows="4" placeholder="Ej: El cliente solicitó una silla extra..."></textarea>
                                         </div>
                                     </div>
                                 </div>

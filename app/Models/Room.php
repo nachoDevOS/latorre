@@ -27,4 +27,9 @@ class Room extends Model
         'deleteRole',
         'deleteObservation',
     ];
+
+    public function roomDetails()
+    {
+        return $this->hasMany(RoomDetail::class, 'room_id');
+    }
 }

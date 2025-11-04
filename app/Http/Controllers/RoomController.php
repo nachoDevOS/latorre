@@ -28,7 +28,8 @@ class RoomController extends Controller
         $search = request('search') ?? null;
         $paginate = request('paginate') ?? 10;
 
-        $data = Room::where(function($query) use ($search){
+        $data = Room::with(['roomDetails'])
+                        ->where(function($query) use ($search){
                             $query->WhereRaw($search ? "id = '$search'" : 1)
                             ->OrWhereRaw($search ? "type like '%$search%'" : 1)
                             ->OrWhereRaw($search ? "observation like '%$search%'" : 1)

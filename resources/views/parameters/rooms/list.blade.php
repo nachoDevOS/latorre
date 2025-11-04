@@ -5,6 +5,7 @@
                 <tr>
                     <th style="text-align: center; width: 3%">Id</th>
                     <th style="text-align: center; width: 30%">Nombre</th>
+                    <th style="text-align: center">Detalles</th>
                     <th style="text-align: center">Descripción</th>
                     <th style="text-align: center; width: 5%">Estado</th>
                     <th style="text-align: center; width: 15%">Acciones</th>
@@ -33,26 +34,37 @@
                             </div>
                         </td>
                         <td> 
-                            <p>{{ $item->observation }}</p>
-                            {{-- <table class="table table-bordered table-condensed">
+                            <table class="table table-bordered table-condensed">
                                 <thead>
                                     <tr>
-                                        <th style="font-size: 10px;">Lote</th>
-                                        <th style="font-size: 10px;">Stock</th>
-                                        <th style="font-size: 10px;">Precio</th>
+                                        <th style="font-size: 10px;">Imagen</th>
+                                        <th style="font-size: 10px;">Nombre</th>                                        
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($item->itemStocks as $itemStock)
+                                    @forelse($item->roomDetails as $roomDetail)
                                         <tr>
-                                            <td style="font-size: 10px;">{{ $itemStock->lote }}</td>
-                                            <td style="font-size: 10px;">{{ $itemStock->stock }}</td>
-                                            <td style="font-size: 10px;">{{ $itemStock->priceSale }}</td>
+                                            <td style="text-align: center">
+                                                @if ($roomDetail->image)
+                                                    <img src="{{ asset('storage/'.$roomDetail->image) }}" class="image-expandable"style="width: 30px; height: 30px; object-fit: cover; border-radius: 5px; border: 1px solid #ddd;">
+                                                @else
+                                                    <img src="{{ asset('images/default.jpg') }}" style="width: 30px; height: 30px; object-fit: cover; border-radius: 5px; border: 1px solid #ddd;">
+                                                @endif
+                                            </td>
+                                            <td style="font-size: 10px;">{{ $roomDetail->name }}</td>                                            
                                         </tr>
-                                    @endforeach
+                                    @empty
+                                        <tr>
+                                            <td colspan="3" class="text-center">No hay detalles registrados</td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
-                            </table> --}}
+                            </table>
                         </td>
+                        <td> 
+                            <p>{{ $item->observation }}</p>
+                        </td>
+
 
                         <td style="text-align: center">
                             @if ($item->status==1)  

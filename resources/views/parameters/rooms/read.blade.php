@@ -8,7 +8,7 @@
         <a href="{{ route('voyager.rooms.index') }}" class="btn btn-warning">
             <span class="glyphicon glyphicon-list"></span>&nbsp;
             Volver a la lista
-        </a> 
+        </a>
     </h1>
 @stop
 
@@ -45,7 +45,7 @@
                             </div>
                             <hr style="margin:0;">
                         </div>
-                    </div>                    
+                    </div>
                 </div>
             </div>
         </div>
@@ -62,12 +62,12 @@
                             </div>
                             <div class="col-sm-6 text-right">
                                 @if (auth()->user()->hasPermission('browse_items'))
-                                    <button class="btn btn-success"                                      
+                                    <button class="btn btn-success"
                                         data-target="#modal-register-stock" data-toggle="modal" data-toggle="modal" style="margin: 0px">
-                                        <i class="fa-solid fa-plus"></i> Agregar                                  
-                                    </button>       
-                                @endif                         
-                            </div>  
+                                        <i class="fa-solid fa-plus"></i> Agregar
+                                    </button>
+                                @endif
+                            </div>
                         </div>
 
                         <div class="row">
@@ -81,7 +81,7 @@
                                     </select> registros</label>
                                 </div>
                             </div>
-                           
+
                         </div>
                         <div class="row" id="div-results" style="min-height: 120px"></div>
 
@@ -89,40 +89,10 @@
                 </div>
             </div>
         </div>
-        
-        {{-- <div class="row">
-            <div class="col-md-12">
-                <div class="panel panel-bordered">
-                    <div class="panel-body">
-                        <div class="row">
-                            <div class="col-sm-8">
-                                <h4>
-                                    Historial de Ventas
-                                </h4>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-sm-7">
-                                <div class="dataTables_length" id="dataTable_length">
-                                    <label>Mostrar <select id="select-paginate-sales" class="form-control input-sm">
-                                        <option value="10">10</option>
-                                        <option value="25">25</option>
-                                        <option value="50">50</option>
-                                        <option value="100">100</option>
-                                    </select> registros</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row" id="div-results-sales" style="min-height: 120px"></div>
-                    </div>
-                </div>
-            </div>
-        </div> --}}
     </div>
 
 
-    <form action="{{ route('rooms-detail.store', ['id' => $room->id]) }}" class="form-submit" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('rooms-detail.store', ['id' => $room->id]) }}" class="form-edit-add" method="POST" enctype="multipart/form-data">
         <div class="modal fade" data-backdrop="static" id="modal-register-stock" role="dialog">
             <div class="modal-dialog modal-success">
                 <div class="modal-content">
@@ -148,20 +118,40 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-                        <input type="submit" class="btn btn-success btn-form-submit" value="Guardar">
+                        <button type="button" class="btn btn-default btn-cancel" data-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success btn-submit">Guardar</button>
                     </div>
                 </div>
             </div>
         </div>
     </form>
     @include('partials.modal-delete')
-    
+
 @stop
 
 @section('css')
     <style>
-
+        .panel-actions .voyager-trash {
+            cursor: pointer;
+        }
+        .panel-actions .voyager-trash:hover {
+            color: #e94542;
+        }
+        .panel-body {
+            padding: 20px;
+        }
+        .panel-heading {
+            padding: 15px 20px;
+            border-bottom: 1px solid #f4f4f4;
+        }
+        .panel-title {
+            margin: 0;
+            font-size: 18px;
+        }
+        .panel-bordered {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
     </style>
 @stop
 
@@ -195,5 +185,5 @@
             $('#delete_form').attr('action', url);
         }
     </script>
-    
+
 @stop

@@ -13,7 +13,7 @@
             <div class="col-md-7">
                 <div class="panel details-panel">
                     <div class="panel-heading">
-                        <h3 class="panel-title"><i class="voyager-info-circled panel-title-icon"></i> Detalles de la Sala</h3>
+                        <h3 class="panel-title"><i class="voyager-info-circled"></i> Detalles de la Sala</h3>
                     </div>
                     <div class="panel-body">
                         <div class="detail-item"><strong>Nombre:</strong> <span>{{ $room->name }}</span></div>
@@ -31,111 +31,121 @@
                 </div>
             </div>
             <div class="col-md-5">
-                <div class="panel action-panel">
-                    <div class="panel-heading">
-                        <h3 class="panel-title"><i class="voyager-activity panel-title-icon"></i> Acciones de Alquiler</h3>
-                    </div>
-                    <div class="panel-body">
-                        @if ($room->status == 'Disponible')
-                            {{-- FORMULARIO PARA INICIAR ALQUILER --}}
-                            <h4>Iniciar Nuevo Alquiler</h4>
-                            <p>La sala está libre. Completa los datos para iniciar un nuevo servicio.</p>
+                @if ($room->status == 'Disponible')
+                    {{-- PANEL PARA INICIAR UN NUEVO ALQUILER --}}
+                    <div class="panel action-panel">
+                        <div class="panel-heading"><h3 class="panel-title"><i class="voyager-play"></i> Iniciar Nuevo Alquiler</h3></div>
+                        <div class="panel-body">
                             <form action="{{ route('services.rental.start') }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="room_id" value="{{ $room->id }}">
-                                <div class="form-group">
-                                        <label for="person_id">Cliente</label>
-                                        <div class="input-group">
-                                            <select name="person_id" id="select-person_id" class="form-control"></select>
-                                            <span class="input-group-btn">
-                                                <button id="trash-person" class="btn btn-default" title="Quitar Cliente"
-                                                    style="margin: 0px" type="button">
-                                                    <i class="voyager-trash"></i>
-                                                </button>
-                                                <button class="btn btn-primary" title="Nuevo cliente"
-                                                    data-target="#modal-create-person" data-toggle="modal" style="margin: 0px"
-                                                    type="button">
-                                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                                                </button>
-                                            </span>
-                                        </div>
-                                    </div>
-                                <div class="form-group">
-                                    <label for="start_time">Hora de Inicio</label>
-                                    <input type="time" name="start_time" id="start_time" class="form-control" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="end_time">Hora Fin (opcional)</label>
-                                    <input type="time" name="end_time" id="end_time" class="form-control">
-                                    <small class="form-text text-muted">Dejar vacío para alquiler por hora (sin tiempo fijo).</small>
-                                </div>
-                                {{-- Campo oculto para el tipo de alquiler, se actualizará con JavaScript --}}
                                 <input type="hidden" name="rental_type" id="hidden_rental_type" value="por_hora">
 
-                                {{-- SECCIÓN PARA AÑADIR PRODUCTOS --}}
-                                <fieldset class="products-fieldset">
-                                    <legend><i class="voyager-basket"></i> Añadir Productos (Opcional)</legend>
-                                    <div class="form-group">
-                                            <label for="product_id">Buscar producto</label>
+                                <!-- Pestañas de Navegación -->
+                                <ul class="nav nav-tabs">
+                                    <li class="active"><a data-toggle="tab" href="#alquiler">Alquiler</a></li>
+                                    <li><a data-toggle="tab" href="#consumo">Consumo</a></li>
+                                    <li><a data-toggle="tab" href="#notas">Notas</a></li>
+                                </ul>
+
+                                <!-- Contenido de las Pestañas -->
+                                <div class="tab-content">
+                                    <!-- Pestaña Alquiler -->
+                                    <div id="alquiler" class="tab-pane fade in active">
+                                        <div class="form-group">
+                                            <label for="person_id">Cliente</label>
+                                            <div class="input-group">
+                                                <select name="person_id" id="select-person_id" class="form-control"></select>
+                                                <span class="input-group-btn">
+                                                    <button id="trash-person" class="btn btn-default" title="Quitar Cliente" style="margin: 0px" type="button">
+                                                        <i class="voyager-trash"></i>
+                                                    </button>
+                                                    <button class="btn btn-primary" title="Nuevo cliente" data-target="#modal-create-person" data-toggle="modal" style="margin: 0px" type="button">
+                                                        <i class="voyager-plus"></i>
+                                                    </button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="start_time">Hora de Inicio</label>
+                                            <input type="time" name="start_time" id="start_time" class="form-control" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="end_time">Hora Fin (opcional)</label>
+                                            <input type="time" name="end_time" id="end_time" class="form-control">
+                                            <small class="form-text text-muted">Dejar vacío para alquiler por hora.</small>
+                                        </div>
+                                    </div>
+                                    <!-- Pestaña Consumo -->
+                                    <div id="consumo" class="tab-pane fade">
+                                        <div class="form-group">
+                                            <label for="product_id">Buscar y añadir producto</label>
                                             <select class="form-control" id="select-product_id"></select>
                                         </div>
-                                        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-                                            <table id="dataTable" class="table table-bordered table-hover">
+                                        <div class="table-responsive">
+                                            <table id="dataTable" class="table table-hover table-products">
                                                 <thead>
                                                     <tr>
-                                                        <th style="width: 30px">N&deg;</th>
-                                                        <th>Detalles</th>
-                                                        <th style="text-align: center; width:15%">Precio</th>
-                                                        <th style="text-align: center; width:12%">Cantidad</th>
-                                                        <th style="width: 30px"></th>
+                                                        <th>Producto</th>
+                                                        <th class="text-center" style="width: 100px;">Precio</th>
+                                                        <th class="text-center" style="width: 100px;">Cantidad</th>
+                                                        <th style="width: 50px;"></th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="table-body">
                                                     <tr id="tr-empty">
-                                                        <td colspan="5">
-                                                            <div class="empty-cart-message">
-                                                                <i class="glyphicon glyphicon-shopping-cart"></i>
-                                                                <h4 class="text-muted">
-                                                                Lista de venta vacía
-                                                                </h4>
-                                                            </div>
+                                                        <td colspan="4" class="empty-cart-message">
+                                                            <i class="voyager-basket"></i>
+                                                            <p>El carrito de consumo está vacío.</p>
                                                         </td>
                                                     </tr>
                                                 </tbody>
                                             </table>
                                         </div>
-                                </fieldset>
-                                {{-- FIN SECCIÓN PRODUCTOS --}}
+                                    </div>
+                                    <!-- Pestaña Notas -->
+                                    <div id="notas" class="tab-pane fade">
+                                        <div class="form-group">
+                                            <label for="rental_observation">Observaciones del Alquiler (Opcional)</label>
+                                            <textarea name="observation" class="form-control" rows="4" placeholder="Ej: El cliente solicitó una silla extra..."></textarea>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <button type="submit" class="btn btn-success btn-action"><i class="voyager-play"></i> Iniciar Alquiler</button>
                             </form>
-                        @else
-                            {{-- VISTA DE ALQUILER ACTIVO --}}
-                            <h4>Alquiler en Curso</h4>
-                            <p>Esta sala se encuentra actualmente ocupada.</p>
-                            
-                            <div class="detail-item">
-                                <strong>Cliente:</strong> 
-                                <span>{{ $activeRental->customer_name ?: 'No especificado' }}</span>
+                        </div>
+                    </div>
+                @else
+                    {{-- PANEL PARA UN ALQUILER ACTIVO --}}
+                    <div class="panel action-panel">
+                        <div class="panel-heading"><h3 class="panel-title"><i class="voyager-activity"></i> Alquiler en Curso</h3></div>
+                        <div class="panel-body">
+                            <div class="active-rental-info">
+                                <div class="info-block">
+                                    <small>Cliente</small>
+                                    <p><i class="voyager-person"></i> {{ $activeRental->customer_name ?: 'No especificado' }}</p>
+                                </div>
+                                <div class="info-block">
+                                    <small>Hora de Inicio</small>
+                                    <p><i class="voyager-watch"></i> {{ \Carbon\Carbon::parse($activeRental->start_time)->format('h:i A') }}</p>
+                                </div>
                             </div>
 
-                            <div class="detail-item">
-                                <strong>Tipo de Alquiler:</strong> 
-                                <span>{{ $activeRental->rental_type == 'por_hora' ? 'Por Hora' : 'Tiempo Fijo' }}</span>
-                            </div>
-
-                            
-
-
-
-                            <div class="detail-item">
-                                <strong>Inicio:</strong>
-                                <span>{{ \Carbon\Carbon::parse($activeRental->start_time)->format('h:i A') }}</span>
-                            </div>
-
-                            <div class="text-center">
-                                <label><strong>Tiempo Transcurrido</strong></label>
+                            <div class="timer-container">
+                                <label>Tiempo en Sala</label>
                                 <div id="timer" class="timer-display">00:00:00</div>
+                            </div>
+
+                            {{-- Aquí podrías mostrar los productos consumidos si los guardas en la BD --}}
+                            <div class="consumed-products">
+                                <h5><i class="voyager-basket"></i> Consumo Registrado</h5>
+                                <ul class="consumed-list">
+                                    {{-- Ejemplo, esto debería venir de la base de datos --}}
+                                    <li><span class="product-name">Gaseosa 2L</span> <span class="product-details">1 x 15.00 Bs.</span></li>
+                                    <li><span class="product-name">Papas Fritas</span> <span class="product-details">2 x 10.00 Bs.</span></li>
+                                    <li class="text-center text-muted" style="display: none;">No hay productos consumidos.</li>
+                                </ul>
                             </div>
 
                             <form action="#" method="POST"> {{-- TODO: Cambiar a la ruta correcta --}}
@@ -143,11 +153,12 @@
                                 <input type="hidden" name="room_id" value="{{ $room->id }}">
                                 <button type="submit" class="btn btn-danger btn-action"><i class="voyager-stop"></i> Finalizar y Cobrar</button>
                             </form>
-                        @endif
-                        <hr>
-                        <a href="{{ route('services.index') }}" class="btn btn-default btn-block"><i class="voyager-angle-left"></i> Volver a la lista</a>
+                        </div>
                     </div>
-                </div>
+                @endif
+
+                {{-- Botón para volver, ahora fuera de los paneles condicionales para estar siempre visible --}}
+                <a href="{{ route('services.index') }}" class="btn-back"><i class="voyager-angle-left"></i> Volver a la lista de salas</a>
             </div>
         </div>
     </div>
@@ -274,27 +285,21 @@
 
                         if ($('.table').find(`#tr-item-${product.id}`).length === 0) {
                             $('#table-body').append(`
-                                <tr class="tr-item" id="tr-item-${product.id}">
-                                    <td class="td-item"></td>
+                                <tr class="tr-item" id="tr-item-${product.id}" data-id="${product.id}">
                                     <td>
                                         <input type="hidden" name="products[${product.id}][id]" value="${product.id}"/>
-                                        <div style="display: flex; align-items: center;">
-                                            <div style="margin-right: 10px; flex-shrink: 0;">
-                                                <img src="${image}" width="50px" style="border-radius: 4px;"/>
-                                            </div>
-                                            <div style="line-height: 1.2;">
-                                                <div style="font-size: 13px; font-weight: bold;">${product.item.name}</div>
-                                                <small><b>Marca:</b> ${product.item.brand.name}</small>
-                                            </div>
+                                        <div style="font-weight: 500;">${product.item.name}</div>
+                                        <small>${product.item.brand.name}</small>
+                                    </td>
+                                    <td class="text-center" style="vertical-align: middle;">
+                                        <input type="number" name="products[${product.id}][price]" step="0.1" min="0.1" class="form-control input-sm text-right" value="${product.priceSale}" required/>
+                                    </td>
+                                    <td class="text-center" style="vertical-align: middle;">
+                                        <div class="input-group" style="max-width: 100px; margin: auto;">
+                                            <input type="number" name="products[${product.id}][quantity]" step="1" min="1" class="form-control input-sm text-right" value="1" max="${product.stock}" required/>
                                         </div>
                                     </td>
-                                    <td width="100px" style="vertical-align: middle;">
-                                        <input type="number" name="products[${product.id}][price]" step="0.1" min="0.1" style="text-align: right" class="form-control" value="${product.priceSale}" required/>
-                                    </td>
-                                    <td width="100px" style="vertical-align: middle;">
-                                        <input type="number" name="products[${product.id}][quantity]" step="1" min="1" style="text-align: right" class="form-control" value="1" max="${product.stock}" required/>
-                                    </td>
-                                    <td width="50px" class="text-right" style="vertical-align: middle;">
+                                    <td class="text-center" style="vertical-align: middle;">
                                         <button type="button" onclick="removeTr(${product.id})" class="btn btn-link"><i class="voyager-trash text-danger"></i></button>
                                     </td>
                                 </tr>
@@ -310,12 +315,7 @@
             });
 
             function setNumber() {
-                var length = 0;
-                $(".td-item").each(function(index) {
-                    $(this).text(index + 1);
-                    length++;
-                });
-                $('#tr-empty').css('display', length > 0 ? 'none' : 'table-row');
+                $('#tr-empty').toggle($('.tr-item').length === 0);
             }
 
             function removeTr(id) {

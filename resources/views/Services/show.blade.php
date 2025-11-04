@@ -208,12 +208,17 @@
                                         </div>
                                     </div>
                                 <div class="form-group">
-                                    <label for="rental_type">Tipo de Alquiler</label>
-                                    <select name="rental_type" id="rental_type" class="form-control">
-                                        <option value="por_hora">Por Hora</option>
-                                        <option value="tiempo_fijo">Tiempo Fijo</option>
-                                    </select>
+                                    <label for="start_time">Hora de Inicio</label>
+                                    <input type="time" name="start_time" id="start_time" class="form-control" required>
                                 </div>
+                                <div class="form-group">
+                                    <label for="end_time">Hora Fin (opcional)</label>
+                                    <input type="time" name="end_time" id="end_time" class="form-control">
+                                    <small class="form-text text-muted">Dejar vacío para alquiler por hora (sin tiempo fijo).</small>
+                                </div>
+                                {{-- Campo oculto para el tipo de alquiler, se actualizará con JavaScript --}}
+                                <input type="hidden" name="rental_type" id="hidden_rental_type" value="por_hora">
+
                                 <button type="submit" class="btn btn-success btn-action"><i class="voyager-play"></i> Iniciar Alquiler</button>
                             </form>
                         @else
@@ -224,6 +229,11 @@
                             <div class="detail-item">
                                 <strong>Cliente:</strong> 
                                 <span>{{ $activeRental->customer_name ?: 'No especificado' }}</span>
+                            </div>
+
+                            <div class="detail-item">
+                                <strong>Tipo de Alquiler:</strong> 
+                                <span>{{ $activeRental->rental_type == 'por_hora' ? 'Por Hora' : 'Tiempo Fijo' }}</span>
                             </div>
 
                             
@@ -292,6 +302,32 @@
             });
         @endif
 
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const startTimeInput = document.getElementById('start_time');
+            const endTimeInput = document.getElementById('end_time');
+            const hiddenRentalTypeInput = document.getElementById('hidden_rental_type');
+
+            // Set current time for start_time input
+            const now = new Date();
+            const currentHours = now.getHours().toString().padStart(2, '0');
+            const currentMinutes = now.getMinutes().toString().padStart(2, '0');
+            startTimeInput.value = `${currentHours}:${currentMinutes}`;
+
+            // Update hidden rental_type based on end_time
+            function updateRentalType() {
+                if (endTimeInput.value) {
+                    hiddenRentalTypeInput.value = 'tiempo_fijo';
+                } else {
+                    hiddenRentalTypeInput.value = 'por_hora';
+                }
+            }
+
+            // Listen for changes on end_time
+            endTimeInput.addEventListener('change', updateRentalType);
+            endTimeInput.addEventListener('keyup', updateRentalType); // For manual typing
+            updateRentalType(); // Initial call in case there's a pre-filled value (though unlikely for new rental)
+        });
 
         $('#trash-person').on('click', function() {
             // $('#input-dni').val('');

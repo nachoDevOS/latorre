@@ -125,7 +125,7 @@ class DataTypesTableSeeder extends Seeder
                 'server_side' => 0,
                 'details' => '{"order_column":null,"order_display_column":null,"order_direction":"asc","default_search_key":null,"scope":null}',
                 'created_at' => '2025-04-07 09:43:00',
-                'updated_at' => '2025-04-07 10:25:25',
+                'updated_at' => '2025-11-04 11:15:23',
             ),
             6 => 
             array (
@@ -180,6 +180,24 @@ class DataTypesTableSeeder extends Seeder
                 'details' => '{"order_column":null,"order_display_column":null,"order_direction":"asc","default_search_key":null,"scope":null}',
                 'created_at' => '2025-11-04 00:10:57',
                 'updated_at' => '2025-11-04 00:14:53',
+            ),
+            9 => 
+            array (
+                'id' => 12,
+                'name' => 'rooms',
+                'slug' => 'rooms',
+                'display_name_singular' => 'Sala',
+                'display_name_plural' => 'Salas',
+                'icon' => 'fa-solid fa-gamepad',
+                'model_name' => 'App\\Models\\Room',
+                'policy_name' => NULL,
+                'controller' => NULL,
+                'description' => NULL,
+                'generate_permissions' => 1,
+                'server_side' => 0,
+                'details' => '{"order_column":null,"order_display_column":null,"order_direction":"asc","default_search_key":null,"scope":null}',
+                'created_at' => '2025-11-04 11:15:12',
+                'updated_at' => '2025-11-04 12:25:24',
             ),
         ));
         

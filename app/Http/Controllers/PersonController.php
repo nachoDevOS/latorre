@@ -126,9 +126,7 @@ class PersonController extends Controller
         ]);
 
         DB::beginTransaction();
-        try {
-            $storageController = new StorageController();
-            
+        try {            
             $person = Person::find($id);
             $person->ci = $request->ci;
             $person->birth_date = $request->birth_date;

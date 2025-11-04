@@ -30,6 +30,7 @@ class PermissionRoleTableSeeder extends Seeder
 
                                             table_name = "item_categories" or 
                                             table_name = "items" or 
+                                            table_name = "rooms" or 
                                             table_name = "cashiers" or 
                                             table_name = "category_expenses" or
 

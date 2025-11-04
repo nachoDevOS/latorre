@@ -33,10 +33,10 @@ class Item extends Model
         return $this->belongsTo(itemCategory::class, 'itemCategory_id')->withTrashed();
     }
 
-    // public function itemSalestocks()
-    // {
-    //     return $this->hasMany(ItemSaleStock::class, 'itemSale_id');
-    // }
+    public function itemStocks()
+    {
+        return $this->hasMany(ItemStock::class, 'item_id');
+    }
 
     // /**
     //  * Un producto puede estar en muchos detalles de venta.

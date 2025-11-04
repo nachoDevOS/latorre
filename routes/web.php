@@ -7,8 +7,10 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AjaxController;
 use App\Http\Controllers\CashierController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\ItemController;
 use App\Http\Controllers\MicroServiceController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\RoomController;
 use App\Http\Controllers\WhatsappController;
 
 /*
@@ -51,6 +53,23 @@ Route::group(['prefix' => 'admin', 'middleware' => ['loggin', 'system']], functi
     Route::get('cashiers/print/open/{id?}', [CashierController::class, 'print_open'])->name('print.open');//para imprimir el comprobante cuando se abre una caja
     Route::get('cashiers/print/close/{id?}', [CashierController::class, 'print_close'])->name('print.close');//Para imprimir cierre de caja
     Route::get('cashiers/{id}/print', [CashierController::class, 'print'])->name('cashiers.print');//Para el cierre pendiente de caja por el cajero
+
+
+    Route::get('items', [ItemController::class, 'index'])->name('voyager.items.index');
+    Route::get('items/ajax/list', [ItemController::class, 'list']);
+    Route::post('items', [ItemController::class, 'store'])->name('voyager.items.store');
+    Route::put('items/{id}', [ItemController::class, 'update'])->name('voyager.items.update');
+    Route::get('items/{id}', [ItemController::class, 'show'])->name('voyager.items.show');
+    Route::get('items/{id}/stock/ajax/list', [ItemController::class, 'listStock']);
+    Route::get('items/{id}/sales/ajax/list', [ItemController::class, 'listSales']);
+    Route::post('items/{id}/stock', [ItemController::class, 'storeStock'])->name('items-stock.store');
+    Route::delete('items/{id}/stock/{stock}', [ItemController::class, 'destroyStock'])->name('items-stock.destroy');
+
+    Route::get('rooms', [RoomController::class, 'index'])->name('voyager.rooms.index');
+    Route::get('rooms/ajax/list', [RoomController::class, 'list']);
+    Route::post('rooms', [RoomController::class, 'store'])->name('voyager.rooms.store');
+    Route::put('rooms/{id}', [RoomController::class, 'update'])->name('voyager.rooms.update');
+
 
 
     Route::resource('expeses', ExpenseController::class);

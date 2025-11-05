@@ -209,6 +209,24 @@
                                     <strong class="amount" id="summary-total">0.00 Bs.</strong>
                                 </div>
                             </div>
+                            <div class="form-group">
+                                <label for="payment_method">Método de Pago</label>
+                                <select name="payment_method" id="payment_method" class="form-control">
+                                    <option value="efectivo">Efectivo</option>
+                                    <option value="qr">QR</option>
+                                    <option value="ambos">Ambos</option>
+                                </select>
+                            </div>
+                            <div id="payment-details" style="display: none;">
+                                <div class="form-group">
+                                    <label for="amount_efectivo">Monto en Efectivo</label>
+                                    <input type="number" name="amount_efectivo" id="amount_efectivo" class="form-control" step="0.01" min="0" placeholder="0.00">
+                                </div>
+                                <div class="form-group">
+                                    <label for="amount_qr">Monto con QR</label>
+                                    <input type="number" name="amount_qr" id="amount_qr" class="form-control" step="0.01" min="0" placeholder="0.00">
+                                </div>
+                            </div>
                             <button type="submit" class="btn btn-success btn-block btn-action"><i class="voyager-play"></i> Iniciar Alquiler</button>
                         </div>
                     </div>
@@ -414,6 +432,25 @@
         $(document).ready(function() {
             $('#amount').on('keyup change', updateTotalSummaries);
             updateTotalSummaries();
+
+            $('#payment_method').on('change', function() {
+                if ($(this).val() === 'ambos') {
+                    $('#payment-details').show();
+                } else {
+                    $('#payment-details').hide();
+                }
+            });
+
+            $('#amount_efectivo, #amount_qr').on('keyup change', function() {
+                let total = parseFloat($('#summary-total').text().replace(' Bs.', '')) || 0;
+                let efectivo = parseFloat($('#amount_efectivo').val()) || 0;
+                let qr = parseFloat($('#amount_qr').val()) || 0;
+
+                if ((efectivo + qr) > total) {
+                    toastr.warning('El monto ingresado no puede ser mayor al total.', 'Monto excedido', {timeOut: 500});
+                    $(this).val('');
+                }
+            });
         });
     </script>
 @endsection

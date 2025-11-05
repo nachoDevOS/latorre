@@ -63,127 +63,82 @@
                     </div>
                 </div>
             </div>
-            @if ($room->status == 'Disponible')
-                <form action="{{ route('services.rental.start') }}" method="POST">
-                    @csrf
-                    <input type="hidden" name="room_id" value="{{ $room->id }}">
-                    <input type="hidden" name="rental_type" id="hidden_rental_type" value="por_hora">
+            <form action="{{ route('services.rental.start') }}" method="POST">
+                @csrf
+                <input type="hidden" name="room_id" value="{{ $room->id }}">
+                <input type="hidden" name="rental_type" id="hidden_rental_type" value="por_hora">
 
-                    <div class="col-md-6">
-                        {{-- PANEL PARA EL CARRITO DE CONSUMO --}}
-                        <div class="panel action-panel">
-                            <div class="panel-heading"><h3 class="panel-title"><i class="voyager-basket"></i> Consumo</h3></div>
-                            <div class="panel-body">
-                                <div class="form-group">
-                                    <label for="product_id">Buscar y añadir producto</label>
-                                    <select class="form-control" id="select-product_id"></select>
-                                </div>
-                                <div class="table-responsive">
-                                    <table id="dataTable" class="table table-hover table-products">
-                                        <thead>
-                                            <tr>
-                                                <th style="width: 30px">N&deg;</th>
-                                                <th>Detalles</th>
-                                                <th style="text-align: center; width:15%">Precio</th>
-                                                <th style="text-align: center; width:12%">Cantidad</th>
-                                                <th style="text-align: center; width:10%">Subtotal</th>
-                                                <th style="width: 30px"></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="table-body">
-                                            <tr id="tr-empty">
-                                                <td colspan="6" style="height: 320px">
-                                                    <h4 class="text-center text-muted" style="margin-top: 50px">
-                                                        <i class="glyphicon glyphicon-shopping-cart"
-                                                            style="font-size: 50px"></i> <br><br>
-                                                        Lista de venta vacía
-                                                    </h4>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        {{-- PANEL PARA INICIAR UN NUEVO ALQUILER --}}
-                        <div class="panel action-panel">
-                            <div class="panel-heading"><h3 class="panel-title"><i class="voyager-play"></i> Iniciar Nuevo Alquiler</h3></div>
-                            <div class="panel-body">
-                                <div class="form-group">
-                                    <label for="person_id">Cliente</label>
-                                    <div class="input-group">
-                                        <select name="person_id" id="select-person_id" class="form-control"></select>
-                                        <span class="input-group-btn">
-                                            <button id="trash-person" class="btn btn-default" title="Quitar Cliente" style="margin: 0px" type="button">
-                                                <i class="voyager-trash"></i>
-                                            </button>
-                                            <button class="btn btn-primary" title="Nuevo cliente" data-target="#modal-create-person" data-toggle="modal" style="margin: 0px" type="button">
-                                                <i class="voyager-plus"></i>
-                                            </button>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="start_time">Hora de Inicio</label>
-                                    <input type="time" name="start_time" id="start_time" class="form-control" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="end_time">Hora Fin (opcional)</label>
-                                    <input type="time" name="end_time" id="end_time" class="form-control">
-                                    <small class="form-text text-muted">Dejar vacío para alquiler por hora.</small>
-                                </div>
-                                <button type="submit" class="btn btn-success btn-block btn-action"><i class="voyager-play"></i> Iniciar Alquiler</button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            @else
-                <div class="col-md-5">
-                    {{-- PANEL PARA UN ALQUILER ACTIVO --}}
+                <div class="col-md-6">
+                    {{-- PANEL PARA EL CARRITO DE CONSUMO --}}
                     <div class="panel action-panel">
-                        <div class="panel-heading"><h3 class="panel-title"><i class="voyager-activity"></i> Alquiler en Curso</h3></div>
+                        <div class="panel-heading"><h3 class="panel-title"><i class="voyager-basket"></i> Consumo</h3></div>
                         <div class="panel-body">
-                            <div class="active-rental-info">
-                                <div class="info-block">
-                                    <small>Cliente</small>
-                                    <p><i class="voyager-person"></i> {{ $activeRental->customer_name ?: 'No especificado' }}</p>
-                                </div>
-                                <div class="info-block">
-                                    <small>Hora de Inicio</small>
-                                    <p><i class="voyager-watch"></i> {{ \Carbon\Carbon::parse($activeRental->start_time)->format('h:i A') }}</p>
-                                </div>
+                            <div class="form-group">
+                                <label for="product_id">Buscar y añadir producto</label>
+                                <select class="form-control" id="select-product_id"></select>
                             </div>
-
-                            <div class="timer-container">
-                                <label>Tiempo en Sala</label>
-                                <div id="timer" class="timer-display">00:00:00</div>
+                            <div class="table-responsive">
+                                <table id="dataTable" class="table table-hover table-products">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 30px">N&deg;</th>
+                                            <th>Detalles</th>
+                                            <th style="text-align: center; width:15%">Precio</th>
+                                            <th style="text-align: center; width:12%">Cantidad</th>
+                                            <th style="text-align: center; width:10%">Subtotal</th>
+                                            <th style="width: 30px"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="table-body">
+                                        <tr id="tr-empty">
+                                            <td colspan="6" style="height: 320px">
+                                                <h4 class="text-center text-muted" style="margin-top: 50px">
+                                                    <i class="glyphicon glyphicon-shopping-cart"
+                                                        style="font-size: 50px"></i> <br><br>
+                                                    Lista de venta vacía
+                                                </h4>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
-
-                            {{-- Aquí podrías mostrar los productos consumidos si los guardas en la BD --}}
-                            <div class="consumed-products">
-                                <h5><i class="voyager-basket"></i> Consumo Registrado</h5>
-                                <ul class="consumed-list">
-                                    {{-- Ejemplo, esto debería venir de la base de datos --}}
-                                    <li><span class="product-name">Gaseosa 2L</span> <span class="product-details">1 x 15.00 Bs.</span></li>
-                                    <li><span class="product-name">Papas Fritas</span> <span class="product-details">2 x 10.00 Bs.</span></li>
-                                    <li class="text-center text-muted" style="display: none;">No hay productos consumidos.</li>
-                                </ul>
-                            </div>
-
-                            <form action="#" method="POST"> {{-- TODO: Cambiar a la ruta correcta --}}
-                                @csrf
-                                <input type="hidden" name="room_id" value="{{ $room->id }}">
-                                <button type="submit" class="btn btn-danger btn-action"><i class="voyager-stop"></i> Finalizar y Cobrar</button>
-                            </form>
                         </div>
                     </div>
-                    {{-- Botón para volver, ahora fuera de los paneles condicionales para estar siempre visible --}}
-                    <a href="{{ route('services.index') }}" class="btn-back"><i class="voyager-angle-left"></i> Volver a la lista de salas</a>
                 </div>
-            @endif
+
+                <div class="col-md-6">
+                    {{-- PANEL PARA INICIAR UN NUEVO ALQUILER --}}
+                    <div class="panel action-panel">
+                        <div class="panel-heading"><h3 class="panel-title"><i class="voyager-play"></i> Iniciar Nuevo Alquiler</h3></div>
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label for="person_id">Cliente</label>
+                                <div class="input-group">
+                                    <select name="person_id" id="select-person_id" class="form-control"></select>
+                                    <span class="input-group-btn">
+                                        <button id="trash-person" class="btn btn-default" title="Quitar Cliente" style="margin: 0px" type="button">
+                                            <i class="voyager-trash"></i>
+                                        </button>
+                                        <button class="btn btn-primary" title="Nuevo cliente" data-target="#modal-create-person" data-toggle="modal" style="margin: 0px" type="button">
+                                            <i class="voyager-plus"></i>
+                                        </button>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="start_time">Hora de Inicio</label>
+                                <input type="time" name="start_time" id="start_time" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="end_time">Hora Fin (opcional)</label>
+                                <input type="time" name="end_time" id="end_time" class="form-control">
+                                <small class="form-text text-muted">Dejar vacío para alquiler por hora.</small>
+                            </div>
+                            <button type="submit" class="btn btn-success btn-block btn-action"><i class="voyager-play"></i> Iniciar Alquiler</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -192,49 +147,12 @@
 @endsection
 
 @section('javascript')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/locale/es.min.js"></script>
     <script src="{{ asset('vendor/tippy/popper.min.js') }}"></script>
     <script src="{{ asset('vendor/tippy/tippy-bundle.umd.min.js') }}"></script>
 
     <script src="{{ asset('js/include/person-select.js') }}"></script>
     <script src="{{ asset('js/include/person-register.js') }}"></script>
     <script>
-        // Solo ejecutar el script si la sala está ocupada
-        @if ($room->status == 'Ocupada' && $activeRental)
-            document.addEventListener('DOMContentLoaded', function () {
-                const timerDisplay = document.getElementById('timer');
-                
-                // Obtenemos la hora de inicio desde PHP y la convertimos a milisegundos para JavaScript
-                const startTime = new Date('{{ $activeRental->start_time }}').getTime();
-
-                function updateTimer() {
-                    if (timerDisplay) {
-                        const now = new Date().getTime();
-                        const elapsedTime = now - startTime;
-
-                        const hours = Math.floor((elapsedTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                        const minutes = Math.floor((elapsedTime % (1000 * 60 * 60)) / (1000 * 60));
-                        const seconds = Math.floor((elapsedTime % (1000 * 60)) / 1000);
-
-                        // Formatear para que siempre tengan dos dígitos
-                        const formattedHours = hours.toString().padStart(2, '0');
-                        const formattedMinutes = minutes.toString().padStart(2, '0');
-                        const formattedSeconds = seconds.toString().padStart(2, '0');
-
-                        timerDisplay.textContent = `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
-                    }
-                }
-
-                if (timerDisplay) {
-                    // Actualizar el cronómetro cada segundo
-                    const timerInterval = setInterval(updateTimer, 1000);
-                    updateTimer(); // Llamada inicial para que no espere 1 segundo en mostrarse
-                }
-            });
-        @endif
-
-
         document.addEventListener('DOMContentLoaded', function() {
             const startTimeInput = document.getElementById('start_time');
             const endTimeInput = document.getElementById('end_time');
@@ -271,90 +189,99 @@
         // =================================================================
         // ================== LÓGICA DEL CARRITO DE VENTAS =================
         // =================================================================
-        @if ($room->status == 'Disponible')
-            $(document).ready(function() {
-                var productSelected;
+        $(document).ready(function() {
+            var productSelected;
 
-                $('#select-product_id').select2({
-                    width: '100%',
-                    placeholder: '<i class="fa fa-search"></i> Buscar...',
-                    escapeMarkup: function(markup) { return markup; },
-                    language: {
-                        inputTooShort: function(data) { return `Por favor ingrese ${data.minimum - data.input.length} o más caracteres`; },
-                        noResults: function() { return `<i class="far fa-frown"></i> No hay resultados encontrados`; }
+            $('#select-product_id').select2({
+                width: '100%',
+                placeholder: '<i class="fa fa-search"></i> Buscar...',
+                escapeMarkup: function(markup) { return markup; },
+                language: {
+                    inputTooShort: function(data) { return `Por favor ingrese ${data.minimum - data.input.length} o más caracteres`; },
+                    noResults: function() { return `<i class="far fa-frown"></i> No hay resultados encontrados`; }
+                },
+                quietMillis: 250,
+                minimumInputLength: 2,
+                ajax: {
+                    url: "{{ url('admin/items/stock/ajax') }}",
+                    processResults: function(data) {
+                        return { results: data };
                     },
-                    quietMillis: 250,
-                    minimumInputLength: 2,
-                    ajax: {
-                        url: "{{ url('admin/items/stock/ajax') }}",
-                        processResults: function(data) {
-                            return { results: data };
-                        },
-                        cache: true
-                    },
-                    templateResult: formatResultProducts,
-                    templateSelection: (opt) => {
-                        productSelected = opt;
-                        return productSelected.id;
+                    cache: true
+                },
+                templateResult: formatResultProducts,
+                templateSelection: (opt) => {
+                    productSelected = opt;
+                    return productSelected.id
+                }
+            }).change(function() {
+                if ($('#select-product_id option:selected').val()) {
+                    let product = productSelected;
+                    let image = "{{ asset('images/default.jpg') }}";
+                    if(product.image){
+                        image = "{{ asset('storage') }}/"+product.image.replace('.avif','-cropped.webp');
+                    } else if (product.item.image) {
+                        image = "{{ asset('storage') }}/"+product.item.image.replace('.avif','-cropped.webp');
                     }
-                }).change(function() {
-                    if ($('#select-product_id option:selected').val()) {
-                        let product = productSelected;
-                        let image = "{{ asset('images/default.jpg') }}";
-                        if(product.image){
-                            image = "{{ asset('storage') }}/"+product.image.replace('.avif','-cropped.webp');
-                        } else if (product.item.image) {
-                            image = "{{ asset('storage') }}/"+product.item.image.replace('.avif','-cropped.webp');
-                        }
 
-                        if ($('.table').find(`#tr-item-${product.id}`).length === 0) {
-                            $('#table-body').append(`
-                                <tr class="tr-item" id="tr-item-${product.id}" data-id="${product.id}">
-                                    <td>
-                                        <input type="hidden" name="products[${product.id}][id]" value="${product.id}"/>
-                                        <div style="font-weight: 500;">${product.item.name}</div>
-                                        <small>${product.item.brand.name}</small>
-                                    </td>
-                                    <td class="text-center" style="vertical-align: middle;">
-                                        <input type="number" name="products[${product.id}][price]" step="0.1" min="0.1" class="form-control input-sm text-right" value="${product.priceSale}" required/>
-                                    </td>
-                                    <td class="text-center" style="vertical-align: middle;">
-                                        <div class="input-group" style="max-width: 100px; margin: auto;">
-                                            <input type="number" name="products[${product.id}][quantity]" step="1" min="1" class="form-control input-sm text-right" value="1" max="${product.stock}" required/>
-                                        </div>
-                                    </td>
-                                    <td class="text-center" style="vertical-align: middle;">
-                                        <button type="button" onclick="removeTr(${product.id})" class="btn btn-link"><i class="voyager-trash text-danger"></i></button>
-                                    </td>
-                                </tr>
-                            `);
-                            setNumber();
-                            toastr.success(`+1 ${product.item.name}`, 'Producto agregado');
-                        } else {
-                            toastr.info('El producto ya está agregado', 'Información');
-                        }
-                        $('#select-product_id').val('').trigger('change');
+                    if ($('.table').find(`#tr-item-${product.id}`).length === 0) {
+                        $('#table-body').append(`
+                            <tr class="tr-item" id="tr-item-${product.id}" data-id="${product.id}">
+                                <td class="td-item"></td>
+                                <td>
+                                    <input type="hidden" name="products[${product.id}][id]" value="${product.id}"/>
+                                    <div style="font-weight: 500;">${product.item.name}</div>
+                                </td>
+                                <td class="text-center" style="vertical-align: middle;">
+                                    <input type="number" name="products[${product.id}][price]" step="0.1" min="0.1" class="form-control input-sm text-right" value="${product.priceSale}" required/>
+                                </td>
+                                <td class="text-center" style="vertical-align: middle;">
+                                    <div class="input-group" style="max-width: 100px; margin: auto;">
+                                        <input type="number" name="products[${product.id}][quantity]" step="1" min="1" class="form-control input-sm text-right" value="1" max="${product.stock}" required/>
+                                    </div>
+                                </td>
+                                <td class="text-center" style="vertical-align: middle;">
+                                    <button type="button" onclick="removeTr(${product.id})" class="btn btn-link"><i class="voyager-trash text-danger"></i></button>
+                                </td>
+                            </tr>
+                        `);
+                        setNumber();
+                        toastr.success(`+1 ${product.item.name}`, 'Producto agregado');
+                    } else {
+                        toastr.info('El producto ya está agregado', 'Información');
                     }
-                });
+                    $('#select-product_id').val('').trigger('change');
+                }
             });
+        });
 
-            function setNumber() {
-                $('#tr-empty').toggle($('.tr-item').length === 0);
+        function setNumber() {
+            var length = 0;
+            $(".td-item").each(function(index) {
+                $(this).text(index + 1);
+                length++;
+            });
+            if (length > 0) {
+                $('#tr-empty').css('display', 'none');
+            } else {
+                $('#tr-empty').fadeIn('fast');
             }
+        }
 
-            function removeTr(id) {
-                $(`#tr-item-${id}`).remove();
-                setNumber();
-                toastr.warning('Producto eliminado de la lista', 'Eliminado');
-            }
+        function removeTr(id) {
+            $(`#tr-item-${id}`).remove();
+            $('#select-product_id').val("").trigger("change");
+            setNumber();
+            getTotal();
+            toastr.info('Producto eliminado del carrito', 'Eliminado');
+        }
 
-            function formatResultProducts(option) {
-                if (option.loading) return '<span class="text-center"><i class="fas fa-spinner fa-spin"></i> Buscando...</span>';
-                let image = "{{ asset('images/default.jpg') }}";
-                if (option.item?.image) image = `{{ asset('storage') }}/${option.item.image.replace(/\.([^.]+)$/, '-cropped.webp')}`;
-                const fallbackImage = '{{ asset('images/default.jpg') }}';
-                return $(`<div style="display: flex; align-items: center; padding: 5px;"><img src="${image}" style="width: 50px; height: 50px; border-radius: 4px; margin-right: 10px; object-fit: cover;" onerror="this.onerror=null;this.src='${fallbackImage}';"/><div style="line-height: 1.2;"><div style="font-weight: bold;">${option.item.name}</div><small><b>Stock:</b> ${option.stock} Unid. | <b>Precio:</b> ${option.priceSale} Bs.</small></div></div>`);
-            }
-        @endif
+        function formatResultProducts(option) {
+            if (option.loading) return '<span class="text-center"><i class="fas fa-spinner fa-spin"></i> Buscando...</span>';
+            let image = "{{ asset('images/default.jpg') }}";
+            if (option.item?.image) image = `{{ asset('storage') }}/${option.item.image.replace(/\.([^.]+)$/, '-cropped.webp')}`;
+            const fallbackImage = '{{ asset('images/default.jpg') }}';
+            return $(`<div style="display: flex; align-items: center; padding: 5px;"><img src="${image}" style="width: 50px; height: 50px; border-radius: 4px; margin-right: 10px; object-fit: cover;" onerror="this.onerror=null;this.src='${fallbackImage}';"/><div style="line-height: 1.2;"><div style="font-weight: bold;">${option.item.name}</div><small><b>Stock:</b> ${option.stock} Unid. | <b>Precio:</b> ${option.priceSale} Bs.</small></div></div>`);
+        }
     </script>
 @endsection

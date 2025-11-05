@@ -5,14 +5,14 @@
     <link rel="stylesheet" href="{{ asset('css/services.css') }}">
     <style>
         .detail-card strong {
-            font-size: 1.5rem !important; /* Aumento drástico para los títulos */
+            font-size: 1.2rem !important; /* Aumento drástico para los títulos */
         }
         .detail-card span.text-muted,
         .detail-card span.badge {
-            font-size: 1.2rem !important; /* Aumento drástico para los valores y badges */
+            font-size: 1.0rem !important; /* Aumento drástico para los valores y badges */
         }
         .detail-card .voyager-tag, .detail-card .voyager-bookmark, .detail-card .voyager-check-circle, .detail-card .voyager-bubble-hear {
-            font-size: 1.5rem; /* Agrandar también los iconos */
+            font-size: 1rem; /* Agrandar también los iconos */
         }
         .summary-section {
             margin-bottom: 15px;
@@ -44,6 +44,15 @@
         }
         .summary-total .amount {
             color: #333;
+        }
+        .summary-item .amount#summary-advance {
+            color: #28a745; /* Green */
+        }
+        .summary-item .amount#summary-consumption {
+            color: #dc3545; /* Red */
+        }
+        .summary-total .amount#summary-total {
+            color: #007bff; /* Blue */
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">

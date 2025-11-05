@@ -100,6 +100,13 @@
                                             </td>
                                         </tr>
                                     </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th colspan="4" class="text-right"><h5>TOTAL A PAGAR</h5></th>
+                                            <th class="text-center"><h5 id="label-total">0.00</h5></th>
+                                            <th></th>
+                                        </tr>
+                                    </tfoot>
                                 </table>
                             </div>
                         </div>
@@ -191,6 +198,7 @@
         // =================================================================
         $(document).ready(function() {
             var productSelected;
+            getTotal();
 
             $('#select-product_id').select2({
                 width: '100%',
@@ -225,20 +233,24 @@
                     }
 
                     if ($('.table').find(`#tr-item-${product.id}`).length === 0) {
+                        let subtotal = parseFloat(product.priceSale) * 1;
                         $('#table-body').append(`
-                            <tr class="tr-item" id="tr-item-${product.id}" data-id="${product.id}">
+                            <tr class="tr-item" id="tr-item-${product.id}">
                                 <td class="td-item"></td>
                                 <td>
                                     <input type="hidden" name="products[${product.id}][id]" value="${product.id}"/>
                                     <div style="font-weight: 500;">${product.item.name}</div>
                                 </td>
                                 <td class="text-center" style="vertical-align: middle;">
-                                    <input type="number" name="products[${product.id}][price]" step="0.1" min="0.1" class="form-control input-sm text-right" value="${product.priceSale}" required/>
+                                    <input type="number" name="products[${product.id}][price]" step="0.1" min="0.1" class="form-control input-sm text-right input-price" id="input-price-${product.id}" value="${product.priceSale}" onkeyup="getSubtotal(${product.id})" onchange="getSubtotal(${product.id})" required/>
                                 </td>
                                 <td class="text-center" style="vertical-align: middle;">
                                     <div class="input-group" style="max-width: 100px; margin: auto;">
-                                        <input type="number" name="products[${product.id}][quantity]" step="1" min="1" class="form-control input-sm text-right" value="1" max="${product.stock}" required/>
+                                        <input type="number" name="products[${product.id}][quantity]" step="1" min="1" class="form-control input-sm text-right input-quantity" id="input-quantity-${product.id}" value="1" max="${product.stock}" onkeyup="getSubtotal(${product.id})" onchange="getSubtotal(${product.id})" required/>
                                     </div>
+                                </td>
+                                <td class="text-center" style="vertical-align: middle;">
+                                    <h5 class="label-subtotal" id="label-subtotal-${product.id}">${subtotal.toFixed(2)}</h5>
                                 </td>
                                 <td class="text-center" style="vertical-align: middle;">
                                     <button type="button" onclick="removeTr(${product.id})" class="btn btn-link"><i class="voyager-trash text-danger"></i></button>
@@ -246,6 +258,7 @@
                             </tr>
                         `);
                         setNumber();
+                        getSubtotal(product.id);
                         toastr.success(`+1 ${product.item.name}`, 'Producto agregado');
                     } else {
                         toastr.info('El producto ya está agregado', 'Información');
@@ -254,6 +267,27 @@
                 }
             });
         });
+
+        function getSubtotal(id) {
+            let price = $(`#input-price-${id}`).val() ? parseFloat($(`#input-price-${id}`).val()) : 0;
+            let quantity = $(`#input-quantity-${id}`).val() ? parseInt($(`#input-quantity-${id}`).val()) : 0;
+            let stock = parseInt($(`#input-quantity-${id}`).attr('max')) || 0;
+
+            if (quantity > stock) {
+                $(`#input-quantity-${id}`).val(stock);
+                quantity = stock;
+                toastr.warning(`La cantidad no puede ser mayor al stock (${stock})`, 'Stock insuficiente');
+            }
+            let subtotal = price * quantity;
+            $(`#label-subtotal-${id}`).text(subtotal.toFixed(2));
+            getTotal();
+        }
+
+        function getTotal() {
+            let total = 0;
+            $(".label-subtotal").each(function() { total += parseFloat($(this).text()) || 0; });
+            $('#label-total').text(total.toFixed(2));
+        }
 
         function setNumber() {
             var length = 0;

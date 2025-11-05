@@ -33,7 +33,6 @@ class ServiceController extends Controller
 
     public function startRental(Request $request)
     {
-        return $request;
         $total = 0;
         if ($request->has('products')) {
             foreach ($request->products as $product) {
@@ -49,11 +48,11 @@ class ServiceController extends Controller
         ];
 
         if ($request->payment_method == 'efectivo') {
-            $rules['amount_cash'] = 'required|numeric|min:' . $total;
+            $rules['amount_received'] = 'required|numeric|min:' . $total;
         }
 
         if ($request->payment_method == 'ambos') {
-            $rules['amount_cash'] = 'required|numeric|min:1';
+            $rules['amount_efectivo'] = 'required|numeric|min:1';
             $rules['amount_qr'] = 'required|numeric|min:1';
         }
 

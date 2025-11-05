@@ -485,12 +485,20 @@
 
             $('form').on('submit', function(e) {
                 let paymentMethod = $('#payment_method').val();
+                let total = parseFloat($('#summary-total').text().replace(' Bs.', '')) || 0;
+                let efectivo = parseFloat($('#amount_efectivo').val()) || 0;
+                let qr = parseFloat($('#amount_qr').val()) || 0;
+
                 if (paymentMethod === 'efectivo') {
-                    let total = parseFloat($('#summary-total').text().replace(' Bs.', '')) || 0;
                     let received = parseFloat($('#amount_received').val()) || 0;
                     if (received < total) {
                         e.preventDefault();
                         toastr.error('El monto recibido no puede ser menor al total a pagar.', 'Error en el pago');
+                    }
+                } else if (paymentMethod === 'ambos') {
+                    if ((efectivo + qr) < total) {
+                        e.preventDefault();
+                        toastr.error('La suma de los montos en efectivo y QR no puede ser menor al total a pagar.', 'Error en el pago');
                     }
                 }
             });

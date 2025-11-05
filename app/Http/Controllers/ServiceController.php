@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Room;
 use App\Models\Rental;
+use App\Models\Service;
+use App\Models\Transaction;
 
 class ServiceController extends Controller
 {
@@ -33,36 +35,40 @@ class ServiceController extends Controller
 
     public function startRental(Request $request)
     {
+        $request->validate([
+            'start_time' => 'required|date_format:H:i',
+        ], [
+            'start_time.date_format' => 'El campo hora debe tener el formato HH:MM (por ejemplo: 14:30)',
+            'start_time.required' => 'La hora es obligatoria',
+        ]);
+
         return $request;
-        $total = 0;
-        if ($request->has('products')) {
-            foreach ($request->products as $product) {
-                $total += $product['price'] * $product['quantity'];
-            }
-        }
-        if ($request->has('amountSala')) {
-            $total += $request->amountSala;
-        }
-
-        $rules = [
-            'room_id' => 'required|exists:rooms,id',
-        ];
-
-        if ($request->payment_method == 'efectivo') {
-            $rules['amount_received'] = 'required|numeric|min:' . $total;
-        }
-
-        if ($request->payment_method == 'ambos') {
-            $rules['amount_efectivo'] = 'required|numeric|min:1';
-            $rules['amount_qr'] = 'required|numeric|min:1';
-        }
-
-        $request->validate($rules);
 
         DB::beginTransaction();
 
         try {
+
+            $service = Service::create([
+                'room_id' => $request->room_id,
+                'person_id'=>$request->person_id,
+                'start_time' => $request->start_time,
+                'amount_room'=> $request->amountSala,
+                'amount_products'=> 1,
+                'total_amount'=> 1,
+
+                'observation' => 'Inicio de alquiler',
+            ]);
+
+            $transaction = Transaction::create([
+                    'status' => 'Completado',
+            ]);
+
+
+
+
+
             $room = Room::findOrFail($request->room_id);
+
 
             if ($room->status != 'Disponible') {
                 return redirect()->route('voyager.services.show', $room->id)->with([

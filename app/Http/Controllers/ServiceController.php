@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ItemStock;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Room;
 use App\Models\Rental;
 use App\Models\Service;
+use App\Models\ServiceItem;
+use App\Models\ServiceTime;
+use App\Models\ServiceTransaction;
 use App\Models\Transaction;
+use Illuminate\Support\Facades\Auth;
 
 class ServiceController extends Controller
 {
@@ -42,7 +47,33 @@ class ServiceController extends Controller
             'start_time.required' => 'La hora es obligatoria',
         ]);
 
-        return $request;
+
+        $amount_Qr = $request->amount_qr ?? 0;
+        $amount_efectivo = $request->payment_method == 'Efectivo' ? $request->amount_product + $request->amountSala : ($request->amount_efectivo ?? 0);
+
+        if($request->payment_method == 'Efectivo' && $amount_efectivo > $request->amount_received)
+        {
+            return redirect()->back()->withInput()->withErrors(['message' => 'El monto en efectivo no puede ser mayor al monto recibido.']);
+        }
+
+        if($request->payment_method == 'ambos' && ($request->amount_product + $request->amountSala) > ($amount_Qr+$amount_efectivo))
+        {
+            return redirect()->back()->withInput()->withErrors(['message' => 'La suma del monto en efectivo y el monto por Qr debe ser igual al monto total.']);
+        }
+
+
+        $room = Room::findOrFail($request->room_id);
+
+        if ($room->status != 'Disponible') {
+            return redirect()->route('voyager.services.show', $room->id)->with(['message'    => 'Error: La sala ya se encuentra ocupada.', 'alert-type' => 'error']);
+        }
+
+        $cashier = $this->cashier(null,'user_id = "'.Auth::user()->id.'"', 'status = "Abierta"');
+        if (!$cashier) {
+            return redirect()
+                ->route('services.index')
+                ->with(['message' => 'Usted no cuenta con caja abierta.', 'alert-type' => 'warning']);
+        }
 
         DB::beginTransaction();
 
@@ -53,41 +84,66 @@ class ServiceController extends Controller
                 'person_id'=>$request->person_id,
                 'start_time' => $request->start_time,
                 'amount_room'=> $request->amountSala,
-                'amount_products'=> 1,
-                'total_amount'=> 1,
+                'amount_products'=> $request->amount_product,
+                'total_amount'=> $request->amountSala + $request->amount_product,
 
                 'observation' => 'Inicio de alquiler',
             ]);
 
-            $transaction = Transaction::create([
+            if(($amount_efectivo + $amount_Qr) > 0)
+            {
+                $transaction = Transaction::create([
                     'status' => 'Completado',
+                ]);
+            }
+
+            ServiceTime::create([
+                'service_id' => $service->id,
+                'time_type' => $request->end_time? 'Tiempo fijo': 'Tiempo sin límite',
+                'start_time' => $request->start_time,
+                'end_time' => $request->end_time? $request->end_time : null,
+                'total_time' => $request->end_time? null : null,
+                'amount' => $request->amountSala,
             ]);
 
 
-
-
-
-            $room = Room::findOrFail($request->room_id);
-
-
-            if ($room->status != 'Disponible') {
-                return redirect()->route('voyager.services.show', $room->id)->with([
-                    'message'    => 'Error: La sala ya se encuentra ocupada.',
-                    'alert-type' => 'error',
+            foreach ($request->products as $key => $value) {
+                $itemStock = ItemStock::where('id', $value['id'])->first();
+                ServiceItem::create([
+                    'sale_id' => $service->id,
+                    'itemStock_id' => $itemStock->id,
+                    'price' => $value['price'],
+                    'quantity' => $value['quantity'],
+                    'amount' => $value['subtotal'],
                 ]);
+                $itemStock->decrement('stock', $value['quantity']);
+            } 
+            
+            
+            if ($request->payment_method == 'Efectivo' || $request->payment_method == 'ambos' && ($amount_efectivo + $amount_Qr) > 0 ) {
+                    ServiceTransaction::create([
+                        'service_id' => $service->id,
+                        'transaction_id' => $transaction->id,
+                        'cashier_id' => $cashier->id,
+                        'amount' => $amount_efectivo,
+                        'paymentType' => 'Efectivo',
+                    ]);
             }
+            if ($request->payment_method == 'Qr' || $request->payment_method == 'ambos' && ($amount_efectivo + $amount_Qr) > 0) {
+                    ServiceTransaction::create([
+                        'service_id' => $service->id,
+                        'transaction_id' => $transaction->id,
+                        'cashier_id' => $cashier->id,
+                        'amount' =>  $amount_Qr,
+                        'paymentType' => 'Qr',
+                    ]);
+            }
+            
+            
 
             // Cambiar el estado de la sala
             $room->status = 'Ocupada';
             $room->save();
-
-            // Crear el nuevo registro de alquiler
-            Rental::create([
-                'room_id' => $room->id,
-                'customer_name' => $request->customer_name,
-                'start_time' => now(),
-                'status' => 'active'
-            ]);
 
             DB::commit();
 
@@ -98,9 +154,10 @@ class ServiceController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+            return 0;
             return redirect()->route('services.index')->with([
                 'message'    => 'Ocurrió un error al iniciar el alquiler: ' . $e->getMessage(),
-                'alert-type' => 'error',
+                'alert-type' => 'error'
             ]);
         }
     }

@@ -107,6 +107,7 @@
                 @csrf
                 <input type="hidden" name="room_id" value="{{ $room->id }}">
                 <input type="hidden" name="rental_type" id="hidden_rental_type" value="por_hora">
+                <input type="hidden" name="amount_product" id="amount_product" value="0">
 
                 <div class="col-md-8">
                     {{-- PANEL PARA EL CARRITO DE CONSUMO --}}
@@ -190,7 +191,7 @@
                             </div>
                             <div class="form-group" id="monto-group">
                                 <label for="amount" id="amount-label">Registrar un adelanto de la sala</label>
-                                <input type="number" name="amountSala" id="amount" class="form-control" step="0.01" min="0" placeholder="0.00">
+                                <input type="number" name="amountSala" id="amount" class="form-control" step="0.01" min="1" placeholder="0.00" required>
                             </div>
 
 
@@ -400,6 +401,7 @@
             let total = 0;
             $(".label-subtotal").each(function() { total += parseFloat($(this).text()) || 0; });
             $('#label-total').text(total.toFixed(2));
+            $('#amount_product').val(total.toFixed(2));
             updateTotalSummaries();
         }
 

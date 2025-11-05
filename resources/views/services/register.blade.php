@@ -444,6 +444,9 @@
             // Clear the inputs for "Ambos"
             $('#amount_efectivo').val('');
             $('#amount_qr').val('');
+
+            // Limpiar también el monto recibido para 'efectivo' y recalcular el cambio
+            $('#amount_received').val('').trigger('change');
         }
 
         $(document).ready(function() {
@@ -481,16 +484,6 @@
                     $(this).val('');
                 }
                 $('#amount_received').trigger('change');
-            });
-
-            $('#amount_received').on('keyup change', function() {
-                let total = parseFloat($('#summary-total').text().replace(' Bs.', '')) || 0;
-                let received = parseFloat($(this).val()) || 0;
-                let change = received - total;
-
-                if (change < 0) change = 0;
-
-                $('#change_due').text(change.toFixed(2) + ' Bs.');
             });
 
             $('form').on('submit', function(e) {

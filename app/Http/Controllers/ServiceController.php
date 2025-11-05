@@ -33,6 +33,7 @@ class ServiceController extends Controller
 
     public function startRental(Request $request)
     {
+        return $request;
         $total = 0;
         if ($request->has('products')) {
             foreach ($request->products as $product) {

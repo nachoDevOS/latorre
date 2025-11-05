@@ -474,7 +474,24 @@
                 $('#amount_received').val('').trigger('change');
             });
 
-            $('#amount_efectivo, #amount_qr').on('keyup change', function() {
+            $('#amount_received, #amount_efectivo').on('keyup change', function() {
+                let total = parseFloat($('#summary-total').text().replace(' Bs.', '')) || 0;
+                let paymentMethod = $('#payment_method').val();
+                let received = 0;
+
+                if (paymentMethod === 'efectivo') {
+                    received = parseFloat($('#amount_received').val()) || 0;
+                } else if (paymentMethod === 'ambos') {
+                    received = parseFloat($('#amount_efectivo').val()) || 0;
+                }
+
+                let change = received - total;
+                if (change < 0) change = 0;
+
+                $('#change_due').text(change.toFixed(2) + ' Bs.');
+            });
+
+            $('#amount_qr').on('keyup change', function() {
                 let total = parseFloat($('#summary-total').text().replace(' Bs.', '')) || 0;
                 let efectivo = parseFloat($('#amount_efectivo').val()) || 0;
                 let qr = parseFloat($('#amount_qr').val()) || 0;
@@ -483,7 +500,6 @@
                     toastr.warning('El monto ingresado no puede ser mayor al total.', 'Monto excedido', {timeOut: 500});
                     $(this).val('');
                 }
-                $('#amount_received').trigger('change');
             });
 
             $('form').on('submit', function(e) {

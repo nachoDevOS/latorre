@@ -286,7 +286,7 @@
                     quietMillis: 250,
                     minimumInputLength: 2,
                     ajax: {
-                        url: "{{ url('admin/sales/item/stock/ajax') }}",
+                        url: "{{ url('admin/items/stock/ajax') }}",
                         processResults: function(data) {
                             return { results: data };
                         },

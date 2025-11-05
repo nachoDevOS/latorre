@@ -71,7 +71,7 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-sm-7">
+                            <div class="col-sm-12">
                                 <div class="dataTables_length" id="dataTable_length">
                                     <label>Mostrar <select id="select-paginate" class="form-control input-sm">
                                         <option value="10">10</option>
@@ -80,22 +80,6 @@
                                         <option value="100">100</option>
                                     </select> registros</label>
                                 </div>
-                            </div>
-                            {{-- <div class="col-sm-3" style="margin-bottom: 10px">
-                                <select id="branch" name="branch" class="form-control select2">
-                                    <option value="" selected>Todos</option>
-                                    @foreach ($branches as $branch)
-                                        <option value="{{$branch->id}}">{{$branch->name}}</option>
-                                    @endforeach
-                                </select>
-                            </div> --}}
-
-                            <div class="col-sm-2" style="margin-bottom: 10px">
-                                <select id="status" name="status" class="form-control select2">
-                                    <option value="" selected>Todos</option>
-                                    <option value="Con stock">Con Stock</option>
-                                    <option value="Sin stock">Sin Stock</option>
-                                </select>
                             </div>
                         </div>
                         <div class="row" id="div-results" style="min-height: 120px"></div>

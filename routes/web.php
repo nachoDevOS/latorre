@@ -71,6 +71,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['loggin', 'system']], functi
     Route::get('items/{id}/sales/ajax/list', [ItemController::class, 'listSales']);
     Route::post('items/{id}/stock', [ItemController::class, 'storeStock'])->name('items-stock.store');
     Route::delete('items/{id}/stock/{stock}', [ItemController::class, 'destroyStock'])->name('items-stock.destroy');
+    Route::get('items/stock/ajax', [ItemController::class, 'itemStockList']);//Para obtener los item que hay disponible en el inventario
+
 
     Route::get('rooms', [RoomController::class, 'index'])->name('voyager.rooms.index');
     Route::get('rooms/ajax/list', [RoomController::class, 'list']);

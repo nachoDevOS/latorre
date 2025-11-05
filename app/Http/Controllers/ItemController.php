@@ -112,10 +112,10 @@ class ItemController extends Controller
         try {
             
             $item = Item::find($id);
-            $item->brand_id = $request->brand_id;
-            $item->category_id = $request->category_id;
+            // $item->brand_id = $request->brand_id;
+            $item->itemCategory_id = $request->itemCategory_id;
             $item->name = $request->name;
-            $item->presentation_id = $request->presentation_id;
+            // $item->presentation_id = $request->presentation_id;
             $item->observation = $request->observation;
             $item->status = $request->status=='on' ? 1 : 0;
 
@@ -192,43 +192,65 @@ class ItemController extends Controller
         } 
     }
 
-    public function destroyStock($id, $stock)
-    {
-        $item = ItemStock::where('id', $stock)
-                ->where('deleted_at', null)
-                ->first();
-        if($item->stock != $item->quantity)
-        {
-            return redirect()->route('voyager.items.show', ['id'=>$id])->with(['message' => 'Ocurrió un error.', 'alert-type' => 'error']);
-        }
+    // public function destroyStock($id, $stock)
+    // {
+    //     $item = ItemStock::where('id', $stock)
+    //             ->where('deleted_at', null)
+    //             ->first();
+    //     if($item->stock != $item->quantity)
+    //     {
+    //         return redirect()->route('voyager.items.show', ['id'=>$id])->with(['message' => 'Ocurrió un error.', 'alert-type' => 'error']);
+    //     }
 
-        DB::beginTransaction();
-        try {            
-            if($item->incomeDetail_id != null)
-            {
-                $incomeDetail = IncomeDetail::where('deleted_at', null)->where('id', $item->incomeDetail_id)->first();
-                $incomeDetail->increment('stock', $item->quantity);
-            }
-            $item->delete();
+    //     DB::beginTransaction();
+    //     try {            
+    //         if($item->incomeDetail_id != null)
+    //         {
+    //             $incomeDetail = IncomeDetail::where('deleted_at', null)->where('id', $item->incomeDetail_id)->first();
+    //             $incomeDetail->increment('stock', $item->quantity);
+    //         }
+    //         $item->delete();
 
-            DB::commit();
-            return redirect()->route('voyager.items.show', ['id'=>$id])->with(['message' => 'Eliminado exitosamente.', 'alert-type' => 'success']);
-        } catch (\Throwable $e) {
-            DB::rollBack();
-            return redirect()->route('voyager.items.show', ['id'=>$id])->with(['message' => 'Ocurrió un error.', 'alert-type' => 'error']);
-        }
-    }
+    //         DB::commit();
+    //         return redirect()->route('voyager.items.show', ['id'=>$id])->with(['message' => 'Eliminado exitosamente.', 'alert-type' => 'success']);
+    //     } catch (\Throwable $e) {
+    //         DB::rollBack();
+    //         return redirect()->route('voyager.items.show', ['id'=>$id])->with(['message' => 'Ocurrió un error.', 'alert-type' => 'error']);
+    //     }
+    // }
 
-    public function listSales($id)
-    {
-        $paginate = request('paginate') ?? 10;
-        $sales = \App\Models\SaleDetail::with(['sale.person'])
-            ->whereHas('itemStock', function($q) use ($id){
-                $q->where('item_id', $id);
+    // public function listSales($id)
+    // {
+    //     $paginate = request('paginate') ?? 10;
+    //     $sales = \App\Models\SaleDetail::with(['sale.person'])
+    //         ->whereHas('itemStock', function($q) use ($id){
+    //             $q->where('item_id', $id);
+    //         })
+    //         ->where('deleted_at', null)
+    //         ->orderBy('id', 'DESC')
+    //         ->paginate($paginate);
+    //     return view('parameters.items.partials.list-sales', compact('sales'));
+    // }
+
+
+    public function itemStockList(){
+        $search = request('q');
+        
+        $data = ItemStock::with(['item', 'item.itemCategory'])
+            ->Where(function($query) use ($search){
+                if($search){
+                    $query->whereHas('item', function($query) use($search){
+                        $query->whereRaw($search ? 'name like "%'.$search.'%"' : 1);
+                    })
+                    ->OrwhereHas('item.itemCategory', function($query) use($search){
+                        $query->whereRaw($search ? 'name like "%'.$search.'%"' : 1);
+                    })
+                    ->OrWhereRaw($search ? "id like '%$search%'" : 1);
+                }
             })
             ->where('deleted_at', null)
-            ->orderBy('id', 'DESC')
-            ->paginate($paginate);
-        return view('parameters.items.partials.list-sales', compact('sales'));
+            ->where('stock', '>', 0)
+            ->get();
+        return response()->json($data);
     }
 }

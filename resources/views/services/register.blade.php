@@ -14,6 +14,37 @@
         .detail-card .voyager-tag, .detail-card .voyager-bookmark, .detail-card .voyager-check-circle, .detail-card .voyager-bubble-hear {
             font-size: 1.5rem; /* Agrandar también los iconos */
         }
+        .summary-section {
+            margin-bottom: 15px;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+        }
+        .summary-item span {
+            font-size: 1.1rem;
+        }
+        .summary-item .amount {
+            font-weight: bold;
+        }
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 1.2rem;
+        }
+        .summary-total .amount {
+            color: #333;
+        }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 @endsection
@@ -154,7 +185,21 @@
                             </div>
 
 
-                            {{-- aqui --}}
+                            <div class="summary-section">
+                                <div class="summary-item">
+                                    <span>Adelanto de la Sala:</span>
+                                    <span class="amount" id="summary-advance">0.00 Bs.</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span>Total Consumo:</span>
+                                    <span class="amount" id="summary-consumption">0.00 Bs.</span>
+                                </div>
+                                <hr>
+                                <div class="summary-total">
+                                    <strong>Total General:</strong>
+                                    <strong class="amount" id="summary-total">0.00 Bs.</strong>
+                                </div>
+                            </div>
                             <button type="submit" class="btn btn-success btn-block btn-action"><i class="voyager-play"></i> Iniciar Alquiler</button>
                         </div>
                     </div>
@@ -315,6 +360,7 @@
             let total = 0;
             $(".label-subtotal").each(function() { total += parseFloat($(this).text()) || 0; });
             $('#label-total').text(total.toFixed(2));
+            updateTotalSummaries();
         }
 
         function setNumber() {
@@ -345,5 +391,20 @@
             const fallbackImage = '{{ asset('images/default.jpg') }}';
             return $(`<div style="display: flex; align-items: center; padding: 5px;"><img src="${image}" style="width: 50px; height: 50px; border-radius: 4px; margin-right: 10px; object-fit: cover;" onerror="this.onerror=null;this.src='${fallbackImage}';"/><div style="line-height: 1.2;"><div style="font-weight: bold;">${option.item.name}</div><small><b>Stock:</b> ${option.stock} Unid. | <b>Precio:</b> ${option.priceSale} Bs.</small></div></div>`);
         }
+
+        function updateTotalSummaries() {
+            let advance = parseFloat($('#amount').val()) || 0;
+            let consumption = parseFloat($('#label-total').text()) || 0;
+            let total = advance + consumption;
+
+            $('#summary-advance').text(advance.toFixed(2) + ' Bs.');
+            $('#summary-consumption').text(consumption.toFixed(2) + ' Bs.');
+            $('#summary-total').text(total.toFixed(2) + ' Bs.');
+        }
+
+        $(document).ready(function() {
+            $('#amount').on('keyup change', updateTotalSummaries);
+            updateTotalSummaries();
+        });
     </script>
 @endsection

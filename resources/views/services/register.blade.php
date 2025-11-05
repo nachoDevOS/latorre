@@ -68,7 +68,7 @@
                 <input type="hidden" name="room_id" value="{{ $room->id }}">
                 <input type="hidden" name="rental_type" id="hidden_rental_type" value="por_hora">
 
-                <div class="col-md-6">
+                <div class="col-md-8">
                     {{-- PANEL PARA EL CARRITO DE CONSUMO --}}
                     <div class="panel action-panel">
                         <div class="panel-heading"><h3 class="panel-title"><i class="voyager-basket"></i> Consumo</h3></div>
@@ -86,7 +86,7 @@
                                             <th style="text-align: center; width:15%">Precio</th>
                                             <th style="text-align: center; width:12%">Cantidad</th>
                                             <th style="text-align: center; width:10%">Subtotal</th>
-                                            <th style="width: 30px"></th>
+                                            <th style="width: 5%"></th>
                                         </tr>
                                     </thead>
                                     <tbody id="table-body">
@@ -113,7 +113,7 @@
                     </div>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-4">
                     {{-- PANEL PARA INICIAR UN NUEVO ALQUILER --}}
                     <div class="panel action-panel">
                         <div class="panel-heading"><h3 class="panel-title"><i class="voyager-play"></i> Iniciar Nuevo Alquiler</h3></div>
@@ -265,7 +265,7 @@
                                 <td class="text-center" style="vertical-align: middle;">
                                     <h5 class="label-subtotal" id="label-subtotal-${product.id}">${subtotal.toFixed(2)}</h5>
                                 </td>
-                                <td class="text-center" style="vertical-align: middle;">
+                                <td class="text-center" style="vertical-align: middle; width: 5%">
                                     <button type="button" onclick="removeTr(${product.id})" class="btn btn-link"><i class="voyager-trash text-danger"></i></button>
                                 </td>
                             </tr>

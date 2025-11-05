@@ -21,44 +21,43 @@ class ServiceController extends Controller
         return view('services.index', compact('rooms'));
     }
 
-    /**
-     * Muestra la vista de gestión para una sala específica.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Contracts\View\View
-     */
     public function show($id)
     {
         // Busca la sala por su ID. Si no la encuentra, lanzará un error 404.
         $room = Room::findOrFail($id);
-
-        // Si la sala está ocupada, busca el alquiler activo.
-        $activeRental = null;
-        if ($room->status == 'Ocupada') {
-            $activeRental = Rental::where('room_id', $id)
-                                  ->where('status', 'active')
-                                  ->latest('start_time')
-                                  ->first();
-        }
-
-        // Devuelve la vista 'services.show' y le pasa la información de la sala.
         return view('services.register', [
-            'room' => $room,
-            'activeRental' => $activeRental
+            'room' => $room
         ]);
     }
 
-    /**
-     * Inicia un nuevo alquiler para una sala.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
+
     public function startRental(Request $request)
     {
-        $request->validate([
+        return $request;
+        $total = 0;
+        if ($request->has('products')) {
+            foreach ($request->products as $product) {
+                $total += $product['price'] * $product['quantity'];
+            }
+        }
+        if ($request->has('amountSala')) {
+            $total += $request->amountSala;
+        }
+
+        $rules = [
             'room_id' => 'required|exists:rooms,id',
-        ]);
+        ];
+
+        if ($request->payment_method == 'efectivo') {
+            $rules['amount_cash'] = 'required|numeric|min:' . $total;
+        }
+
+        if ($request->payment_method == 'ambos') {
+            $rules['amount_cash'] = 'required|numeric|min:1';
+            $rules['amount_qr'] = 'required|numeric|min:1';
+        }
+
+        $request->validate($rules);
 
         DB::beginTransaction();
 

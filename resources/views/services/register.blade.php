@@ -211,7 +211,8 @@
                             </div>
                             <div class="form-group">
                                 <label for="payment_method">Método de Pago</label>
-                                <select name="payment_method" id="payment_method" class="form-control">
+                                <select name="payment_method" id="payment_method" class="form-control" required>
+                                    <option value="" selected disabled>--Seleccione una opción--</option>
                                     <option value="efectivo">Efectivo</option>
                                     <option value="qr">QR</option>
                                     <option value="ambos">Ambos</option>
@@ -227,6 +228,18 @@
                                     <input type="number" name="amount_qr" id="amount_qr" class="form-control" step="0.01" min="0" placeholder="0.00">
                                 </div>
                             </div>
+
+                            <div id="calculator" style="display: none; margin-top: 15px; border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
+                                <div class="form-group">
+                                    <label for="amount_received" style="font-weight: bold;">Monto Recibido (Efectivo)</label>
+                                    <input type="number" name="amount_received" id="amount_received" class="form-control" step="0.01" min="0" placeholder="0.00">
+                                </div>
+                                <div class="summary-item" style="background-color: #f0f0f0; padding: 10px; border-radius: 5px;">
+                                    <strong style="font-size: 1.1rem;">Cambio a devolver:</strong>
+                                    <strong class="amount" id="change_due" style="font-size: 1.2rem; color: #28a745;">0.00 Bs.</strong>
+                                </div>
+                            </div>
+                            
                             <button type="submit" class="btn btn-success btn-block btn-action"><i class="voyager-play"></i> Iniciar Alquiler</button>
                         </div>
                     </div>
@@ -427,6 +440,10 @@
             $('#summary-advance').text(advance.toFixed(2) + ' Bs.');
             $('#summary-consumption').text(consumption.toFixed(2) + ' Bs.');
             $('#summary-total').text(total.toFixed(2) + ' Bs.');
+
+            // Clear the inputs for "Ambos"
+            $('#amount_efectivo').val('');
+            $('#amount_qr').val('');
         }
 
         $(document).ready(function() {
@@ -434,11 +451,24 @@
             updateTotalSummaries();
 
             $('#payment_method').on('change', function() {
-                if ($(this).val() === 'ambos') {
+                let paymentMethod = $(this).val();
+                $('#payment-details').hide();
+                $('#calculator').hide();
+
+                // Remove required and min attributes
+                $('#amount_efectivo').prop('required', false).prop('min', '');
+                $('#amount_qr').prop('required', false).prop('min', '');
+
+                if (paymentMethod === 'ambos') {
                     $('#payment-details').show();
-                } else {
-                    $('#payment-details').hide();
+                    // Add required and min attributes
+                    $('#amount_efectivo').prop('required', true).prop('min', 1);
+                    $('#amount_qr').prop('required', true).prop('min', 1);
+                } else if (paymentMethod === 'efectivo') {
+                    $('#calculator').show();
                 }
+                
+                $('#amount_received').val('').trigger('change');
             });
 
             $('#amount_efectivo, #amount_qr').on('keyup change', function() {
@@ -449,6 +479,19 @@
                 if ((efectivo + qr) > total) {
                     toastr.warning('El monto ingresado no puede ser mayor al total.', 'Monto excedido', {timeOut: 500});
                     $(this).val('');
+                }
+                $('#amount_received').trigger('change');
+            });
+
+            $('form').on('submit', function(e) {
+                let paymentMethod = $('#payment_method').val();
+                if (paymentMethod === 'efectivo') {
+                    let total = parseFloat($('#summary-total').text().replace(' Bs.', '')) || 0;
+                    let received = parseFloat($('#amount_received').val()) || 0;
+                    if (received < total) {
+                        e.preventDefault();
+                        toastr.error('El monto recibido no puede ser menor al total a pagar.', 'Error en el pago');
+                    }
                 }
             });
         });

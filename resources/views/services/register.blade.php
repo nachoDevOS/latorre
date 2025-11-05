@@ -186,34 +186,15 @@
                 if (endTimeInput.value) {
                     hiddenRentalTypeInput.value = 'tiempo_fijo';
                     amountLabel.textContent = 'Monto del alquiler de la sala';
-                    calculateTotal();
                 } else {
                     hiddenRentalTypeInput.value = 'por_hora';
                     amountLabel.textContent = 'Registrar un adelanto';
-                    amountInput.readOnly = false;
-                    amountInput.value = '';
                 }
-            }
-
-            function calculateTotal() {
-                if (startTimeInput.value && endTimeInput.value && roomPricePerHour > 0) {
-                    const start = new Date(`1970-01-01T${startTimeInput.value}`);
-                    const end = new Date(`1970-01-01T${endTimeInput.value}`);
-
-                    let diff = end - start;
-                    if (diff < 0) { // Si la hora fin es del día siguiente
-                        diff += 24 * 60 * 60 * 1000;
-                    }
-
-                    const hours = diff / (1000 * 60 * 60);
-                    const total = hours * roomPricePerHour;
-
-                    amountInput.value = total.toFixed(2);
-                }
+                // Limpiamos el valor para que el usuario siempre lo ingrese manualmente
+                amountInput.value = '';
             }
 
             // Escuchar cambios en los inputs de tiempo
-            startTimeInput.addEventListener('change', updateRentalType);
             endTimeInput.addEventListener('change', updateRentalType);
             updateRentalType(); // Llamada inicial para establecer el estado correcto
         });

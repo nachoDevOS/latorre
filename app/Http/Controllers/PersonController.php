@@ -64,6 +64,7 @@ class PersonController extends Controller
             'birth_date' => 'required|date',
             'gender' => 'required|string|in:Masculino,Femenino',
             'first_name' => 'required|string|max:255',
+            'paternal_surname' => 'required|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,jpg,png,bmp,webp|max:2048' // 🎉 CAMBIO AQUÍ: Se añade max:3072
         ],
         [
@@ -71,6 +72,7 @@ class PersonController extends Controller
             'ci.unique' => 'Esta cédula ya está registrada',
             'birth_date.required' => 'La fecha de nacimiento es obligatoria.',
             'first_name.required' => 'El nombre es obligatorio.',
+            'paternal_surname.required' => 'El apellido es obligatorio.',
             'image.image' => 'El archivo debe ser una imagen.',
             'image.mimes' => 'La imagen debe tener uno de los siguientes formatos: jpeg, jpg, png, bmp, webp.',
             'image.max' => 'La imagen no puede pesar más de 2 megabytes (MB).' // ✍️ CAMBIO AQUÍ: Mensaje personalizado para el tamaño

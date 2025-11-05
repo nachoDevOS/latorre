@@ -63,85 +63,85 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-5">
-                @if ($room->status == 'Disponible')
-                    {{-- PANEL PARA INICIAR UN NUEVO ALQUILER --}}
-                    <div class="panel action-panel">
-                        <div class="panel-heading"><h3 class="panel-title"><i class="voyager-play"></i> Iniciar Nuevo Alquiler</h3></div>
-                        <div class="panel-body">
-                            <form action="{{ route('services.rental.start') }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="room_id" value="{{ $room->id }}">
-                                <input type="hidden" name="rental_type" id="hidden_rental_type" value="por_hora">
+            @if ($room->status == 'Disponible')
+                <form action="{{ route('services.rental.start') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="room_id" value="{{ $room->id }}">
+                    <input type="hidden" name="rental_type" id="hidden_rental_type" value="por_hora">
 
-                                <!-- Pestañas de Navegación -->
-                                <ul class="nav nav-tabs">
-                                    <li class="active"><a data-toggle="tab" href="#alquiler">Alquiler</a></li>
-                                    <li><a data-toggle="tab" href="#consumo">Consumo</a></li>
-                                </ul>
-
-                                <!-- Contenido de las Pestañas -->
-                                <div class="tab-content">
-                                    <!-- Pestaña Alquiler -->
-                                    <div id="alquiler" class="tab-pane fade in active">
-                                        <div class="form-group">
-                                            <label for="person_id">Cliente</label>
-                                            <div class="input-group">
-                                                <select name="person_id" id="select-person_id" class="form-control"></select>
-                                                <span class="input-group-btn">
-                                                    <button id="trash-person" class="btn btn-default" title="Quitar Cliente" style="margin: 0px" type="button">
-                                                        <i class="voyager-trash"></i>
-                                                    </button>
-                                                    <button class="btn btn-primary" title="Nuevo cliente" data-target="#modal-create-person" data-toggle="modal" style="margin: 0px" type="button">
-                                                        <i class="voyager-plus"></i>
-                                                    </button>
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="start_time">Hora de Inicio</label>
-                                            <input type="time" name="start_time" id="start_time" class="form-control" required>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="end_time">Hora Fin (opcional)</label>
-                                            <input type="time" name="end_time" id="end_time" class="form-control">
-                                            <small class="form-text text-muted">Dejar vacío para alquiler por hora.</small>
-                                        </div>
-                                    </div>
-                                    <!-- Pestaña Consumo -->
-                                    <div id="consumo" class="tab-pane fade">
-                                        <div class="form-group">
-                                            <label for="product_id">Buscar y añadir producto</label>
-                                            <select class="form-control" id="select-product_id"></select>
-                                        </div>
-                                        <div class="table-responsive">
-                                            <table id="dataTable" class="table table-hover table-products">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Producto</th>
-                                                        <th class="text-center" style="width: 100px;">Precio</th>
-                                                        <th class="text-center" style="width: 100px;">Cantidad</th>
-                                                        <th style="width: 50px;"></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="table-body">
-                                                    <tr id="tr-empty">
-                                                        <td colspan="4" class="empty-cart-message">
-                                                            <i class="voyager-basket"></i>
-                                                            <p>El carrito de consumo está vacío.</p>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
+                    <div class="col-md-6">
+                        {{-- PANEL PARA EL CARRITO DE CONSUMO --}}
+                        <div class="panel action-panel">
+                            <div class="panel-heading"><h3 class="panel-title"><i class="voyager-basket"></i> Consumo</h3></div>
+                            <div class="panel-body">
+                                <div class="form-group">
+                                    <label for="product_id">Buscar y añadir producto</label>
+                                    <select class="form-control" id="select-product_id"></select>
                                 </div>
-
-                                <button type="submit" class="btn btn-success btn-action"><i class="voyager-play"></i> Iniciar Alquiler</button>
-                            </form>
+                                <div class="table-responsive">
+                                    <table id="dataTable" class="table table-hover table-products">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 30px">N&deg;</th>
+                                                <th>Detalles</th>
+                                                <th style="text-align: center; width:15%">Precio</th>
+                                                <th style="text-align: center; width:12%">Cantidad</th>
+                                                <th style="text-align: center; width:10%">Subtotal</th>
+                                                <th style="width: 30px"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="table-body">
+                                            <tr id="tr-empty">
+                                                <td colspan="6" style="height: 320px">
+                                                    <h4 class="text-center text-muted" style="margin-top: 50px">
+                                                        <i class="glyphicon glyphicon-shopping-cart"
+                                                            style="font-size: 50px"></i> <br><br>
+                                                        Lista de venta vacía
+                                                    </h4>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                @else
+
+                    <div class="col-md-6">
+                        {{-- PANEL PARA INICIAR UN NUEVO ALQUILER --}}
+                        <div class="panel action-panel">
+                            <div class="panel-heading"><h3 class="panel-title"><i class="voyager-play"></i> Iniciar Nuevo Alquiler</h3></div>
+                            <div class="panel-body">
+                                <div class="form-group">
+                                    <label for="person_id">Cliente</label>
+                                    <div class="input-group">
+                                        <select name="person_id" id="select-person_id" class="form-control"></select>
+                                        <span class="input-group-btn">
+                                            <button id="trash-person" class="btn btn-default" title="Quitar Cliente" style="margin: 0px" type="button">
+                                                <i class="voyager-trash"></i>
+                                            </button>
+                                            <button class="btn btn-primary" title="Nuevo cliente" data-target="#modal-create-person" data-toggle="modal" style="margin: 0px" type="button">
+                                                <i class="voyager-plus"></i>
+                                            </button>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="start_time">Hora de Inicio</label>
+                                    <input type="time" name="start_time" id="start_time" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="end_time">Hora Fin (opcional)</label>
+                                    <input type="time" name="end_time" id="end_time" class="form-control">
+                                    <small class="form-text text-muted">Dejar vacío para alquiler por hora.</small>
+                                </div>
+                                <button type="submit" class="btn btn-success btn-block btn-action"><i class="voyager-play"></i> Iniciar Alquiler</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            @else
+                <div class="col-md-5">
                     {{-- PANEL PARA UN ALQUILER ACTIVO --}}
                     <div class="panel action-panel">
                         <div class="panel-heading"><h3 class="panel-title"><i class="voyager-activity"></i> Alquiler en Curso</h3></div>
@@ -180,11 +180,10 @@
                             </form>
                         </div>
                     </div>
-                @endif
-
-                {{-- Botón para volver, ahora fuera de los paneles condicionales para estar siempre visible --}}
-                <a href="{{ route('services.index') }}" class="btn-back"><i class="voyager-angle-left"></i> Volver a la lista de salas</a>
-            </div>
+                    {{-- Botón para volver, ahora fuera de los paneles condicionales para estar siempre visible --}}
+                    <a href="{{ route('services.index') }}" class="btn-back"><i class="voyager-angle-left"></i> Volver a la lista de salas</a>
+                </div>
+            @endif
         </div>
     </div>
 

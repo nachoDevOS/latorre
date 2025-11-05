@@ -141,17 +141,20 @@
                                 <div class="input-group">
                                     <input type="time" name="end_time" id="end_time" class="form-control">
                                     <span class="input-group-btn">
-                                        <button id="clear-end-time" class="btn btn-default" type="button" title="Limpiar Hora">
+                                        <button id="clear-end-time" class="btn btn-default" style="margin: 0px" type="button" title="Limpiar Hora">
                                             <i class="voyager-trash"></i>
                                         </button>
-                                    </span>
+                                    </span>                             
                                 </div>
                                 <small class="form-text text-muted">Dejar vacío para alquiler sin limite.</small>
                             </div>
                             <div class="form-group" id="monto-group">
-                                <label for="amount" id="amount-label">Registrar un adelanto</label>
+                                <label for="amount" id="amount-label">Registrar un adelanto de la sala</label>
                                 <input type="number" name="amountSala" id="amount" class="form-control" step="0.01" min="0" placeholder="0.00">
                             </div>
+
+
+                            {{-- aqui --}}
                             <button type="submit" class="btn btn-success btn-block btn-action"><i class="voyager-play"></i> Iniciar Alquiler</button>
                         </div>
                     </div>
@@ -200,7 +203,7 @@
                     amountLabel.textContent = 'Monto del alquiler de la sala';
                 } else {
                     hiddenRentalTypeInput.value = 'por_hora';
-                    amountLabel.textContent = 'Registrar un adelanto';
+                    amountLabel.textContent = 'Registrar un adelanto de la sala';
                 }
                 // Limpiamos el valor para que el usuario siempre lo ingrese manualmente
                 amountInput.value = '';

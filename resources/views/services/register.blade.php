@@ -139,7 +139,11 @@
                             <div class="form-group">
                                 <label for="end_time">Hora Fin (opcional)</label>
                                 <input type="time" name="end_time" id="end_time" class="form-control">
-                                <small class="form-text text-muted">Dejar vacío para alquiler por hora.</small>
+                                <small class="form-text text-muted">Dejar vacío para alquiler por hora o para registrar un adelanto.</small>
+                            </div>
+                            <div class="form-group" id="monto-group">
+                                <label for="amount" id="amount-label">Registrar un adelanto</label>
+                                <input type="number" name="amountSala" id="amount" class="form-control" step="0.01" min="0" placeholder="0.00">
                             </div>
                             <button type="submit" class="btn btn-success btn-block btn-action"><i class="voyager-play"></i> Iniciar Alquiler</button>
                         </div>
@@ -164,6 +168,12 @@
             const startTimeInput = document.getElementById('start_time');
             const endTimeInput = document.getElementById('end_time');
             const hiddenRentalTypeInput = document.getElementById('hidden_rental_type');
+            const amountLabel = document.getElementById('amount-label');
+            const amountInput = document.getElementById('amount');
+
+
+            // Asumimos que el precio de la sala está disponible. Ajusta 'price' si el atributo se llama diferente.
+            const roomPricePerHour = {{ $room->price ?? 0 }};
 
             // Set current time for start_time input
             const now = new Date();
@@ -171,19 +181,41 @@
             const currentMinutes = now.getMinutes().toString().padStart(2, '0');
             startTimeInput.value = `${currentHours}:${currentMinutes}`;
 
-            // Update hidden rental_type based on end_time
+            // Actualiza el tipo de alquiler y la UI basado en la hora de fin
             function updateRentalType() {
                 if (endTimeInput.value) {
                     hiddenRentalTypeInput.value = 'tiempo_fijo';
+                    amountLabel.textContent = 'Monto del alquiler de la sala';
+                    calculateTotal();
                 } else {
                     hiddenRentalTypeInput.value = 'por_hora';
+                    amountLabel.textContent = 'Registrar un adelanto';
+                    amountInput.readOnly = false;
+                    amountInput.value = '';
                 }
             }
 
-            // Listen for changes on end_time
+            function calculateTotal() {
+                if (startTimeInput.value && endTimeInput.value && roomPricePerHour > 0) {
+                    const start = new Date(`1970-01-01T${startTimeInput.value}`);
+                    const end = new Date(`1970-01-01T${endTimeInput.value}`);
+
+                    let diff = end - start;
+                    if (diff < 0) { // Si la hora fin es del día siguiente
+                        diff += 24 * 60 * 60 * 1000;
+                    }
+
+                    const hours = diff / (1000 * 60 * 60);
+                    const total = hours * roomPricePerHour;
+
+                    amountInput.value = total.toFixed(2);
+                }
+            }
+
+            // Escuchar cambios en los inputs de tiempo
+            startTimeInput.addEventListener('change', updateRentalType);
             endTimeInput.addEventListener('change', updateRentalType);
-            endTimeInput.addEventListener('keyup', updateRentalType); // For manual typing
-            updateRentalType(); // Initial call in case there's a pre-filled value (though unlikely for new rental)
+            updateRentalType(); // Llamada inicial para establecer el estado correcto
         });
 
         $('#trash-person').on('click', function() {

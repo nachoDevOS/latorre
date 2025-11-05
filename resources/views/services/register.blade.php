@@ -138,8 +138,15 @@
                             </div>
                             <div class="form-group">
                                 <label for="end_time">Hora Fin (opcional)</label>
-                                <input type="time" name="end_time" id="end_time" class="form-control">
-                                <small class="form-text text-muted">Dejar vacío para alquiler por hora o para registrar un adelanto.</small>
+                                <div class="input-group">
+                                    <input type="time" name="end_time" id="end_time" class="form-control">
+                                    <span class="input-group-btn">
+                                        <button id="clear-end-time" class="btn btn-default" type="button" title="Limpiar Hora">
+                                            <i class="voyager-trash"></i>
+                                        </button>
+                                    </span>
+                                </div>
+                                <small class="form-text text-muted">Dejar vacío para alquiler sin limite.</small>
                             </div>
                             <div class="form-group" id="monto-group">
                                 <label for="amount" id="amount-label">Registrar un adelanto</label>
@@ -171,6 +178,11 @@
             const amountLabel = document.getElementById('amount-label');
             const amountInput = document.getElementById('amount');
 
+            document.getElementById('clear-end-time').addEventListener('click', function() {
+                endTimeInput.value = '';
+                const event = new Event('change');
+                endTimeInput.dispatchEvent(event);
+            });
 
             // Asumimos que el precio de la sala está disponible. Ajusta 'price' si el atributo se llama diferente.
             const roomPricePerHour = {{ $room->price ?? 0 }};

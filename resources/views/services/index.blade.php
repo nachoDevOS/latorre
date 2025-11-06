@@ -143,6 +143,28 @@
             box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
             transform: translateY(-2px);
         }
+        .room-card-bg {
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            color: #fff;
+        }
+        .room-card-bg::before {
+            content: '';
+            position: absolute;
+            top: 0; right: 0; bottom: 0; left: 0;
+            background-color: rgba(0, 0, 0, 0.5); /* Overlay oscuro para legibilidad */
+            border-radius: 12px;
+        }
+        .room-card-bg .panel-heading, .room-card-bg .panel-body {
+            position: relative;
+            z-index: 2;
+            background-color: transparent;
+            border-bottom: none;
+        }
+        .room-card-bg .panel-title, .room-card-bg .room-icon {
+            color: #fff;
+        }
 
         /* Empty State */
         .empty-state {
@@ -190,7 +212,11 @@
         <div class="row">
             @forelse ($rooms as $room)
                 <div class="col-md-3 col-sm-6">
-                    <div class="panel room-card">
+                    @php
+                        $bgStyle = $room->image ? "background-image: url('" . asset('storage/' . $room->image) . "');" : "";
+                        $bgClass = $room->image ? "room-card-bg" : "";
+                    @endphp
+                    <div class="panel room-card {{ $bgClass }}" style="{{ $bgStyle }}">
                         <div class="panel-heading">
                             @php
                                 $icon = 'voyager-controller'; // Icono por defecto
@@ -217,7 +243,13 @@
                                 </p>
                             </div>
                             <div>
-                                <a href="{{ route('services.show', $room->id) }}" class="btn btn-primary btn-manage">Gestionar</a>
+                                <a href="{{ route('services.show', $room->id) }}" class="btn btn-primary btn-manage">
+                                    @if ($room->status == 'Disponible')
+                                        Gestionar Sala
+                                    @else
+                                        Ver Detalles
+                                    @endif
+                                </a>
                             </div>
                         </div>
                     </div>

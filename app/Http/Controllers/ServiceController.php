@@ -32,6 +32,8 @@ class ServiceController extends Controller
     {
         // Busca la sala por su ID. Si no la encuentra, lanzará un error 404.
         $room = Room::findOrFail($id);
+
+        
         return view('services.register', [
             'room' => $room
         ]);

@@ -35,15 +35,24 @@ class ServiceController extends Controller
         // Busca la sala por su ID. Si no la encuentra, lanzará un error 404.
         $room = Room::findOrFail($id);
 
+        if($room->status != 'Disponible') {
+            return view('services.register', [
+                'room' => $room
+            ]);
+        }
+        else{
+            return view('services.read', [
+                'room' => $room
+            ]);
+        }
 
-        return view('services.register', [
-            'room' => $room
-        ]);
+
+        
     }
 
 
     public function startRental(Request $request)
-    {        // return $request;
+    {      
         $request->validate([
             'start_time' => 'required|date_format:H:i',
         ], [

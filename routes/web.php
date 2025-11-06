@@ -43,6 +43,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['loggin', 'system']], functi
 
     Route::get('services', [ServiceController::class, 'index'])->name('services.index');
     Route::get('services/{id}', [ServiceController::class, 'show'])->name('services.show');
+    Route::post('services/{service}/items', [ServiceController::class, 'addItem'])->name('services.add_item');
     Route::post('services/rental/start', [ServiceController::class, 'startRental'])->name('services.rental.start');
 
 

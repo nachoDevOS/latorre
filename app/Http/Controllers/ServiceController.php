@@ -179,4 +179,46 @@ class ServiceController extends Controller
             ]);
         }
     }
+
+    public function addItem(Request $request, Service $service)
+    {
+        $request->validate([
+            'item_stock_id' => 'required|exists:item_stocks,id',
+            'quantity' => 'required|numeric|min:1',
+            'price' => 'required|numeric|min:0.01',
+        ]);
+
+        $itemStock = ItemStock::findOrFail($request->item_stock_id);
+
+        if ($itemStock->stock < $request->quantity) {
+            return back()->with(['message' => 'Stock insuficiente.', 'alert-type' => 'error']);
+        }
+
+        DB::beginTransaction();
+        try {
+            ServiceItem::create([
+                'service_id' => $service->id,
+                'itemStock_id' => $itemStock->id,
+                'price' => $request->price,
+                'quantity' => $request->quantity,
+                'amount' => $request->price * $request->quantity,
+            ]);
+
+            $itemStock->decrement('stock', $request->quantity);
+
+            $service->total_amount += $request->price * $request->quantity;
+            $service->amount_products += $request->price * $request->quantity;
+            $service->save();
+
+            DB::commit();
+
+            return redirect()->route('services.show', $service->room_id)->with([
+                'message'    => 'Producto agregado exitosamente.',
+                'alert-type' => 'success',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with(['message' => 'Ocurrió un error al agregar el producto: ' . $e->getMessage(), 'alert-type' => 'error']);
+        }
+    }
 }

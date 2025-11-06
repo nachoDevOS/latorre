@@ -6,11 +6,7 @@
         body {
             font-family: 'Roboto', sans-serif;
         }
-        .details-panel .panel-heading, .products-panel .panel-heading {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            color: white;
-            border-radius: 8px 8px 0 0;
-        }
+
         .details-panel .panel-title, .products-panel .panel-title {
             font-weight: 500;
         }
@@ -126,12 +122,12 @@
 
                 {{-- Panel de Productos Consumidos --}}
                 <div class="panel products-panel">
-                    <div class="panel-heading">
+                    <div>
                         <h3 class="panel-title"><i class="voyager-basket"></i> Productos Consumidos</h3>
                     </div>
                     <div class="panel-body">
                         <div class="table-responsive">
-                            <table class="table table-hover">
+                            <table class="table table-hover" id="dataTable">
                                 <thead>
                                     <tr>
                                         <th>#</th>
@@ -163,6 +159,50 @@
                                 </tbody>
                             </table>
                         </div>
+                    </div>
+                </div>
+
+                {{-- Panel para agregar productos --}}
+                <div class="panel panel-info">
+                    <div>
+                        <h3 class="panel-title"><i class="voyager-plus"></i> Agregar Productos al Servicio</h3>
+                    </div>
+                    <div class="panel-body">
+                        <form action="{{ route('services.add_item', ['service' => $service->id]) }}" method="POST">
+                            @csrf
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label>Buscar producto</label>
+                                    <select class="form-control" id="select-product_id"></select>
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <label>Stock</label>
+                                    <input type="number" id="input-stock" class="form-control" readonly />
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <label>Precio</label>
+                                    <div class="input-group">
+                                        <input type="number" name="price" id="input-price" class="form-control" step="0.01" min="0.01" required />
+                                        <span class="input-group-addon">Bs.</span>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <label>Cantidad</label>
+                                    <input type="number" name="quantity" id="input-quantity" class="form-control" step="1" min="1" required />
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <label>Subtotal</label>
+                                    <div class="input-group">
+                                        <input type="number" id="input-subtotal" class="form-control" readonly />
+                                        <span class="input-group-addon">Bs.</span>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="item_stock_id" id="input-item_stock_id">
+                            </div>
+                            <div class="text-right">
+                                <button type="submit" class="btn btn-primary">Agregar</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -208,5 +248,80 @@
                 </div>
             </div>
         </div>
-    </div>
+@endsection
+
+@section('javascript')
+    <script>
+        $(document).ready(function() {
+            var productSelected;
+
+            $('#select-product_id').select2({
+                width: '100%',
+                placeholder: '<i class="fa fa-search"></i> Buscar...',
+                escapeMarkup: function(markup) { return markup; },
+                language: {
+                    inputTooShort: function(data) { return `Por favor ingrese ${data.minimum - data.input.length} o más caracteres`; },
+                    noResults: function() { return `<i class="far fa-frown"></i> No hay resultados encontrados`; }
+                },
+                quietMillis: 250,
+                minimumInputLength: 2,
+                ajax: {
+                    url: "{{ url('admin/items/stock/ajax') }}",
+                    processResults: function(data) {
+                        return { results: data };
+                    },
+                    cache: true
+                },
+                templateResult: formatResultProducts,
+                templateSelection: (opt) => {
+                    productSelected = opt;
+                    return productSelected.id
+                }
+            }).change(function() {
+                if ($('#select-product_id option:selected').val()) {
+                    let product = productSelected;
+                    if(product.id){
+                        $('#input-stock').val(product.stock);
+                        $('#input-price').val(product.priceSale);
+                        $('#input-quantity').val(1);
+                        $('#input-item_stock_id').val(product.id);
+                        updateSubtotal();
+                    }
+                }else{
+                    $('#input-stock').val('');
+                    $('#input-price').val('');
+                    $('#input-quantity').val('');
+                    $('#input-subtotal').val('');
+                    $('#input-item_stock_id').val('');
+                }
+            });
+
+            $('#input-price, #input-quantity').on('keyup change', function(){
+                updateSubtotal();
+            });
+
+            $('#input-quantity').on('keyup change', function(){
+                let max = $('#input-stock').val() ? parseFloat($('#input-stock').val()) : 0;
+                let value = $(this).val() ? parseFloat($(this).val()) : 0;
+                if(value > max){
+                    $(this).val(max);
+                    toastr.warning('La cantidad no puede ser mayor al stock', 'Advertencia');
+                }
+            });
+        });
+
+        function formatResultProducts(option) {
+            if (option.loading) return '<span class="text-center"><i class="fas fa-spinner fa-spin"></i> Buscando...</span>';
+            let image = "{{ asset('images/default.jpg') }}";
+            if (option.item?.image) image = `{{ asset('storage') }}/${option.item.image.replace(/\.([^.]+)$/, '-cropped.webp')}`;
+            const fallbackImage = '{{ asset('images/default.jpg') }}';
+            return $(`<div style="display: flex; align-items: center; padding: 5px;"><img src="${image}" style="width: 50px; height: 50px; border-radius: 4px; margin-right: 10px; object-fit: cover;" onerror="this.onerror=null;this.src='${fallbackImage}';"/><div style="line-height: 1.2;"><div style="font-weight: bold;">${option.item.name}</div><small><b>Stock:</b> ${option.stock} Unid. | <b>Precio:</b> ${option.priceSale} Bs.</small></div></div>`);
+        }
+
+        function updateSubtotal(){
+            let price = $('#input-price').val() ? parseFloat($('#input-price').val()) : 0;
+            let quantity = $('#input-quantity').val() ? parseFloat($('#input-quantity').val()) : 0;
+            $('#input-subtotal').val((price * quantity).toFixed(2));
+        }
+    </script>
 @endsection

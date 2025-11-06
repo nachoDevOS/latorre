@@ -77,6 +77,10 @@
             transform: translateY(-2px);
             box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
         }
+        .btn-finish:disabled {
+            background: #a5d6a7;
+            cursor: not-allowed;
+        }
     </style>
 @endsection
 
@@ -91,6 +95,20 @@
                         <h3 class="panel-title"><i class="voyager-info-circled"></i> Detalles del Servicio</h3>
                     </div>
                     <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="detail-card">
+                                    <i class="voyager-milestone icon"></i>
+                                    <span>Sala: <strong>{{ $room->name }} ({{ $room->type }})</strong></span>
+                                </div>                                
+                            </div>
+                            <div class="col-md-6">
+                                <div class="detail-card">
+                                    <i class="voyager-person icon"></i>
+                                    <span>Cliente: <strong>{{ $service->person ? $service->person->name : 'No especificado' }}</strong></span>
+                                </div>
+                            </div>
+                        </div>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="detail-card">
@@ -121,38 +139,138 @@
                 </div>
 
                 {{-- Panel de Productos Consumidos --}}
-                <div class="panel products-panel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="panel products-panel">
+                            <div>
+                                <h3 class="panel-title"><i class="voyager-basket"></i> Productos Consumidos</h3>
+                            </div>
+                            <div class="panel-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="dataTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Producto</th>
+                                                <th class="text-right">Precio</th>
+                                                <th class="text-center">Cantidad</th>
+                                                <th class="text-right">Subtotal</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @php $totalProductos = 0; @endphp
+                                            @forelse ($service->serviceItems as $index => $item)
+                                                <tr>
+                                                    <td>{{ $item->itemStock->item->name }}</td>
+                                                    <td class="text-right">{{ number_format($item->price, 2, ',', '.') }}.</td>
+                                                    <td class="text-center">{{ $item->quantity }}</td>
+                                                    <td class="text-right">{{ number_format($item->amount, 2, ',', '.') }} Bs.</td>
+                                                </tr>
+                                                @php $totalProductos += $item->amount; @endphp
+                                            @empty
+                                                <tr>
+                                                    <td colspan="4" class="text-center" style="padding: 40px;">
+                                                        <i class="voyager-bar-chart" style="font-size: 3rem; opacity: 0.5;"></i>
+                                                        <h4 style="margin-top: 10px;">No se han registrado productos.</h4>
+                                                    </td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+         
+                    <div class="col-md-6">
+                        {{-- Panel para agregar productos --}}
+                        <div class="panel panel-info">
+                            <div>
+                                <h3 class="panel-title"><i class="voyager-plus"></i> Agregar Productos al Servicio</h3>
+                            </div>
+                            <div class="panel-body">
+                                <form action="{{ route('services.add_item', ['service' => $service->id]) }}"  method="POST">
+                                    @csrf
+                                    <div class="row">
+                                        <div class="form-group col-md-12">
+                                            <label>Buscar producto</label>
+                                            <select class="form-control" id="select-product_id"></select>
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label>Precio</label>
+                                            <div class="input-group">
+                                                <input type="number" name="price" id="input-price" class="form-control" step="0.01" min="0.01" required />
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label>Cantidad</label>
+                                            <input type="number" name="quantity" id="input-quantity" class="form-control" step="1" min="1" required />
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label>Subtotal</label>
+                                            <div class="input-group">
+                                                <input type="number" id="input-subtotal" class="form-control" readonly />
+                                            </div>
+                                        </div>
+                                        <input type="hidden" name="item_stock_id" id="input-item_stock_id">
+                                    </div>
+                                    <div class="text-right">
+                                        <button type="submit" class="btn btn-primary">Agregar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {{-- Historial de Pagos --}}
+                <div class="panel panel-primary">
                     <div>
-                        <h3 class="panel-title"><i class="voyager-basket"></i> Productos Consumidos</h3>
+                        <h3 class="panel-title"><i class="voyager-dollar"></i> Historial de Pagos</h3>
                     </div>
                     <div class="panel-body">
                         <div class="table-responsive">
                             <table class="table table-hover" id="dataTable">
                                 <thead>
                                     <tr>
-                                        <th>#</th>
-                                        <th>Producto</th>
-                                        <th class="text-right">Precio</th>
-                                        <th class="text-center">Cantidad</th>
-                                        <th class="text-right">Subtotal</th>
+                                        <th>Fecha y Hora</th>
+                                        <th>Método de pago</th>
+                                        <th class="text-right">Monto</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @php $totalProductos = 0; @endphp
-                                    @forelse ($service->serviceItems as $index => $item)
+                                    @forelse ($service->serviceTransactions as $transaction)
                                         <tr>
-                                            <td>{{ $index + 1 }}</td>
-                                            <td>{{ $item->itemStock->item->name }}</td>
-                                            <td class="text-right">{{ number_format($item->price, 2, ',', '.') }} Bs.</td>
-                                            <td class="text-center">{{ $item->quantity }}</td>
-                                            <td class="text-right">{{ number_format($item->amount, 2, ',', '.') }} Bs.</td>
+                                            <td>{{ $transaction->created_at->format('d/m/Y h:i a') }}</td>
+                                            <td>
+                                                @php
+                                                    $paymentMethod = $transaction->paymentType;
+                                                    $decodedMethod = json_decode($paymentMethod, true);
+                                                @endphp
+                                
+                                                @if (is_array($decodedMethod))
+                                                    @if (isset($decodedMethod['efectivo']) && isset($decodedMethod['qr']))
+                                                        Efectivo y QR
+                                                    @endif
+                                                @else
+                                                    @switch($paymentMethod)
+                                                        @case('efectivo')
+                                                            Efectivo
+                                                            @break
+                                                        @case('qr')
+                                                            QR
+                                                            @break
+                                                        @default
+                                                            {{ ucfirst($paymentMethod) }}
+                                                    @endswitch
+                                                @endif
+                                            </td>
+                                            <td class="text-right">{{ number_format($transaction->amount, 2, ',', '.') }} Bs.</td>
                                         </tr>
-                                        @php $totalProductos += $item->amount; @endphp
                                     @empty
                                         <tr>
-                                            <td colspan="5" class="text-center" style="padding: 40px;">
-                                                <i class="voyager-bar-chart" style="font-size: 3rem; opacity: 0.5;"></i>
-                                                <h4 style="margin-top: 10px;">No se han registrado productos.</h4>
+                                            <td colspan="3" class="text-center" style="padding: 20px;">
+                                                <i class="voyager-info-circled" style="font-size: 2rem; opacity: 0.5;"></i>
+                                                <h5 style="margin-top: 10px;">No se han registrado pagos.</h5>
                                             </td>
                                         </tr>
                                     @endforelse
@@ -162,95 +280,97 @@
                     </div>
                 </div>
 
-                {{-- Panel para agregar productos --}}
-                <div class="panel panel-info">
-                    <div>
-                        <h3 class="panel-title"><i class="voyager-plus"></i> Agregar Productos al Servicio</h3>
-                    </div>
-                    <div class="panel-body">
-                        <form action="{{ route('services.add_item', ['service' => $service->id]) }}" method="POST">
-                            @csrf
-                            <div class="row">
-                                <div class="form-group col-md-12">
-                                    <label>Buscar producto</label>
-                                    <select class="form-control" id="select-product_id"></select>
-                                </div>
-                                <div class="form-group col-md-3">
-                                    <label>Stock</label>
-                                    <input type="number" id="input-stock" class="form-control" readonly />
-                                </div>
-                                <div class="form-group col-md-3">
-                                    <label>Precio</label>
-                                    <div class="input-group">
-                                        <input type="number" name="price" id="input-price" class="form-control" step="0.01" min="0.01" required />
-                                        <span class="input-group-addon">Bs.</span>
-                                    </div>
-                                </div>
-                                <div class="form-group col-md-3">
-                                    <label>Cantidad</label>
-                                    <input type="number" name="quantity" id="input-quantity" class="form-control" step="1" min="1" required />
-                                </div>
-                                <div class="form-group col-md-3">
-                                    <label>Subtotal</label>
-                                    <div class="input-group">
-                                        <input type="number" id="input-subtotal" class="form-control" readonly />
-                                        <span class="input-group-addon">Bs.</span>
-                                    </div>
-                                </div>
-                                <input type="hidden" name="item_stock_id" id="input-item_stock_id">
-                            </div>
-                            <div class="text-right">
-                                <button type="submit" class="btn btn-primary">Agregar</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+
+                
             </div>
 
             {{-- Panel de Resumen de Pago --}}
             <div class="col-md-4">
-                <div class="panel summary-panel">
-                    <h4 style="text-align: center; margin-top: 0; font-weight: 500; color: #4A4A4A;">Resumen de Pago</h4>
-                    <hr>
-                    <div class="summary-item">
-                        <span>Subtotal Productos:</span>
-                        <strong>{{ number_format($totalProductos, 2) }} Bs.</strong>
-                    </div>
-                    <div class="summary-item">
-                        <span>Adelanto/Monto Sala:</span>
-                        <strong>{{ number_format($service->amount_room, 2) }} Bs.</strong>
-                    </div>
-                    
-                    <div class="summary-total">
+                @php
+                    $totalPagado = $service->serviceTransactions->sum('amount');
+                    $deuda = $service->total_amount - $totalPagado;
+                @endphp
+                <form action="{{ route('services.finish', ['service' => $service->id]) }}" method="POST">
+                    @csrf
+                    <div class="panel summary-panel">
+                        <h4 style="text-align: center; margin-top: 0; font-weight: 500; color: #4A4A4A;">Resumen de Pago</h4>
+                        <hr>
                         <div class="summary-item">
-                            <span>Monto Total:</span>
-                            <strong>{{ number_format($service->total_amount, 2) }} Bs.</strong>
+                            <span>Subtotal Productos:</span>
+                            <strong>{{ number_format($totalProductos, 2, ',', '.') }} Bs.</strong>
+                        </div>
+                        <div class="summary-item">
+                            <span>Adelanto/Monto Sala:</span>
+                            <strong>{{ number_format($service->amount_room, 2, ',', '.') }} Bs.</strong>
+                        </div>
+                        
+                        <div class="summary-total">
+                            <div class="summary-item">
+                                <span>Monto Total:</span>
+                                <strong>{{ number_format($service->total_amount, 2, ',', '.') }} Bs.</strong>
+                            </div>
+                        </div>
+                        <div class="summary-total">
+                            <div class="summary-item">
+                                <span>Total Pagado:</span>
+                                <strong style="color: green;">{{ number_format($totalPagado, 2, ',', '.') }} Bs.</strong>
+                            </div>
+                        </div>
+                        <div class="summary-total">
+                            <div class="summary-item">
+                                <span>Deuda a Pagar:</span>
+                                <strong id="deuda-pagar" style="color: red;">{{ number_format($deuda, 2, ',', '.') }} Bs.</strong>
+                            </div>
+                        </div>
+
+                        @if ($deuda > 0)
+                            <div id="payment-section" style="margin-top: 15px;">
+                                <hr>
+                                <div class="form-group">
+                                    <label for="payment_method">Método de Pago</label>
+                                    <select name="payment_method" id="payment_method" class="form-control" required>
+                                        <option value="" selected disabled>--Seleccione una opción--</option>
+                                        <option value="efectivo">Efectivo</option>
+                                        <option value="qr">QR</option>
+                                        <option value="ambos">Ambos</option>
+                                    </select>
+                                </div>
+                                <div id="payment-details" style="display: none;">
+                                    <div class="form-group">
+                                        <label for="amount_efectivo">Monto en Efectivo</label>
+                                        <input type="number" name="amount_efectivo" id="amount_efectivo" class="form-control" step="0.01" min="0" placeholder="0.00">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="amount_qr">Monto con QR</label>
+                                        <input type="number" name="amount_qr" id="amount_qr" class="form-control" step="0.01" min="0" placeholder="0.00">
+                                    </div>
+                                </div>
+
+                                <div id="calculator" style="display: none; margin-top: 15px; border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
+                                    <div class="form-group">
+                                        <label for="amount_received" style="font-weight: bold;">Monto Recibido (Efectivo)</label>
+                                        <input type="number" name="amount_received" id="amount_received" class="form-control" step="0.01" min="0" placeholder="0.00">
+                                    </div>
+                                    <div class="summary-item" style="background-color: #f0f0f0; padding: 10px; border-radius: 5px;">
+                                        <strong style="font-size: 1.1rem;">Cambio a devolver:</strong>
+                                        <strong class="amount" id="change_due" style="font-size: 1.2rem; color: #28a745;">0.00 Bs.</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
+                        <div style="margin-top: 20px; text-align: center;">
+                            <button type="submit" class="btn btn-finish"><i class="voyager-dollar"></i> Finalizar y Cobrar</button>
                         </div>
                     </div>
-                    <div class="summary-total">
-                        <div class="summary-item">
-                            <span>Total Pagado:</span>
-                            @php
-                                $totalPagado = $service->serviceTransactions->sum('amount');
-                            @endphp
-                            <strong style="color: green;">{{ number_format($totalPagado, 2) }} Bs.</strong>
-                        </div>
-                    </div>
-                    <div class="summary-total">
-                        <div class="summary-item">
-                            <span>Deuda a Pagar:</span>
-                            <strong style="color: red;">{{ number_format($service->total_amount - $totalPagado, 2) }} Bs.</strong>
-                        </div>
-                    </div>
-                    <div style="margin-top: 20px; text-align: center;">
-                        <a href="#" class="btn btn-finish"><i class="voyager-dollar"></i> Finalizar y Cobrar</a>
-                    </div>
-                </div>
+                </form>
             </div>
         </div>
 @endsection
 
 @section('javascript')
+    <script src="{{ asset('js/btn-submit.js') }}"></script>
+
     <script>
         $(document).ready(function() {
             var productSelected;
@@ -284,6 +404,7 @@
                         $('#input-stock').val(product.stock);
                         $('#input-price').val(product.priceSale);
                         $('#input-quantity').val(1);
+                        $('#input-quantity').attr('max', product.stock);
                         $('#input-item_stock_id').val(product.id);
                         updateSubtotal();
                     }
@@ -308,6 +429,107 @@
                     toastr.warning('La cantidad no puede ser mayor al stock', 'Advertencia');
                 }
             });
+
+            @php
+                $totalPagado = $service->serviceTransactions->sum('amount');
+                $deuda = $service->total_amount - $totalPagado;
+            @endphp
+
+            @if ($deuda > 0)
+                const deuda = {{ $deuda }};
+                const finishButton = $('.btn-finish');
+                finishButton.prop('disabled', true);
+
+                $('#payment_method').on('change', function() {
+                    let paymentMethod = $(this).val();
+                    $('#payment-details').hide();
+                    $('#calculator').hide();
+                    finishButton.prop('disabled', true);
+
+                    $('#amount_efectivo').prop('required', false).prop('min', '');
+                    $('#amount_qr').prop('required', false).prop('min', '');
+
+                    if (paymentMethod === 'ambos') {
+                        $('#payment-details').show();
+                        $('#amount_efectivo').prop('required', true).prop('min', 0.01);
+                        $('#amount_qr').prop('required', true).prop('min', 0.01);
+                    } else if (paymentMethod === 'efectivo') {
+                        $('#calculator').show();
+                    } else if (paymentMethod === 'qr') {
+                        finishButton.prop('disabled', false);
+                    }
+                    
+                    $('#amount_received').val('').trigger('change');
+                    $('#amount_efectivo').val('').trigger('change');
+                    $('#amount_qr').val('').trigger('change');
+                    checkPayment();
+                });
+
+                function checkPayment() {
+                    let paymentMethod = $('#payment_method').val();
+                    if (!paymentMethod) {
+                        finishButton.prop('disabled', true);
+                        return;
+                    }
+
+                    if (paymentMethod === 'qr') {
+                        finishButton.prop('disabled', false);
+                        return;
+                    }
+
+                    if (paymentMethod === 'efectivo') {
+                        let received = parseFloat($('#amount_received').val()) || 0;
+                        if (received >= deuda) {
+                            finishButton.prop('disabled', false);
+                        } else {
+                            finishButton.prop('disabled', true);
+                        }
+                        let change = received - deuda;
+                        if (change < 0) change = 0;
+                        $('#change_due').text(change.toFixed(2).replace('.', ',') + ' Bs.');
+
+                    } else if (paymentMethod === 'ambos') {
+                        let efectivo = parseFloat($('#amount_efectivo').val()) || 0;
+                        let qr = parseFloat($('#amount_qr').val()) || 0;
+                        
+                        if ( (efectivo + qr).toFixed(2) == deuda.toFixed(2) ) {
+                            finishButton.prop('disabled', false);
+                        } else {
+                            finishButton.prop('disabled', true);
+                        }
+                    }
+                }
+
+                $('#amount_received, #amount_efectivo, #amount_qr').on('keyup change', function(){
+                    checkPayment();
+                });
+
+                $('#amount_qr, #amount_efectivo').on('keyup change', function() {
+                    let efectivo = parseFloat($('#amount_efectivo').val()) || 0;
+                    let qr = parseFloat($('#amount_qr').val()) || 0;
+
+                    if ((efectivo + qr) > deuda) {
+                        toastr.warning('El monto ingresado no puede ser mayor a la deuda.', 'Monto excedido');
+                        let changedInput = $(this).attr('id');
+                        if(changedInput == 'amount_efectivo') {
+                            $('#amount_efectivo').val(deuda - qr);
+                        } else {
+                            $('#amount_qr').val(deuda - efectivo);
+                        }
+                        checkPayment();
+                    }
+                });
+
+
+                $('form').on('submit', function(e) {
+                    if(finishButton.prop('disabled')) {
+                        e.preventDefault();
+                        toastr.error('Verifique los datos del pago.', 'Error en el pago');
+                    }
+                });
+            @else
+                $('.btn-finish').prop('disabled', false);
+            @endif
         });
 
         function formatResultProducts(option) {

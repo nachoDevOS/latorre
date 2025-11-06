@@ -121,7 +121,7 @@
     </div>
 
 
-    <form action="{{ route('items-stock.store', ['id' => $item->id]) }}" class="form-submit" method="POST">
+    <form action="{{ route('items-stock.store', ['id' => $item->id]) }}" class="form-edit-add" method="POST">
         <div class="modal fade" data-backdrop="static" id="modal-register-stock" role="dialog">
             <div class="modal-dialog modal-success">
                 <div class="modal-content">
@@ -173,7 +173,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-                        <input type="submit" class="btn btn-success btn-form-submit" value="Guardar">
+                        <input type="submit" class="btn btn-success btn-form-submit btn-submit" value="Guardar">
                     </div>
                 </div>
             </div>

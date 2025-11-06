@@ -247,16 +247,24 @@
                         <div class="panel-body">
                             <div>
                                 <p class="room-type">{{ $room->type }}</p>
-                                <p>
+                            <div style="min-height: 100px;">
                                     @if ($room->status=='Disponible')
                                         <span class="label label-success status-badge">Disponible</span>
                                     @else
                                         <span class="label label-danger status-badge">Ocupada</span>
                                         @if ($room->service)
-                                            <div id="timer-{{ $room->id }}" style="font-size: 18px; font-weight: bold; margin-top: 10px;"></div>
+                                            <p style="margin-top: 10px; margin-bottom: 0px; font-size: 0.95em;">
+                                                <i class="voyager-watch"></i> Inicio: <strong>{{ date('h:i A', strtotime($room->service->start_time)) }}</strong>
+                                            </p>
+                                            @if($room->service->serviceTimes->isNotEmpty() && $room->service->serviceTimes->first()->end_time)
+                                                <p style="margin-bottom: 0px; font-size: 0.95em;">
+                                                    <i class="voyager-alarm-clock"></i> Fin: <strong>{{ date('h:i A', strtotime($room->service->serviceTimes->first()->end_time)) }}</strong>
+                                                </p>
+                                            @endif
+                                            <div id="timer-{{ $room->id }}" style="font-size: 18px; font-weight: bold; margin-top: 5px;"></div>
                                         @endif
                                     @endif
-                                </p>
+                                </div>
                             </div>
                             <div>
                                 <a href="{{ route('services.show', $room->id) }}" class="btn btn-primary btn-manage">

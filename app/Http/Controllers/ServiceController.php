@@ -25,7 +25,7 @@ class ServiceController extends Controller
     public function index()
     {
         $rooms = Room::with(['service' => function($q) {
-            $q->where('status', 'vigente');
+            $q->where('status', 'vigente')->with('serviceTimes');
         }])->where('deleted_at', NULL)->get();
         return view('services.index', compact('rooms'));
     }

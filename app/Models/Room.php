@@ -28,6 +28,11 @@ class Room extends Model
         'deleteObservation',
     ];
 
+    public function service()
+    {
+        return $this->hasOne(Service::class);
+    }
+
     public function roomDetails()
     {
         return $this->hasMany(RoomDetail::class, 'room_id');

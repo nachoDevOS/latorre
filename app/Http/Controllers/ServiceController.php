@@ -24,7 +24,9 @@ class ServiceController extends Controller
 
     public function index()
     {
-        $rooms = Room::where('deleted_at', NULL)->get();
+        $rooms = Room::with(['service' => function($q) {
+            $q->where('status', 'vigente');
+        }])->where('deleted_at', NULL)->get();
         return view('services.index', compact('rooms'));
     }
 
@@ -33,7 +35,7 @@ class ServiceController extends Controller
         // Busca la sala por su ID. Si no la encuentra, lanzará un error 404.
         $room = Room::findOrFail($id);
 
-        
+
         return view('services.register', [
             'room' => $room
         ]);
@@ -114,11 +116,11 @@ class ServiceController extends Controller
                         'itemStock_id' => $itemStock->id,
                         'price' => $value['price'],
                         'quantity' => $value['quantity'],
-                        'amount' => $value['subtotal'],
+                        'amount' => $value['price'] * $value['quantity'],
                     ]);
                     $itemStock->decrement('stock', $value['quantity']);
                 } 
-            }   
+            }  
             
             if ($request->payment_method == 'efectivo' || $request->payment_method == 'ambos' && ($amount_efectivo + $amount_Qr) > 0 ) {
                     ServiceTransaction::create([

@@ -126,6 +126,18 @@
             background-color: rgba(233, 78, 119, 0.15);
             color: #c7355d;
         }
+
+        /* Solid badges for cards with background images for better readability */
+        .room-card-bg .label-success.status-badge {
+            background-color: var(--secondary-color);
+            color: #fff;
+            text-shadow: none; /* Remove shadow from badge text if it inherits */
+        }
+        .room-card-bg .label-danger.status-badge {
+            background-color: var(--danger-color);
+            color: #fff;
+            text-shadow: none; /* Remove shadow from badge text if it inherits */
+        }
         .room-card .btn-manage {
             margin-top: 20px;
             border-radius: 50px;
@@ -148,12 +160,13 @@
             background-position: center;
             position: relative;
             color: #fff;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
         }
         .room-card-bg::before {
             content: '';
             position: absolute;
             top: 0; right: 0; bottom: 0; left: 0;
-            background-color: rgba(0, 0, 0, 0.5); /* Overlay oscuro para legibilidad */
+            background-color: rgba(0, 0, 0, 0.3); /* Overlay oscuro para legibilidad */
             border-radius: 12px;
         }
         .room-card-bg .panel-heading, .room-card-bg .panel-body {
@@ -239,6 +252,9 @@
                                         <span class="label label-success status-badge">Disponible</span>
                                     @else
                                         <span class="label label-danger status-badge">Ocupada</span>
+                                        @if ($room->service)
+                                            <div id="timer-{{ $room->id }}" style="font-size: 18px; font-weight: bold; margin-top: 10px;"></div>
+                                        @endif
                                     @endif
                                 </p>
                             </div>
@@ -265,4 +281,37 @@
             @endforelse
         </div>
     </div>
+@stop
+
+
+@section('javascript')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            setInterval(function () {
+                @foreach ($rooms as $room)
+                    @if ($room->status != 'Disponible' && $room->service)
+                        var startTime = new Date();
+                        var timeParts = "{{ $room->service->start_time }}".split(':');
+                        startTime.setHours(timeParts[0], timeParts[1], timeParts[2] || 0, 0);
+
+                        var now = new Date();
+                        var elapsedTime = now - startTime;
+
+                        var hours = Math.floor(elapsedTime / (1000 * 60 * 60));
+                        elapsedTime -= hours * (1000 * 60 * 60);
+
+                        var minutes = Math.floor(elapsedTime / (1000 * 60));
+                        elapsedTime -= minutes * (1000 * 60);
+
+                        var seconds = Math.floor(elapsedTime / 1000);
+
+                        document.getElementById('timer-{{ $room->id }}').innerText = 
+                            ('0' + hours).slice(-2) + ':' + 
+                            ('0' + minutes).slice(-2) + ':' + 
+                            ('0' + seconds).slice(-2);
+                    @endif
+                @endforeach
+            }, 1000);
+        });
+    </script>
 @endsection

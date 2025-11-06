@@ -33,24 +33,24 @@ class Service extends Model
 
     public function room()
     {
-        return $this->belongsTo(Room::class);   
+        return $this->belongsTo(Room::class, 'room_id');   
     }
 
     public function person()
     {
-        return $this->belongsTo(Person::class);   
+        return $this->belongsTo(Person::class, 'person_id');   
     }
     public function serviceTimes()
     {
-        return $this->hasMany(ServiceTime::class);   
+        return $this->hasMany(ServiceTime::class, 'service_id');   
     }
     public function serviceItems()
     {
-        return $this->hasMany(ServiceItem::class);   
+        return $this->hasMany(ServiceItem::class, 'service_id');   
     }
     public function serviceTransactions()
     {
-        return $this->hasMany(ServiceTransaction::class);   
+        return $this->hasMany(ServiceTransaction::class, 'service_id');   
     }
 
 

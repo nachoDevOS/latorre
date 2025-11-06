@@ -35,14 +35,21 @@ class ServiceController extends Controller
         // Busca la sala por su ID. Si no la encuentra, lanzará un error 404.
         $room = Room::findOrFail($id);
 
-        if($room->status != 'Disponible') {
+        if($room->status == 'Disponible') {
+            // Si la sala está disponible, muestra el formulario para iniciar un nuevo alquiler
             return view('services.register', [
                 'room' => $room
             ]);
-        }
-        else{
+        } else {
+            // Si la sala está ocupada, muestra los detalles del servicio actual
+            $service = Service::where('room_id', $room->id)
+                                ->where('status', 'vigente')
+                                ->with(['person', 'serviceTimes', 'serviceItems.itemStock.item'])
+                                ->firstOrFail();
+
             return view('services.read', [
-                'room' => $room
+                'room' => $room,
+                'service' => $service
             ]);
         }
 
@@ -121,7 +128,7 @@ class ServiceController extends Controller
                 foreach ($request->products as $key => $value) {
                     $itemStock = ItemStock::where('id', $value['id'])->first();
                     ServiceItem::create([
-                        'sale_id' => $service->id,
+                        'service_id' => $service->id,
                         'itemStock_id' => $itemStock->id,
                         'price' => $value['price'],
                         'quantity' => $value['quantity'],

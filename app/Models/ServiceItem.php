@@ -32,12 +32,12 @@ class ServiceItem extends Model
 
     public function service()
     {
-        return $this->belongsTo(Service::class);   
+        return $this->belongsTo(Service::class, 'service_id');   
     }
 
     public function itemStock()
     {
-        return $this->belongsTo(ItemStock::class);   
+        return $this->belongsTo(ItemStock::class, 'itemStock_id'); 
     }
     
 }

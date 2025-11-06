@@ -183,8 +183,23 @@
                     
                     <div class="summary-total">
                         <div class="summary-item">
-                            <span>Total a Pagar:</span>
+                            <span>Monto Total:</span>
                             <strong>{{ number_format($service->total_amount, 2) }} Bs.</strong>
+                        </div>
+                    </div>
+                    <div class="summary-total">
+                        <div class="summary-item">
+                            <span>Total Pagado:</span>
+                            @php
+                                $totalPagado = $service->serviceTransactions->sum('amount');
+                            @endphp
+                            <strong style="color: green;">{{ number_format($totalPagado, 2) }} Bs.</strong>
+                        </div>
+                    </div>
+                    <div class="summary-total">
+                        <div class="summary-item">
+                            <span>Deuda a Pagar:</span>
+                            <strong style="color: red;">{{ number_format($service->total_amount - $totalPagado, 2) }} Bs.</strong>
                         </div>
                     </div>
                     <div style="margin-top: 20px; text-align: center;">

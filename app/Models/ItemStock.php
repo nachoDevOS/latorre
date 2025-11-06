@@ -12,6 +12,8 @@ class ItemStock extends Model
     use HasFactory, RegistersUserEvents, SoftDeletes;
 
     protected $dates = ['deleted_at'];
+    protected $appends = ['name_item']; // <-- AGREGAR ESTA LÍNEA
+
 
     protected $fillable = [
         // 'branch_id',
@@ -33,6 +35,12 @@ class ItemStock extends Model
         'deleteRole',
         'deleteObservation',
     ];
+
+    public function getNameItemAttribute()
+    {
+        return $this->item->name ?? null;
+    }
+
 
     public function item()
     {

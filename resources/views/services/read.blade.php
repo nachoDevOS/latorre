@@ -275,7 +275,7 @@
                 templateResult: formatResultProducts,
                 templateSelection: (opt) => {
                     productSelected = opt;
-                    return productSelected.id
+                    return productSelected.name_item
                 }
             }).change(function() {
                 if ($('#select-product_id option:selected').val()) {

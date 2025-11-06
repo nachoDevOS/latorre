@@ -24,14 +24,16 @@ class Cashier extends Model
         'deleteObservation',
     ];
 
-
-
     public function movements(){
         return $this->hasMany(CashierMovement::class, 'cashier_id');
     }
 
     public function user(){
         return $this->belongsTo(User::class, 'user_id');//Para el cajero 
+    }
+
+    public function serviceTransactions(){
+        return $this->hasMany(ServiceTransaction::class, 'cashier_id')->withTrashed();
     }
 
 

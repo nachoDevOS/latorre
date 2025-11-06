@@ -30,4 +30,29 @@ class Service extends Model
         'deleteRole',
         'deleteObservation',
     ];
+
+    public function room()
+    {
+        return $this->belongsTo(Room::class);   
+    }
+
+    public function person()
+    {
+        return $this->belongsTo(Person::class);   
+    }
+    public function serviceTimes()
+    {
+        return $this->hasMany(ServiceTime::class);   
+    }
+    public function serviceItems()
+    {
+        return $this->hasMany(ServiceItem::class);   
+    }
+    public function serviceTransactions()
+    {
+        return $this->hasMany(ServiceTransaction::class);   
+    }
+
+
+    
 }

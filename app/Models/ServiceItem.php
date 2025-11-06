@@ -29,4 +29,15 @@ class ServiceItem extends Model
         'deleteRole',
         'deleteObservation',
     ];
+
+    public function service()
+    {
+        return $this->belongsTo(Service::class);   
+    }
+
+    public function itemStock()
+    {
+        return $this->belongsTo(ItemStock::class);   
+    }
+    
 }

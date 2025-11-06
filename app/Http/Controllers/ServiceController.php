@@ -39,7 +39,7 @@ class ServiceController extends Controller
 
 
     public function startRental(Request $request)
-    {
+    {        // return $request;
         $request->validate([
             'start_time' => 'required|date_format:H:i',
         ], [
@@ -47,11 +47,10 @@ class ServiceController extends Controller
             'start_time.required' => 'La hora es obligatoria',
         ]);
 
-
         $amount_Qr = $request->amount_qr ?? 0;
-        $amount_efectivo = $request->payment_method == 'Efectivo' ? $request->amount_product + $request->amountSala : ($request->amount_efectivo ?? 0);
+        $amount_efectivo = $request->payment_method == 'efectivo' ? $request->amount_product + $request->amountSala : ($request->amount_efectivo ?? 0);
 
-        if($request->payment_method == 'Efectivo' && $amount_efectivo > $request->amount_received)
+        if($request->payment_method == 'efectivo' && $amount_efectivo > $request->amount_received)
         {
             return redirect()->back()->withInput()->withErrors(['message' => 'El monto en efectivo no puede ser mayor al monto recibido.']);
         }
@@ -60,7 +59,6 @@ class ServiceController extends Controller
         {
             return redirect()->back()->withInput()->withErrors(['message' => 'La suma del monto en efectivo y el monto por Qr debe ser igual al monto total.']);
         }
-
 
         $room = Room::findOrFail($request->room_id);
 
@@ -106,21 +104,21 @@ class ServiceController extends Controller
                 'amount' => $request->amountSala,
             ]);
 
-
-            foreach ($request->products as $key => $value) {
-                $itemStock = ItemStock::where('id', $value['id'])->first();
-                ServiceItem::create([
-                    'sale_id' => $service->id,
-                    'itemStock_id' => $itemStock->id,
-                    'price' => $value['price'],
-                    'quantity' => $value['quantity'],
-                    'amount' => $value['subtotal'],
-                ]);
-                $itemStock->decrement('stock', $value['quantity']);
-            } 
+            if ($request->products) {
+                foreach ($request->products as $key => $value) {
+                    $itemStock = ItemStock::where('id', $value['id'])->first();
+                    ServiceItem::create([
+                        'sale_id' => $service->id,
+                        'itemStock_id' => $itemStock->id,
+                        'price' => $value['price'],
+                        'quantity' => $value['quantity'],
+                        'amount' => $value['subtotal'],
+                    ]);
+                    $itemStock->decrement('stock', $value['quantity']);
+                } 
+            }   
             
-            
-            if ($request->payment_method == 'Efectivo' || $request->payment_method == 'ambos' && ($amount_efectivo + $amount_Qr) > 0 ) {
+            if ($request->payment_method == 'efectivo' || $request->payment_method == 'ambos' && ($amount_efectivo + $amount_Qr) > 0 ) {
                     ServiceTransaction::create([
                         'service_id' => $service->id,
                         'transaction_id' => $transaction->id,
@@ -129,7 +127,7 @@ class ServiceController extends Controller
                         'paymentType' => 'Efectivo',
                     ]);
             }
-            if ($request->payment_method == 'Qr' || $request->payment_method == 'ambos' && ($amount_efectivo + $amount_Qr) > 0) {
+            if ($request->payment_method == 'qr' || $request->payment_method == 'ambos' && ($amount_efectivo + $amount_Qr) > 0) {
                     ServiceTransaction::create([
                         'service_id' => $service->id,
                         'transaction_id' => $transaction->id,
@@ -147,7 +145,7 @@ class ServiceController extends Controller
 
             DB::commit();
 
-            return redirect()->route('services.show', $room->id)->with([
+            return redirect()->route('services.index')->with([
                 'message'    => 'Alquiler iniciado exitosamente para la sala: ' . $room->name,
                 'alert-type' => 'success',
             ]);

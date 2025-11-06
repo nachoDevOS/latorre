@@ -33,17 +33,10 @@
                             $cashierIn = $cashier->movements->where('type', 'Ingreso')->where('deleted_at', NULL)->where('status', 'Aceptado')->sum('amount');
                             $cashierOut = $cashier->expenses->where('deleted_at', null)->sum('amount');
 
-                            $paymentEfectivo = $cashier->sales->where('deleted_at', null)
-                                ->flatMap(function($sale) {
-                                    return $sale->saleTransactions->where('paymentType', 'Efectivo')->pluck('amount');
-                                })
-                                ->sum();
+                            $paymentEfectivo = $cashier->serviceTransactions->where('paymentType', 'Efectivo')->sum('amount');
 
-                            $paymentQr = $cashier->sales->where('deleted_at', null)
-                                ->flatMap(function($sale) {
-                                    return $sale->saleTransactions->where('paymentType', 'Qr')->pluck('amount');
-                                })
-                                ->sum();
+                            $paymentQr = $cashier->serviceTransactions->where('paymentType', 'Qr')->sum('amount');
+                            
                             $amountCashier = ($cashierIn + $paymentEfectivo) - $cashierOut;
 
                         @endphp

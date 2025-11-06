@@ -67,7 +67,7 @@
 
 
                         <td style="text-align: center">
-                            @if ($item->status==1)  
+                            @if ($item->status=='Disponible')  
                                 <label class="label label-success">Disponible</label>
                             @else
                                 <label class="label label-danger">Ocupada</label>

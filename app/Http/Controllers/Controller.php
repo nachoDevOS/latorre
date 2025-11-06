@@ -35,14 +35,13 @@ class Controller extends BaseController
                             $q->where('deleted_at', NULL)
                             ->with(['detailCashes']);
                         },
-                        // 'sales' => function($q) {                
-                        //     $q->whereHas('saleTransactions', function($q) {
-                        //         $q->whereIn('paymentType', ['Efectivo', 'Qr']);
-                        //     })
-                        //     ->with(['person', 'register', 'saleDetails', 'saleTransactions' => function($q) {
-                        //         $q->where('deleted_at', NULL);
-                        //     }]);
-                        // },
+
+                        'serviceTransactions' => function($q) {                
+                            $q->where('deleted_at', NULL)
+                            ->with(['service', 'service.person', 'service.serviceItems']);
+                        },
+
+
                         'expenses.categoryExpense'
 
                     ])
@@ -53,6 +52,39 @@ class Controller extends BaseController
                     ->first();   
         
         return $cashier;
+    }
+
+
+    public function cashierMoney($id, $user, $status)
+    {
+        $cashier = $this->cashier($id, $user, $status);
+
+        if($cashier){
+            $cashierIn = $cashier->movements->where('type', 'Ingreso')->where('deleted_at', NULL)->where('status', 'Aceptado')->sum('amount');
+
+            $paymentEfectivo = $cashier->serviceTransactions->where('paymentType', 'Efectivo')->sum('amount');
+
+            $paymentQr = $cashier->serviceTransactions->where('paymentType', 'Qr')->sum('amount');
+
+            $cashierOut = $cashier->expenses->where('deleted_at', null)->sum('amount');
+
+            $amountCashier = ($cashierIn + $paymentEfectivo) - $cashierOut;
+        }
+
+        return response()->json([
+            'return' => $cashier?true:false,
+            'cashier' => $cashier?$cashier:null,
+            // // datos en valores
+            'paymentEfectivo' => $cashier?$paymentEfectivo:null,//Para obtener el total de dinero en efectivo recaudado en general
+            'paymentQr' => $cashier?$paymentQr:null, //Para obtener el total de dinero en QR recaudado en general
+            'amountCashier'=>$cashier?$amountCashier:null, //dinero disponible en caja para su uso 'solo dinero que hay en la caja disponible y cobro solo en efectivos'
+
+            // 'amountEgres' =>$cashier?$amountEgres:null, // dinero prestado de prenda y diario
+
+            'cashierOut'=>$cashier?$cashierOut:null, //Gastos Adicionales
+
+            'cashierIn'=>$cashier?$cashierIn:null// Dinero total abonado a las cajas
+        ]);
     }
 
     

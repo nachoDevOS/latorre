@@ -310,40 +310,42 @@
                 @foreach ($rooms as $room)
                     @if ($room->status != 'Disponible' && $room->service)
                         var timerElement = document.getElementById('timer-{{ $room->id }}');
-                        if(timerElement) {
+                        if (timerElement && !timerElement.hasAttribute('data-stopped')) {
+                            var serviceInfoDiv = document.getElementById('service-info-{{ $room->id }}');
+                            var endTimeString = serviceInfoDiv ? serviceInfoDiv.dataset.endTime : null;
+                            var now = new Date();
                             var startTime = new Date();
                             var timeParts = "{{ $room->service->start_time }}".split(':');
                             startTime.setHours(timeParts[0], timeParts[1], timeParts[2] || 0, 0);
 
-                            var now = new Date();
-                            var elapsedTime = now - startTime;
+                            var targetTime = now;
+                            var shouldStop = false;
 
-                            var hours = Math.floor(elapsedTime / (1000 * 60 * 60));
-                            elapsedTime -= hours * (1000 * 60 * 60);
-
-                            var minutes = Math.floor(elapsedTime / (1000 * 60));
-                            elapsedTime -= minutes * (1000 * 60);
-
-                            var seconds = Math.floor(elapsedTime / 1000);
-
-                            timerElement.innerText =
-                                ('0' + hours).slice(-2) + ':' +
-                                ('0' + minutes).slice(-2) + ':' +
-                                ('0' + seconds).slice(-2);
-                        }
-
-
-                        var serviceInfoDiv = document.getElementById('service-info-{{ $room->id }}');
-                        if (serviceInfoDiv) {
-                            var endTimeString = serviceInfoDiv.dataset.endTime;
                             if (endTimeString) {
                                 var endTime = new Date();
                                 var endTimeParts = endTimeString.split(':');
                                 endTime.setHours(endTimeParts[0], endTimeParts[1], endTimeParts[2] || 0, 0);
-                                var now = new Date();
+
                                 if (now > endTime) {
-                                    serviceInfoDiv.classList.add('blinking');
+                                    targetTime = endTime;
+                                    shouldStop = true;
+                                    if(serviceInfoDiv) serviceInfoDiv.classList.add('blinking');
                                 }
+                            }
+
+                            var elapsedTime = targetTime - startTime;
+                            if (elapsedTime < 0) elapsedTime = 0;
+
+                            var hours = Math.floor(elapsedTime / (1000 * 60 * 60));
+                            elapsedTime -= hours * (1000 * 60 * 60);
+                            var minutes = Math.floor(elapsedTime / (1000 * 60));
+                            elapsedTime -= minutes * (1000 * 60);
+                            var seconds = Math.floor(elapsedTime / 1000);
+
+                            timerElement.innerText = ('0' + hours).slice(-2) + ':' + ('0' + minutes).slice(-2) + ':' + ('0' + seconds).slice(-2);
+
+                            if (shouldStop) {
+                                timerElement.setAttribute('data-stopped', 'true');
                             }
                         }
                     @endif

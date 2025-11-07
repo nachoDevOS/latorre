@@ -131,75 +131,77 @@
                             </div>
                             <div class="panel-body" style="padding: 0px;">
                                 <div class="table-responsive">
-                                                                                                                                                                        <table class="table table-hover" style="margin-bottom: 0px;">
-                                                                                                                                                                            <thead>
-                                                                                                                                                                                <tr>
-                                                                                                                                                                                    <th>Inicio</th>
-                                                                                                                                                                                    <th>Fin</th>
-                                                                                                                                                                                    <th class="text-right">Duración</th>
-                                                                                                                                                                                    <th class="text-right">Monto</th>
-                                                                                                                                                                                </tr>
-                                                                                                                                                                            </thead>
-                                                                                                                                                                            <tbody>
-                                                                                                                                                                                @forelse ($service->serviceTimes as $time)
-                                                                                                                                                                                    <tr>
-                                                                                                                                                                                        <td>{{ date('h:i A', strtotime($time->start_time)) }}</td>
-                                                                                                                                                                                        <td>
-                                                                                                                                                                                            @if ($time->end_time)
-                                                                                                                                                                                                {{ date('h:i A', strtotime($time->end_time)) }}
-                                                                                                                                                                                            @else
-                                                                                                                                                                                                <span class="badge badge-success">En curso</span>
-                                                                                                                                                                                            @endif
-                                                                                                                                                                                        </td>
-                                                                                                                                                                                        <td class="text-right">
-                                                                                                                                                                                            @if ($time->end_time)
-                                                                                                                                                                                                @php
-                                                                                                                                                                                                    $start = \Carbon\Carbon::parse($time->start_time);
-                                                                                                                                                                                                    $end = \Carbon\Carbon::parse($time->end_time);
-                                                                                                                                                                                                    $duration = $end->diffInMinutes($start);
-                                                                                                                                                                                                @endphp
-                                                                                                                                                                                                {{ $duration }} minutos
-                                                                                                                                                                                            @endif
-                                                                                                                                                                                        </td>
-                                                                                                                                                                                        <td class="text-right">{{ number_format($time->amount, 2, ',', '.') }} Bs.</td>
-                                                                                                                                                                                    </tr>
-                                                                                                                                                                                @empty
-                                                                                                                                                                                    <tr>
-                                                                                                                                                                                        <td colspan="4">
-                                                                                                                                                                                            <p class="text-center"
-                                                                                                                                                                                                style="margin-top: 10px; margin-bottom: 10px;">No se han
-                                                                                                                                                                                                registrado tiempos.</p>
-                                                                                                                                                                                        </td>
-                                                                                                                                                                                    </tr>
-                                                                                                                                                                                @endforelse
-                                                                                                                                                                            </tbody>
-                                                                                                                                                                            <tfoot>
-                                                                                                                                                                                <tr>
-                                                                                                                                                                                    <th colspan="2" class="text-right">Tiempo total:</th>
-                                                                                                                                                                                    <th class="text-right">
-                                                                                                                                                                                        @php
-                                                                                                                                                                                            $totalMinutes = 0;
-                                                                                                                                                                                            foreach($service->serviceTimes as $time) {
-                                                                                                                                                                                                if ($time->end_time) {
-                                                                                                                                                                                                    $start = \Carbon\Carbon::parse($time->start_time);
-                                                                                                                                                                                                    $end = \Carbon\Carbon::parse($time->end_time);
-                                                                                                                                                                                                    $totalMinutes += $end->diffInMinutes($start);
-                                                                                                                                                                                                }
-                                                                                                                                                                                            }
-                                                                                                                                                                                            $hours = floor($totalMinutes / 60);
-                                                                                                                                                                                            $minutes = $totalMinutes % 60;
-                                                                                                                                                                                        @endphp
-                                                                                                                                                                                        {{ $hours }}h {{ $minutes }}m
-                                                                                                                                                                                    </th>
-                                                                                                                                                                                    <th class="text-right">
-                                                                                                                                                                                        @php
-                                                                                                                                                                                            $totalAmount = $service->serviceTimes->sum('amount');
-                                                                                                                                                                                        @endphp
-                                                                                                                                                                                        {{ number_format($totalAmount, 2, ',', '.') }} Bs.
-                                                                                                                                                                                    </th>
-                                                                                                                                                                                </tr>
-                                                                                                                                                                            </tfoot>
-                                                                                                                                                                        </table>                                </div>
+                                    <table class="table table-hover" style="margin-bottom: 0px;">
+                                        <thead>
+                                            <tr>
+                                                <th>Inicio</th>
+                                                <th>Fin</th>
+                                                <th class="text-right">Duración</th>
+                                                <th class="text-right">Monto</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse ($service->serviceTimes as $time)
+                                                <tr>
+                                                    <td>{{ date('h:i A', strtotime($time->start_time)) }}</td>
+                                                    <td>
+                                                        @if ($time->end_time)
+                                                            {{ date('h:i A', strtotime($time->end_time)) }}
+                                                        @else
+                                                            <span class="badge badge-success">En curso</span>
+                                                        @endif
+                                                    </td>
+                                                    <td class="text-right">
+                                                        @if ($time->end_time)
+                                                            @php
+                                                                $start = \Carbon\Carbon::parse($time->start_time);
+                                                                $end = \Carbon\Carbon::parse($time->end_time);
+                                                                $duration = $end->diffInMinutes($start);
+                                                            @endphp
+                                                            {{ $duration }} minutos
+                                                        @endif
+                                                    </td>
+                                                    <td class="text-right">{{ number_format($time->amount, 2, ',', '.') }}
+                                                        Bs.</td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="4">
+                                                        <p class="text-center"
+                                                            style="margin-top: 10px; margin-bottom: 10px;">No se han
+                                                            registrado tiempos.</p>
+                                                    </td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th colspan="2" class="text-right">Tiempo total:</th>
+                                                <th class="text-right">
+                                                    @php
+                                                        $totalMinutes = 0;
+                                                        foreach ($service->serviceTimes as $time) {
+                                                            if ($time->end_time) {
+                                                                $start = \Carbon\Carbon::parse($time->start_time);
+                                                                $end = \Carbon\Carbon::parse($time->end_time);
+                                                                $totalMinutes += $end->diffInMinutes($start);
+                                                            }
+                                                        }
+                                                        $hours = floor($totalMinutes / 60);
+                                                        $minutes = $totalMinutes % 60;
+                                                    @endphp
+                                                    {{ $hours }}h {{ $minutes }}m
+                                                </th>
+                                                <th class="text-right">
+                                                    @php
+                                                        $totalAmount = $service->serviceTimes->sum('amount');
+                                                    @endphp
+                                                    {{ number_format($totalAmount, 2, ',', '.') }} Bs.
+                                                </th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -630,14 +632,14 @@
 
                 function formatResultProducts(option) {
                     if (option.loading)
-                return '<span class="text-center"><i class="fas fa-spinner fa-spin"></i> Buscando...</span>';
+                        return '<span class="text-center"><i class="fas fa-spinner fa-spin"></i> Buscando...</span>';
                     let image = "{{ asset('images/default.jpg') }}";
                     if (option.item?.image) image =
                         `{{ asset('storage') }}/${option.item.image.replace(/\.([^.]+)$/, '-cropped.webp')}`;
                     const fallbackImage = '{{ asset('images/default.jpg') }}';
                     return $(
                         `<div style="display: flex; align-items: center; padding: 5px;"><img src="${image}" style="width: 50px; height: 50px; border-radius: 4px; margin-right: 10px; object-fit: cover;" onerror="this.onerror=null;this.src='${fallbackImage}';"/><div style="line-height: 1.2;"><div style="font-weight: bold;">${option.item.name}</div><small><b>Stock:</b> ${option.stock} Unid. | <b>Precio:</b> ${option.priceSale} Bs.</small></div></div>`
-                        );
+                    );
                 }
 
                 function updateSubtotal() {

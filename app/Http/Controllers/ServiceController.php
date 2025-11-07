@@ -60,6 +60,7 @@ class ServiceController extends Controller
 
     public function startRental(Request $request)
     {      
+        return $request;
         $request->validate([
             'start_time' => 'required|date_format:H:i',
         ], [

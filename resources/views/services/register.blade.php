@@ -191,23 +191,23 @@
                             </div>
                             <div class="form-group" id="monto-group">
                                 <label for="amount" id="amount-label">Registrar un adelanto de la sala</label>
-                                <input type="number" name="amountSala" id="amount" class="form-control" step="0.01" min="1" placeholder="0.00" required>
+                                <input type="number" name="amountSala" id="amount" class="form-control"  min="1" placeholder="0.00" required>
                             </div>
 
 
                             <div class="summary-section">
                                 <div class="summary-item">
                                     <span>Adelanto de la Sala:</span>
-                                    <span class="amount" id="summary-advance">0.00 Bs.</span>
+                                    <span class="amount" id="summary-advance">0,00 Bs.</span>
                                 </div>
                                 <div class="summary-item">
                                     <span>Total Consumo:</span>
-                                    <span class="amount" id="summary-consumption">0.00 Bs.</span>
+                                    <span class="amount" id="summary-consumption">0,00 Bs.</span>
                                 </div>
                                 <hr>
                                 <div class="summary-total">
                                     <strong>Total General:</strong>
-                                    <strong class="amount" id="summary-total">0.00 Bs.</strong>
+                                    <strong class="amount" id="summary-total">0,00 Bs.</strong>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -222,18 +222,18 @@
                             <div id="payment-details" style="display: none;">
                                 <div class="form-group">
                                     <label for="amount_efectivo">Monto en Efectivo</label>
-                                    <input type="number" name="amount_efectivo" id="amount_efectivo" class="form-control" step="0.01" min="0" placeholder="0.00">
+                                    <input type="number" name="amount_efectivo" id="amount_efectivo" class="form-control" min="0" placeholder="0.00">
                                 </div>
                                 <div class="form-group">
                                     <label for="amount_qr">Monto con QR</label>
-                                    <input type="number" name="amount_qr" id="amount_qr" class="form-control" step="0.01" min="0" placeholder="0.00">
+                                    <input type="number" name="amount_qr" id="amount_qr" class="form-control" min="0" placeholder="0.00">
                                 </div>
                             </div>
 
                             <div id="calculator" style="display: none; margin-top: 15px; border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
                                 <div class="form-group">
                                     <label for="amount_received" style="font-weight: bold;">Monto Recibido (Efectivo)</label>
-                                    <input type="number" name="amount_received" id="amount_received" class="form-control" step="0.01" min="0" placeholder="0.00">
+                                    <input type="number" name="amount_received" id="amount_received" class="form-control" min="0" placeholder="0.00">
                                 </div>
                                 <div class="summary-item" style="background-color: #f0f0f0; padding: 10px; border-radius: 5px;">
                                     <strong style="font-size: 1.1rem;">Cambio a devolver:</strong>

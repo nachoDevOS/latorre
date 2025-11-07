@@ -46,6 +46,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['loggin', 'system']], functi
     Route::post('services/{service}/items', [ServiceController::class, 'addItem'])->name('services.add_item');
     Route::post('services/rental/start', [ServiceController::class, 'startRental'])->name('services.rental.start');
     Route::post('services/{service}/finish', [ServiceController::class, 'finishService'])->name('services.finish');
+    Route::post('services/{service}/add-time', [ServiceController::class, 'addTime'])->name('services.add_time');
 
 
 

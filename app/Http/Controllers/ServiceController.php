@@ -309,4 +309,50 @@ class ServiceController extends Controller
             return back()->with(['message' => 'Ocurrió un error al finalizar el servicio: ' . $e->getMessage(), 'alert-type' => 'error']);
         }
     }
+
+    public function addTime(Request $request, Service $service)
+    {
+        return $request;
+        $request->validate([
+            'start_time' => 'required|date_format:H:i',
+            'amountSala' => 'required|numeric|min:0',
+        ], [
+            'start_time.required' => 'La hora de inicio es obligatoria.',
+            'start_time.date_format' => 'El formato de la hora de inicio no es válido.',
+            'amountSala.required' => 'El monto es obligatorio.',
+            'amountSala.numeric' => 'El monto debe ser un número.',
+            'amountSala.min' => 'El monto no puede ser negativo.'
+        ]);
+
+        DB::beginTransaction();
+        try {
+            // Crear el nuevo registro de tiempo
+            ServiceTime::create([
+                'service_id' => $service->id,
+                'time_type' => $request->end_time ? 'Tiempo fijo' : 'Tiempo sin límite',
+                'start_time' => $request->start_time,
+                'end_time' => $request->end_time ?: null,
+                'amount' => $request->amountSala,
+            ]);
+
+            // Actualizar los montos del servicio
+            $service->amount_room += $request->amountSala;
+            $service->total_amount += $request->amountSala;
+            $service->save();
+
+            DB::commit();
+
+            return redirect()->route('services.show', $service->room_id)->with([
+                'message'    => 'Se ha agregado tiempo adicional al servicio exitosamente.',
+                'alert-type' => 'success',
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('services.show', $service->room_id)->with([
+                'message'    => 'Ocurrió un error al agregar tiempo adicional: ' . $e->getMessage(),
+                'alert-type' => 'error'
+            ]);
+        }
+    }
 }

@@ -204,6 +204,54 @@
                                 </div>
                             </div>
                         </div>
+
+                        @php
+                            $lastTime = $service->serviceTimes->last();
+                            $canAddTime = $lastTime && $lastTime->end_time;
+                        @endphp
+
+                        @if ($canAddTime)
+                            <div class="panel panel-success">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title"><i class="voyager-plus"></i> Agregar Tiempo Adicional</h3>
+                                </div>
+                                <div class="panel-body">
+                                    <form action="{{ route('services.add_time', ['service' => $service->id]) }}" method="POST">
+                                        @csrf
+                                        <div class="row">
+                                            <div class="form-group col-md-4">
+                                                <label for="start_time">Hora de Inicio</label>
+                                                <input type="time" name="start_time" id="start_time_additional" class="form-control" value="{{ date('H:i', strtotime($lastTime->end_time)) }}" required readonly>
+                                            </div>
+                                            <div class="form-group col-md-4">
+                                                <label for="end_time">Hora Fin (opcional)</label>
+                                                <div class="input-group">
+                                                    <input type="time" name="end_time" id="end_time_additional" class="form-control">
+                                                    <span class="input-group-btn">
+                                                        <button id="clear-end-time-additional" class="btn btn-default" style="margin: 0px" type="button" title="Limpiar Hora">
+                                                            <i class="voyager-trash"></i>
+                                                        </button>
+                                                    </span>
+                                                </div>
+                                                <small class="form-text text-muted">Dejar vacío para alquiler sin límite.</small>
+                                            </div>
+                                            <div class="form-group col-md-4">
+                                                <label for="amount" id="amount-label-additional">Monto adicional</label>
+                                                <input type="number" name="amountSala" id="amount-additional" class="form-control" min="0" placeholder="0.00" required>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <button type="submit" class="btn btn-success">Agregar Tiempo</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        @else
+                            <div class="alert alert-info">
+                                <i class="voyager-watch"></i> El servicio actual se encuentra en curso sin límite de tiempo. Para agregar un nuevo período, primero debe finalizar el servicio actual.
+                            </div>
+                        @endif
+
                     </div>
                 </div>
 
@@ -647,5 +695,24 @@
                     let quantity = $('#input-quantity').val() ? parseFloat($('#input-quantity').val()) : 0;
                     $('#input-subtotal').val((price * quantity).toFixed(2));
                 }
+
+                document.addEventListener('DOMContentLoaded', function() {
+                    const endTimeInput = document.getElementById('end_time_additional');
+                    const amountLabel = document.getElementById('amount-label-additional');
+                    const amountInput = document.getElementById('amount-additional');
+
+                    if(endTimeInput) {
+                        document.getElementById('clear-end-time-additional').addEventListener('click', function() {
+                            endTimeInput.value = '';
+                            updateRentalType();
+                        });
+
+                        function updateRentalType() {
+                            amountLabel.textContent = endTimeInput.value ? 'Monto del alquiler de la sala' : 'Registrar un adelanto de la sala';
+                            amountInput.value = '';
+                        }
+                        endTimeInput.addEventListener('change', updateRentalType);
+                    }
+                });
             </script>
         @endsection

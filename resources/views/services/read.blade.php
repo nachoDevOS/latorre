@@ -496,9 +496,20 @@
                                     </div>
                                 @endif
     
+                                @php
+                                    $lastTime = $service->serviceTimes->last();
+                                    $canFinishService = $lastTime && $lastTime->end_time;
+                                @endphp
+
                                 <div style="margin-top: 20px; text-align: center;">
-                                    <button type="submit" class="btn btn-finish"><i class="voyager-dollar"></i> Finalizar y
-                                        Cobrar</button>
+                                    @if ($canFinishService)
+                                        <button type="submit" class="btn btn-finish"><i class="voyager-dollar"></i> Finalizar y Cobrar</button>
+                                    @else
+                                        <button type="button" class="btn btn-finish" disabled title="Debe registrar una hora de finalización para el tiempo en curso.">
+                                            <i class="voyager-dollar"></i> Finalizar y Cobrar
+                                        </button>
+                                        <p class="text-warning" style="margin-top: 10px;">El servicio tiene un tiempo abierto.</p>
+                                    @endif
                                 </div>
                             </div>
                         </form>

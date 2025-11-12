@@ -262,13 +262,16 @@
                                     @else
                                         <span class="label label-danger status-badge">Ocupada</span>
                                         @if ($room->service)
-                                            <div id="service-info-{{ $room->id }}" style="background-color: rgba(255, 255, 255, 0.5); padding: 10px; border-radius: 5px; margin-top: 10px; color:black;" @if($room->service->serviceTimes->isNotEmpty() && $room->service->serviceTimes->first()->end_time) data-end-time="{{ date('H:i:s', strtotime($room->service->serviceTimes->first()->end_time)) }}" @endif>
+                                            @php
+                                                $lastServiceTime = $room->service->serviceTimes->last();
+                                            @endphp
+                                            <div id="service-info-{{ $room->id }}" style="background-color: rgba(255, 255, 255, 0.5); padding: 10px; border-radius: 5px; margin-top: 10px; color:black;" @if($lastServiceTime && $lastServiceTime->end_time) data-end-time="{{ date('H:i:s', strtotime($lastServiceTime->end_time)) }}" @endif>
                                                 <p style="margin-top: 0px; margin-bottom: 0px; font-size: 0.95em;">
                                                     <i class="voyager-watch"></i> Inicio: <strong>{{ date('h:i A', strtotime($room->service->start_time)) }}</strong>
                                                 </p>
-                                                @if($room->service->serviceTimes->isNotEmpty() && $room->service->serviceTimes->first()->end_time)
+                                                @if($lastServiceTime && $lastServiceTime->end_time)
                                                     <p style="margin-bottom: 0px; font-size: 0.95em;">
-                                                        <i class="voyager-alarm-clock"></i> Fin: <strong>{{ date('h:i A', strtotime($room->service->serviceTimes->first()->end_time)) }}</strong>
+                                                        <i class="voyager-alarm-clock"></i> Fin: <strong>{{ date('h:i A', strtotime($lastServiceTime->end_time)) }}</strong>
                                                     </p>
                                                 @endif
                                                 <div id="timer-{{ $room->id }}" style="font-size: 18px; font-weight: bold; margin-top: 5px;"></div>

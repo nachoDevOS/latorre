@@ -774,16 +774,19 @@
                                     toastr.error('La hora de fin debe ser mayor que la hora de inicio.', 'Error de validación');
                                     endTimeInput.value = '';
                                 }
-                                if (!endTimeInput.value) return; // Si se limpió el valor, no continuar
+                                if (!endTimeInput.value) { // Si se limpió el valor, ocultar y salir
+                                    amountGroup.style.display = 'none';
+                                    return;
+                                }
+                                amountGroup.style.display = 'block';
                                 amountLabel.textContent = 'Monto del alquiler';
                                 amountInput.required = true; // Monto es requerido si hay hora fin
                                 amountInput.min = 0.01;
                             } else {
-                                amountLabel.textContent = 'Adelanto (opcional)';
+                                amountGroup.style.display = 'none';
                                 amountInput.required = false;
-                                amountInput.min = 0;
                             }
-                            amountInput.value = ''; // Limpiar el valor en cualquier cambio
+                            amountInput.value = '';
                         }
                         endTimeInput.addEventListener('change', updateAmountField);
                         updateAmountField(); // Llamada inicial para establecer el estado correcto

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('service_id')->nullable()->constrained('services');  
             $table->foreignId('cashier_id')->nullable()->constrained('cashiers');
             $table->foreignId('transaction_id')->nullable()->constrained('transactions');
+            $table->string('type')->nullable(); // Ej: ingreso, devolucion
 
             $table->string('paymentType'); // Ej: Qr, Efectivo
 

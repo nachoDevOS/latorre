@@ -17,6 +17,7 @@ class ServiceTransaction extends Model
         'transaction_id',
         'service_id',
         'cashier_id',
+        'type',
         'paymentType',
         'amount',
         'observation',

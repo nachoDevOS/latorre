@@ -145,6 +145,7 @@ class ServiceController extends Controller
                     ServiceTransaction::create([
                         'service_id' => $service->id,
                         'transaction_id' => $transaction->id,
+                        'type' => 'Ingreso',
                         'cashier_id' => $cashier->id,
                         'amount' => $amount_efectivo,
                         'paymentType' => 'Efectivo',
@@ -154,6 +155,7 @@ class ServiceController extends Controller
                     ServiceTransaction::create([
                         'service_id' => $service->id,
                         'transaction_id' => $transaction->id,
+                        'type' => 'Ingreso',
                         'cashier_id' => $cashier->id,
                         'amount' =>  $amount_Qr,
                         'paymentType' => 'Qr',

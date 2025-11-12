@@ -316,6 +316,7 @@ class ServiceController extends Controller
 
     public function addTime(Request $request, Service $service)
     {
+        
         $request->validate([
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'nullable|date_format:H:i|after:start_time',

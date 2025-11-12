@@ -415,92 +415,94 @@
                 <div class="col-md-4">
                     @php
                         $totalPagado = $service->serviceTransactions->sum('amount');
-                        $deuda = $service->total_amount - $totalPagado;
+                        $deuda = round($service->total_amount - $totalPagado, 2);
                     @endphp
-                    <form action="{{ route('services.finish', ['service' => $service->id]) }}" method="POST">
-                        @csrf
-                        <div class="panel summary-panel">
-                            <h4 style="text-align: center; margin-top: 0; font-weight: 500; color: #4A4A4A;">Resumen de Pago
-                            </h4>
-                            <hr>
-                            <div class="summary-item">
-                                <span>Subtotal Productos:</span>
-                                <strong>{{ number_format($totalProductos, 2, ',', '.') }} Bs.</strong>
-                            </div>
-                            <div class="summary-item">
-                                <span>Adelanto/Monto Sala:</span>
-                                <strong>{{ number_format($service->amount_room, 2, ',', '.') }} Bs.</strong>
-                            </div>
-
-                            <div class="summary-total">
+                    <div class="panel summary-panel">
+                        <form action="{{ route('services.finish', ['service' => $service->id]) }}" method="POST">
+                            @csrf
+                            <div>
+                                <h4 style="text-align: center; margin-top: 0; font-weight: 500; color: #4A4A4A;">Resumen de Pago
+                                </h4>
+                                <hr>
                                 <div class="summary-item">
-                                    <span>Monto Total:</span>
-                                    <strong>{{ number_format($service->total_amount, 2, ',', '.') }} Bs.</strong>
+                                    <span>Subtotal Productos:</span>
+                                    <strong>{{ number_format($totalProductos, 2, ',', '.') }} Bs.</strong>
                                 </div>
-                            </div>
-                            <div class="summary-total">
                                 <div class="summary-item">
-                                    <span>Total Pagado:</span>
-                                    <strong style="color: green;">{{ number_format($totalPagado, 2, ',', '.') }} Bs.</strong>
+                                    <span>Adelanto/Monto Sala:</span>
+                                    <strong>{{ number_format($service->amount_room, 2, ',', '.') }} Bs.</strong>
                                 </div>
-                            </div>
-                            <div class="summary-total">
-                                <div class="summary-item">
-                                    <span>Deuda a Pagar:</span>
-                                    <strong id="deuda-pagar" style="color: red;">{{ number_format($deuda, 2, ',', '.') }}
-                                        Bs.</strong>
-                                </div>
-                            </div>
-
-                            @if ($deuda > 0)
-                                <div id="payment-section" style="margin-top: 15px;">
-                                    <hr>
-                                    <div class="form-group">
-                                        <label for="payment_method">Método de Pago</label>
-                                        <select name="payment_method" id="payment_method" class="form-control" required>
-                                            <option value="" selected disabled>--Seleccione una opción--</option>
-                                            <option value="efectivo">Efectivo</option>
-                                            <option value="qr">QR</option>
-                                            <option value="ambos">Ambos</option>
-                                        </select>
-                                    </div>
-                                    <div id="payment-details" style="display: none;">
-                                        <div class="form-group">
-                                            <label for="amount_efectivo">Monto en Efectivo</label>
-                                            <input type="number" name="amount_efectivo" id="amount_efectivo"
-                                                class="form-control" step="0.01" min="0" placeholder="0.00">
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="amount_qr">Monto con QR</label>
-                                            <input type="number" name="amount_qr" id="amount_qr" class="form-control"
-                                                step="0.01" min="0" placeholder="0.00">
-                                        </div>
-                                    </div>
-
-                                    <div id="calculator"
-                                        style="display: none; margin-top: 15px; border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
-                                        <div class="form-group">
-                                            <label for="amount_received" style="font-weight: bold;">Monto Recibido
-                                                (Efectivo)</label>
-                                            <input type="number" name="amount_received" id="amount_received"
-                                                class="form-control" step="0.01" min="0" placeholder="0.00">
-                                        </div>
-                                        <div class="summary-item"
-                                            style="background-color: #f0f0f0; padding: 10px; border-radius: 5px;">
-                                            <strong style="font-size: 1.1rem;">Cambio a devolver:</strong>
-                                            <strong class="amount" id="change_due"
-                                                style="font-size: 1.2rem; color: #28a745;">0.00 Bs.</strong>
-                                        </div>
+    
+                                <div class="summary-total">
+                                    <div class="summary-item">
+                                        <span>Monto Total:</span>
+                                        <strong>{{ number_format($service->total_amount, 2, ',', '.') }} Bs.</strong>
                                     </div>
                                 </div>
-                            @endif
-
-                            <div style="margin-top: 20px; text-align: center;">
-                                <button type="submit" class="btn btn-finish"><i class="voyager-dollar"></i> Finalizar y
-                                    Cobrar</button>
+                                <div class="summary-total">
+                                    <div class="summary-item">
+                                        <span>Total Pagado:</span>
+                                        <strong style="color: green;">{{ number_format($totalPagado, 2, ',', '.') }} Bs.</strong>
+                                    </div>
+                                </div>
+                                <div class="summary-total">
+                                    <div class="summary-item">
+                                        <span>Deuda a Pagar:</span>
+                                        <strong id="deuda-pagar" style="color: red;">{{ number_format($deuda, 2, ',', '.') }}
+                                            Bs.</strong>
+                                    </div>
+                                </div>
+    
+                                @if ($deuda > 0)
+                                    <div id="payment-section" style="margin-top: 15px;">
+                                        <hr>
+                                        <div class="form-group">
+                                            <label for="payment_method">Método de Pago</label>
+                                            <select name="payment_method" id="payment_method" class="form-control" required>
+                                                <option value="" selected disabled>--Seleccione una opción--</option>
+                                                <option value="efectivo">Efectivo</option>
+                                                <option value="qr">QR</option>
+                                                <option value="ambos">Ambos</option>
+                                            </select>
+                                        </div>
+                                        <div id="payment-details" style="display: none;">
+                                            <div class="form-group">
+                                                <label for="amount_efectivo">Monto en Efectivo</label>
+                                                <input type="number" name="amount_efectivo" id="amount_efectivo"
+                                                    class="form-control" step="0.01" min="0" placeholder="0.00">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="amount_qr">Monto con QR</label>
+                                                <input type="number" name="amount_qr" id="amount_qr" class="form-control"
+                                                    step="0.01" min="0" placeholder="0.00">
+                                            </div>
+                                        </div>
+    
+                                        <div id="calculator"
+                                            style="display: none; margin-top: 15px; border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
+                                            <div class="form-group">
+                                                <label for="amount_received" style="font-weight: bold;">Monto Recibido
+                                                    (Efectivo)</label>
+                                                <input type="number" name="amount_received" id="amount_received"
+                                                    class="form-control" step="0.01" min="0" placeholder="0.00">
+                                            </div>
+                                            <div class="summary-item"
+                                                style="background-color: #f0f0f0; padding: 10px; border-radius: 5px;">
+                                                <strong style="font-size: 1.1rem;">Cambio a devolver:</strong>
+                                                <strong class="amount" id="change_due"
+                                                    style="font-size: 1.2rem; color: #28a745;">0.00 Bs.</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
+    
+                                <div style="margin-top: 20px; text-align: center;">
+                                    <button type="submit" class="btn btn-finish"><i class="voyager-dollar"></i> Finalizar y
+                                        Cobrar</button>
+                                </div>
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
         @endsection
@@ -667,7 +669,7 @@
                         });
 
 
-                        $('form').on('submit', function(e) {
+                        $('form[action="{{ route('services.finish', ['service' => $service->id]) }}"]').on('submit', function(e) {
                             if (finishButton.prop('disabled')) {
                                 e.preventDefault();
                                 toastr.error('Verifique los datos del pago.', 'Error en el pago');

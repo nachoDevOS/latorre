@@ -235,9 +235,9 @@
                                                 </div>
                                                 <small class="form-text text-muted">Dejar vacío para alquiler sin límite.</small>
                                             </div>
-                                            <div class="form-group col-md-4">
+                                            <div class="form-group col-md-4" id="amount-group-additional">
                                                 <label for="amount" id="amount-label-additional">Monto adicional</label>
-                                                <input type="number" name="amountSala" id="amount-additional" class="form-control" min="0" placeholder="0.00" required>
+                                                <input type="number" name="amountSala" id="amount-additional" class="form-control" min="0.01" step="0.01" placeholder="0.00" required>
                                             </div>
                                         </div>
                                         <div class="text-right">
@@ -698,20 +698,35 @@
 
                 document.addEventListener('DOMContentLoaded', function() {
                     const endTimeInput = document.getElementById('end_time_additional');
+                    const startTimeInput = document.getElementById('start_time_additional');
                     const amountLabel = document.getElementById('amount-label-additional');
+                    const amountGroup = document.getElementById('amount-group-additional');
                     const amountInput = document.getElementById('amount-additional');
 
                     if(endTimeInput) {
                         document.getElementById('clear-end-time-additional').addEventListener('click', function() {
                             endTimeInput.value = '';
-                            updateRentalType();
+                            updateAmountField();
                         });
 
-                        function updateRentalType() {
-                            amountLabel.textContent = endTimeInput.value ? 'Monto del alquiler de la sala' : 'Registrar un adelanto de la sala';
-                            amountInput.value = '';
+                        function updateAmountField() {
+                            if (endTimeInput.value) {
+                                if (startTimeInput.value && endTimeInput.value <= startTimeInput.value) {
+                                    toastr.error('La hora de fin debe ser mayor que la hora de inicio.', 'Error de validación');
+                                    endTimeInput.value = '';
+                                }
+                                if (!endTimeInput.value) return; // Si se limpió el valor, no continuar
+                                amountGroup.style.display = 'block';
+                                amountInput.required = true;
+                                amountInput.value = '';
+                            } else {
+                                amountGroup.style.display = 'none';
+                                amountInput.required = false;
+                                amountInput.value = '0';
+                            }
                         }
-                        endTimeInput.addEventListener('change', updateRentalType);
+                        endTimeInput.addEventListener('change', updateAmountField);
+                        updateAmountField(); // Llamada inicial para establecer el estado correcto
                     }
                 });
             </script>

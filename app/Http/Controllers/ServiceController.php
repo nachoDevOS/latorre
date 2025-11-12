@@ -185,6 +185,7 @@ class ServiceController extends Controller
 
     public function addItem(Request $request, Service $service)
     {
+        return $request;
         $request->validate([
             'item_stock_id' => 'required|exists:item_stocks,id',
             'quantity' => 'required|numeric|min:1',
@@ -315,16 +316,18 @@ class ServiceController extends Controller
 
     public function addTime(Request $request, Service $service)
     {
-        // return $request;
         $request->validate([
             'start_time' => 'required|date_format:H:i',
+            'end_time' => 'nullable|date_format:H:i|after:start_time',
             'amountSala' => 'required|numeric|min:0',
         ], [
             'start_time.required' => 'La hora de inicio es obligatoria.',
             'start_time.date_format' => 'El formato de la hora de inicio no es válido.',
+            'end_time.date_format' => 'El formato de la hora de fin no es válido.',
+            'end_time.after' => 'La hora de fin debe ser posterior a la hora de inicio.',
             'amountSala.required' => 'El monto es obligatorio.',
             'amountSala.numeric' => 'El monto debe ser un número.',
-            'amountSala.min' => 'El monto no puede ser negativo.'
+            'amountSala.min' => 'El monto no puede ser negativo.',
         ]);
 
         DB::beginTransaction();

@@ -361,7 +361,12 @@
                 {{-- Historial de Pagos --}}
                 <div class="panel panel-primary">
                     <div>
-                        <h3 class="panel-title"><i class="voyager-dollar"></i> Historial de Pagos</h3>
+                        <div class="panel-heading" style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3 class="panel-title" style="margin: 0;"><i class="voyager-dollar"></i> Historial de Pagos</h3>
+                            <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#addPaymentModal">
+                                <i class="voyager-plus"></i> Agregar Adelanto
+                            </button>
+                        </div>
                     </div>
                     <div class="panel-body">
                         <div class="table-responsive">
@@ -562,12 +567,93 @@
                 </div>
                 @endif
             @endforeach
+
+            {{-- Modal para agregar adelanto --}}
+            <div class="modal fade" id="addPaymentModal" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <form action="{{ route('services.add_payment', ['service' => $service->id]) }}" method="POST">
+                            @csrf
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title">Agregar Adelanto</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="amount_adelanto">Monto del Adelanto</label>
+                                    <input type="number" name="amount" id="amount_adelanto" class="form-control" step="0.01" min="0.01" placeholder="0.00" required>
+                                </div>
+                                <hr>
+                                <div class="form-group">
+                                    <label for="payment_method_adelanto">Método de Pago</label>
+                                    <select name="payment_method" id="payment_method_adelanto" class="form-control" required>
+                                        <option value="" selected disabled>--Seleccione una opción--</option>
+                                        <option value="efectivo">Efectivo</option>
+                                        <option value="qr">QR</option>
+                                        <option value="ambos">Ambos</option>
+                                    </select>
+                                </div>
+                                <div id="payment-details-adelanto" style="display: none;">
+                                    <div class="form-group">
+                                        <label for="amount_efectivo_adelanto">Monto en Efectivo</label>
+                                        <input type="number" name="amount_efectivo" id="amount_efectivo_adelanto" class="form-control" step="0.01" min="0" placeholder="0.00">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="amount_qr_adelanto">Monto con QR</label>
+                                        <input type="number" name="amount_qr" id="amount_qr_adelanto" class="form-control" step="0.01" min="0" placeholder="0.00">
+                                    </div>
+                                </div>
+                                <div id="calculator-adelanto" style="display: none; margin-top: 15px; border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
+                                    <div class="form-group">
+                                        <label for="amount_received_adelanto" style="font-weight: bold;">Monto Recibido (Efectivo)</label>
+                                        <input type="number" name="amount_received" id="amount_received_adelanto" class="form-control" step="0.01" min="0" placeholder="0.00">
+                                    </div>
+                                    <div class="summary-item" style="background-color: #f0f0f0; padding: 10px; border-radius: 5px;">
+                                        <strong style="font-size: 1.1rem;">Cambio a devolver:</strong>
+                                        <strong class="amount" id="change_due_adelanto" style="font-size: 1.2rem; color: #28a745;">0.00 Bs.</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Guardar Adelanto</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
         @endsection
 
         @section('javascript')
             <script src="{{ asset('js/btn-submit.js') }}"></script>
 
             <script>
+                // Lógica para el modal de adelanto
+                $('#payment_method_adelanto').on('change', function() {
+                    let paymentMethod = $(this).val();
+                    $('#payment-details-adelanto').hide();
+                    $('#calculator-adelanto').hide();
+
+                    $('#amount_efectivo_adelanto').prop('required', false).prop('min', '');
+                    $('#amount_qr_adelanto').prop('required', false).prop('min', '');
+
+                    if (paymentMethod === 'ambos') {
+                        $('#payment-details-adelanto').show();
+                        $('#amount_efectivo_adelanto').prop('required', true).prop('min', 0.01);
+                        $('#amount_qr_adelanto').prop('required', true).prop('min', 0.01);
+                    } else if (paymentMethod === 'efectivo') {
+                        $('#calculator-adelanto').show();
+                    }
+                });
+                $('#amount_received_adelanto').on('keyup change', function() {
+                    let adelanto = parseFloat($('#amount_adelanto').val()) || 0;
+                    let received = parseFloat($(this).val()) || 0;
+                    let change = received - adelanto;
+                    if (change < 0) change = 0;
+                    $('#change_due_adelanto').text(change.toFixed(2).replace('.', ',') + ' Bs.');
+                });
+
                 $(document).ready(function() {
                     var productSelected;
 

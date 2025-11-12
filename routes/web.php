@@ -48,6 +48,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['loggin', 'system']], functi
     Route::post('services/{service}/finish', [ServiceController::class, 'finishService'])->name('services.finish');
     Route::post('services/{service}/add-time', [ServiceController::class, 'addTime'])->name('services.add_time');
     Route::put('services/time/{serviceTime}', [ServiceController::class, 'updateTime'])->name('services.update_time');
+    Route::post('services/{service}/add-payment', [ServiceController::class, 'addPayment'])->name('services.add_payment');
 
 
 

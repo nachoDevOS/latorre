@@ -393,6 +393,70 @@ class ServiceController extends Controller
         }
     }
 
+    public function addPayment(Request $request, Service $service)
+    {
+        $request->validate([
+            'amount' => 'required|numeric|min:0.01',
+            'payment_method' => 'required|string'
+        ]);
+
+        $cashier = $this->cashier(null,'user_id = "'.Auth::user()->id.'"', 'status = "Abierta"');
+        if (!$cashier) {
+            return back()->with(['message' => 'No tienes una caja abierta.', 'alert-type' => 'warning']);
+        }
+
+        DB::beginTransaction();
+        try {
+            $transaction = Transaction::create(['status' => 'Completado']);
+
+            if ($request->payment_method == 'efectivo') {
+                $request->validate(['amount_received' => 'required|numeric|min:'.$request->amount]);
+                ServiceTransaction::create([
+                    'service_id' => $service->id,
+                    'transaction_id' => $transaction->id,
+                    'cashier_id' => $cashier->id,
+                    'amount' => $request->amount,
+                    'paymentType' => 'Efectivo',
+                    'observation' => 'Adelanto de pago.'
+                ]);
+            } elseif ($request->payment_method == 'qr') {
+                ServiceTransaction::create([
+                    'service_id' => $service->id,
+                    'transaction_id' => $transaction->id,
+                    'cashier_id' => $cashier->id,
+                    'amount' => $request->amount,
+                    'paymentType' => 'Qr',
+                    'observation' => 'Adelanto de pago.'
+                ]);
+            } elseif ($request->payment_method == 'ambos') {
+                $request->validate([
+                    'amount_efectivo' => 'required|numeric|min:0.01',
+                    'amount_qr' => 'required|numeric|min:0.01',
+                ]);
+
+                if( ($request->amount_efectivo + $request->amount_qr) != $request->amount) {
+                    return back()->with(['message' => 'La suma de los montos debe ser igual al adelanto total.', 'alert-type' => 'error'])->withInput();
+                }
+
+                ServiceTransaction::create(['service_id' => $service->id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id, 'amount' => $request->amount_efectivo, 'paymentType' => 'Efectivo', 'observation' => 'Adelanto de pago.']);
+                ServiceTransaction::create(['service_id' => $service->id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id, 'amount' => $request->amount_qr, 'paymentType' => 'Qr', 'observation' => 'Adelanto de pago.']);
+            }
+
+            DB::commit();
+
+            return redirect()->route('services.show', $service->room_id)->with([
+                'message'    => 'Adelanto registrado exitosamente.',
+                'alert-type' => 'success',
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with(['message' => 'Ocurrió un error al registrar el adelanto: ' . $e->getMessage(), 'alert-type' => 'error']);
+        }
+    }
+
+
+
     public function updateTime(Request $request, ServiceTime $serviceTime)
     {
         if ($request->end_time < $serviceTime->start_time) {

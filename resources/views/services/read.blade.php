@@ -148,7 +148,7 @@
                                                         @if ($time->end_time)
                                                             {{ date('h:i A', strtotime($time->end_time)) }}
                                                         @else
-                                                            <span class="badge badge-success">En curso</span>
+                                                            <span class="badge badge-success" style="font-size: 1em;">En curso</span>
                                                         @endif
                                                     </td>
                                                     <td class="text-right">
@@ -160,9 +160,17 @@
                                                             @endphp
                                                             {{ $duration }} minutos
                                                         @endif
+
+                                                        @if (!$time->end_time)
+                                                            <button type="button" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#updateTimeModal-{{ $time->id }}">
+                                                                <i class="voyager-edit"></i> Finalizar Tiempo
+                                                            </button>
+                                                        @endif
                                                     </td>
+                                       
                                                     <td class="text-right">{{ number_format($time->amount, 2, ',', '.') }}
-                                                        Bs.</td>
+                                                        Bs.
+                                                    </td>
                                                 </tr>
                                             @empty
                                                 <tr>
@@ -192,6 +200,7 @@
                                                     @endphp
                                                     {{ $hours }}h {{ $minutes }}m
                                                 </th>
+                                                {{-- <th></th> --}}
                                                 <th class="text-right">
                                                     @php
                                                         $totalAmount = $service->serviceTimes->sum('amount');
@@ -207,7 +216,11 @@
 
                         @php
                             $lastTime = $service->serviceTimes->last();
+                            // Define si se puede agregar tiempo (si el último período está cerrado)
                             $canAddTime = $lastTime && $lastTime->end_time;
+                            // Define si hay un tiempo en curso que impide finalizar (si el último período está abierto)
+                            // Esta variable se usará más abajo en el botón de "Finalizar y Cobrar"
+                            $canFinishService = $lastTime && !$lastTime->end_time;
                         @endphp
 
                         @if ($canAddTime)
@@ -249,7 +262,7 @@
                         @else
                             <div class="alert alert-info">
                                 <i class="voyager-watch"></i> El servicio actual se encuentra en curso sin límite de tiempo. Para agregar un nuevo período, primero debe finalizar el servicio actual.
-                            </div>
+
                         @endif
 
                     </div>
@@ -418,7 +431,7 @@
                         $deuda = round($service->total_amount - $totalPagado, 2);
                     @endphp
                     <div class="panel summary-panel">
-                        <form action="{{ route('services.finish', ['service' => $service->id]) }}" method="POST">
+                        <form id="form-finish" action="{{ route('services.finish', ['service' => $service->id]) }}" method="POST" onsubmit="btnSubmit.disabled = true; return true;">
                             @csrf
                             <div>
                                 <h4 style="text-align: center; margin-top: 0; font-weight: 500; color: #4A4A4A;">Resumen de Pago
@@ -426,17 +439,17 @@
                                 <hr>
                                 <div class="summary-item">
                                     <span>Monto de Productos:</span>
-                                    <strong>{{ number_format($totalProductos, 2, ',', '.') }} Bs.</strong>
+                                    <strong id="summary-products-amount">{{ number_format($totalProductos, 2, ',', '.') }} Bs.</strong>
                                 </div>
                                 <div class="summary-item">
                                     <span>Monto Sala:</span>
-                                    <strong>{{ number_format($service->amount_room, 2, ',', '.') }} Bs.</strong>
+                                    <strong id="summary-room-amount">{{ number_format($service->amount_room, 2, ',', '.') }} Bs.</strong>
                                 </div>
     
                                 <div class="summary-total">
                                     <div class="summary-item">
                                         <span>Monto Total:</span>
-                                        <strong>{{ number_format($service->total_amount, 2, ',', '.') }} Bs.</strong>
+                                        <strong id="summary-total-amount">{{ number_format($service->total_amount, 2, ',', '.') }} Bs.</strong>
                                     </div>
                                 </div>
                                 <div class="summary-total">
@@ -453,6 +466,7 @@
                                     </div>
                                 </div>
     
+
                                 @if ($deuda > 0)
                                     <div id="payment-section" style="margin-top: 15px;">
                                         <hr>
@@ -496,19 +510,14 @@
                                     </div>
                                 @endif
     
-                                @php
-                                    $lastTime = $service->serviceTimes->last();
-                                    $canFinishService = $lastTime && $lastTime->end_time;
-                                @endphp
-
                                 <div style="margin-top: 20px; text-align: center;">
                                     @if ($canFinishService)
-                                        <button type="submit" class="btn btn-finish"><i class="voyager-dollar"></i> Finalizar y Cobrar</button>
-                                    @else
                                         <button type="button" class="btn btn-finish" disabled title="Debe registrar una hora de finalización para el tiempo en curso.">
                                             <i class="voyager-dollar"></i> Finalizar y Cobrar
                                         </button>
-                                        <p class="text-warning" style="margin-top: 10px;">El servicio tiene un tiempo abierto.</p>
+                                        <p class="text-warning" style="margin-top: 10px;">Finalice el tiempo en curso para poder cobrar.</p>
+                                    @else
+                                        <button type="submit" name="btnSubmit" class="btn btn-finish"><i class="voyager-dollar"></i> Finalizar y Cobrar</button>
                                     @endif
                                 </div>
                             </div>
@@ -516,6 +525,43 @@
                     </div>
                 </div>
             </div>
+
+            {{-- Modal para actualizar tiempo --}}
+            @foreach ($service->serviceTimes as $time)
+                @if (!$time->end_time)
+                <div class="modal fade" id="updateTimeModal-{{ $time->id }}" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <form action="{{ route('services.update_time', ['serviceTime' => $time->id]) }}" method="POST">
+                                @csrf
+                                @method('PUT')
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title">Finalizar Período de Tiempo</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <p>Inicio: <strong>{{ date('h:i A', strtotime($time->start_time)) }}</strong></p>
+                                    <div class="row">
+                                        <div class="form-group col-md-6">
+                                            <label for="end_time">Hora de Fin</label>
+                                            <input type="time" name="end_time" class="form-control" value="{{ date('H:i') }}" required>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label for="amount">Monto a cobrar por este período</label>
+                                            <input type="number" name="amount" class="form-control" step="0.01" min="0" placeholder="0.00" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                @endif
+            @endforeach
         @endsection
 
         @section('javascript')
@@ -724,7 +770,7 @@
 
                         function updateAmountField() {
                             if (endTimeInput.value) {
-                                if (startTimeInput.value && endTimeInput.value <= startTimeInput.value) {
+                                if (startTimeInput.value && endTimeInput.value < startTimeInput.value) {
                                     toastr.error('La hora de fin debe ser mayor que la hora de inicio.', 'Error de validación');
                                     endTimeInput.value = '';
                                 }

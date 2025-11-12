@@ -185,7 +185,6 @@ class ServiceController extends Controller
 
     public function addItem(Request $request, Service $service)
     {
-        return $request;
         $request->validate([
             'item_stock_id' => 'required|exists:item_stocks,id',
             'quantity' => 'required|numeric|min:1',
@@ -229,6 +228,34 @@ class ServiceController extends Controller
     public function finishService(Request $request, Service $service)
     {
         DB::beginTransaction();
+
+        // Lógica para finalizar un tiempo abierto
+        $lastTime = $service->serviceTimes->last();
+        // Este bloque se ejecuta solo si hay un tiempo abierto que se está cerrando desde el formulario de cobro.
+        // El modal para finalizar tiempo usa el método updateTime, no este.
+        // if ($lastTime && !$lastTime->end_time) {
+        //     $request->validate([
+        //         'final_end_time' => 'required|date_format:H:i|after_or_equal:'.$lastTime->start_time,
+        //         'final_amount' => 'required|numeric|min:0',
+        //     ], [
+        //         'final_end_time.required' => 'La hora de finalización es obligatoria.',
+        //         'final_end_time.after_or_equal' => 'La hora de fin no puede ser anterior a la de inicio.',
+        //         'final_amount.required' => 'El monto por el último período es obligatorio.',
+        //         'final_amount.min' => 'El monto no puede ser negativo.',
+        //     ]);
+
+        //     // Actualizar el último registro de tiempo
+        //     $lastTime->end_time = $request->final_end_time;
+        //     $lastTime->amount = $request->final_amount;
+        //     $lastTime->time_type = 'Tiempo fijo'; // Se cierra el tiempo
+        //     $lastTime->save();
+
+        //     // Actualizar los montos totales del servicio
+        //     $service->amount_room = $service->serviceTimes()->sum('amount');
+        //     $service->total_amount = $service->amount_room + $service->amount_products;
+        //     $service->save();
+        // }
+        
         try {
             $cashier = $this->cashier(null,'user_id = "'.Auth::user()->id.'"', 'status = "Abierta"');
             if (!$cashier) {
@@ -319,13 +346,13 @@ class ServiceController extends Controller
         
         $request->validate([
             'start_time' => 'required|date_format:H:i',
-            'end_time' => 'nullable|date_format:H:i|after:start_time',
+            'end_time' => 'nullable|date_format:H:i|after_or_equal:start_time',
             'amountSala' => 'nullable|numeric|min:0',
         ], [
             'start_time.required' => 'La hora de inicio es obligatoria.',
             'start_time.date_format' => 'El formato de la hora de inicio no es válido.',
             'end_time.date_format' => 'El formato de la hora de fin no es válido.',
-            'end_time.after' => 'La hora de fin debe ser posterior a la hora de inicio.',
+            'end_time.after_or_equal' => 'La hora de fin no puede ser anterior a la hora de inicio.',
             'amountSala.required' => 'El monto es obligatorio.',
             'amountSala.numeric' => 'El monto debe ser un número.',
             'amountSala.min' => 'El monto no puede ser negativo.',
@@ -361,6 +388,54 @@ class ServiceController extends Controller
                 'message'    => 'Ocurrió un error al agregar tiempo adicional: ' . $e->getMessage(),
                 'alert-type' => 'error'
             ]);
+        }
+    }
+
+    public function updateTime(Request $request, ServiceTime $serviceTime)
+    {
+        if ($request->end_time < $serviceTime->start_time) {
+            // No se hace nada, se asume que es del día siguiente
+        } else {
+            // Si no es del día siguiente, se valida que no sea anterior
+            if (strtotime($request->end_time) < strtotime($serviceTime->start_time)) {
+                return back()->withErrors(['end_time' => 'La hora de fin no puede ser anterior a la de inicio.'])->withInput();
+            }
+        }
+
+        $request->validate([
+            'end_time' => 'required|date_format:H:i',
+            'amount' => 'required|numeric|min:0',
+        ], [
+            'end_time.required' => 'La hora de finalización es obligatoria.',
+            'amount.required' => 'El monto es obligatorio.',
+            'amount.min' => 'El monto no puede ser negativo.',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            // Obtener la instancia del servicio ANTES de modificar serviceTime
+            $service = $serviceTime->service;
+
+            // Actualizar el registro de tiempo
+            $serviceTime->end_time = $request->end_time;
+            $serviceTime->amount = $request->amount;
+            $serviceTime->time_type = 'Tiempo fijo'; // Se convierte en tiempo fijo
+            $serviceTime->save();
+
+            // Recalcular y actualizar los montos totales del servicio con la instancia guardada
+            $service->amount_room = $service->serviceTimes()->sum('amount');
+            $service->total_amount = $service->amount_room + $service->amount_products;
+            $service->save();
+
+            DB::commit();
+
+            return redirect()->route('services.show', $service->room_id)->with([
+                'message'    => 'El período de tiempo ha sido finalizado exitosamente.',
+                'alert-type' => 'success',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with(['message' => 'Ocurrió un error al actualizar el tiempo: ' . $e->getMessage(), 'alert-type' => 'error']);
         }
     }
 }

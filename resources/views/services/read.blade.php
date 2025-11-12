@@ -237,7 +237,7 @@
                                             </div>
                                             <div class="form-group col-md-4" id="amount-group-additional">
                                                 <label for="amount" id="amount-label-additional">Monto adicional</label>
-                                                <input type="number" name="amountSala" id="amount-additional" class="form-control" min="0.01" step="0.01" placeholder="0.00" required>
+                                                <input type="number" name="amountSala" id="amount-additional" class="form-control" min="0" step="0.01" placeholder="0.00">
                                             </div>
                                         </div>
                                         <div class="text-right">
@@ -718,14 +718,15 @@
                                     endTimeInput.value = '';
                                 }
                                 if (!endTimeInput.value) return; // Si se limpió el valor, no continuar
-                                amountGroup.style.display = 'block';
-                                amountInput.required = true;
-                                amountInput.value = '';
+                                amountLabel.textContent = 'Monto del alquiler';
+                                amountInput.required = true; // Monto es requerido si hay hora fin
+                                amountInput.min = 0.01;
                             } else {
-                                amountGroup.style.display = 'none';
+                                amountLabel.textContent = 'Adelanto (opcional)';
                                 amountInput.required = false;
-                                amountInput.value = '0';
+                                amountInput.min = 0;
                             }
+                            amountInput.value = ''; // Limpiar el valor en cualquier cambio
                         }
                         endTimeInput.addEventListener('change', updateAmountField);
                         updateAmountField(); // Llamada inicial para establecer el estado correcto

@@ -320,7 +320,7 @@ class ServiceController extends Controller
         $request->validate([
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'nullable|date_format:H:i|after:start_time',
-            'amountSala' => 'required|numeric|min:0',
+            'amountSala' => 'nullable|numeric|min:0',
         ], [
             'start_time.required' => 'La hora de inicio es obligatoria.',
             'start_time.date_format' => 'El formato de la hora de inicio no es válido.',
@@ -338,13 +338,14 @@ class ServiceController extends Controller
                 'service_id' => $service->id,
                 'time_type' => $request->end_time ? 'Tiempo fijo' : 'Tiempo sin límite',
                 'start_time' => $request->start_time,
-                'end_time' => $request->end_time ?: null,
-                'amount' => $request->amountSala,
+                'end_time' => $request->end_time,
+                'amount' => $request->amountSala ?? 0,
             ]);
 
             // Actualizar los montos del servicio
-            $service->amount_room += $request->amountSala;
-            $service->total_amount += $request->amountSala;
+            $amountToAdd = $request->amountSala ?? 0;
+            $service->amount_room += $amountToAdd;
+            $service->total_amount += $amountToAdd;
             $service->save();
 
             DB::commit();

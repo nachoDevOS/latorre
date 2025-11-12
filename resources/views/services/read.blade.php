@@ -262,7 +262,7 @@
                         @else
                             <div class="alert alert-info">
                                 <i class="voyager-watch"></i> El servicio actual se encuentra en curso sin límite de tiempo. Para agregar un nuevo período, primero debe finalizar el servicio actual.
-
+                            </div>
                         @endif
 
                     </div>

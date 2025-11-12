@@ -425,11 +425,11 @@
                                 </h4>
                                 <hr>
                                 <div class="summary-item">
-                                    <span>Subtotal Productos:</span>
+                                    <span>Monto de Productos:</span>
                                     <strong>{{ number_format($totalProductos, 2, ',', '.') }} Bs.</strong>
                                 </div>
                                 <div class="summary-item">
-                                    <span>Adelanto/Monto Sala:</span>
+                                    <span>Monto Sala:</span>
                                     <strong>{{ number_format($service->amount_room, 2, ',', '.') }} Bs.</strong>
                                 </div>
     

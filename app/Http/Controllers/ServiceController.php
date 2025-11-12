@@ -312,7 +312,7 @@ class ServiceController extends Controller
 
     public function addTime(Request $request, Service $service)
     {
-        return $request;
+        // return $request;
         $request->validate([
             'start_time' => 'required|date_format:H:i',
             'amountSala' => 'required|numeric|min:0',

@@ -78,18 +78,22 @@ class ServiceController extends Controller
 
         $startDateTime = \Carbon\Carbon::parse($request->start_date . ' ' . $request->start_time);
 
-        $amount_Qr = $request->amount_qr ?? 0;
-        $amount_efectivo = $request->payment_method == 'efectivo' ? $request->amount_product + $request->amountSala : ($request->amount_efectivo ?? 0);
+        $total_a_pagar = ($request->amountSala ?? 0) + ($request->amount_product ?? 0);
 
-        if($request->payment_method == 'efectivo' && $amount_efectivo > $request->amount_received)
-        {
-            return redirect()->back()->withInput()->withErrors(['message' => 'El monto en efectivo no puede ser mayor al monto recibido.']);
+        if ($request->payment_method == 'efectivo') {
+            $request->validate(['amount_received' => 'required|numeric|min:'.$total_a_pagar]);
         }
-
-        if($request->payment_method == 'ambos' && ($request->amount_product + $request->amountSala) > ($amount_Qr+$amount_efectivo))
-        {
-            return redirect()->back()->withInput()->withErrors(['message' => 'La suma del monto en efectivo y el monto por Qr debe ser igual al monto total.']);
+        
+        if ($request->payment_method == 'ambos') {
+            $request->validate([
+                'amount_efectivo' => 'required|numeric|min:0.01',
+                'amount_qr' => 'required|numeric|min:0.01',
+            ]);
+            if (($request->amount_efectivo + $request->amount_qr) != $total_a_pagar) {
+                return redirect()->back()->withInput()->withErrors(['message' => 'La suma del monto en efectivo y el monto por QR debe ser igual al monto total.']);
+            }
         }
+        
 
         if ($request->end_time) {
             $endDateTime = \Carbon\Carbon::parse($request->end_date . ' ' . $request->end_time);
@@ -120,12 +124,13 @@ class ServiceController extends Controller
                 'start_time' => $startDateTime->toDateTimeString(),
                 'amount_room'=> $request->amountSala,
                 'amount_products'=> $request->amount_product,
-                'total_amount'=> $request->amountSala + $request->amount_product,
+                'total_amount'=> $total_a_pagar,
 
                 'observation' => 'Inicio de alquiler',
             ]);
 
-            if(($amount_efectivo + $amount_Qr) > 0)
+            $transaction = null;
+            if($total_a_pagar > 0 && $request->payment_method)
             {
                 $transaction = Transaction::create([
                     'status' => 'Completado',
@@ -158,29 +163,32 @@ class ServiceController extends Controller
                 } 
             }  
             
-            if ($request->payment_method == 'efectivo' || $request->payment_method == 'ambos' && ($amount_efectivo + $amount_Qr) > 0 ) {
+            if ($transaction) {
+                if ($request->payment_method == 'efectivo') {
                     ServiceTransaction::create([
-                        'service_id' => $service->id,
-                        'transaction_id' => $transaction->id,
-                        'type' => 'Ingreso',
-                        'cashier_id' => $cashier->id,
-                        'amount' => $amount_efectivo,
-                        'paymentType' => 'Efectivo',
+                        'service_id' => $service->id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id,
+                        'amount' => $total_a_pagar, 'paymentType' => 'Efectivo', 'type' => 'Ingreso'
                     ]);
-            }
-            return $amount_Qr;
-
-            if ($request->payment_method == 'qr' || $request->payment_method == 'ambos' && ($amount_efectivo + $amount_Qr) > 0) {
+                } elseif ($request->payment_method == 'qr') {
                     ServiceTransaction::create([
-                        'service_id' => $service->id,
-                        'transaction_id' => $transaction->id,
-                        'type' => 'Ingreso',
-                        'cashier_id' => $cashier->id,
-                        'amount' =>  $amount_Qr,
-                        'paymentType' => 'Qr',
+                        'service_id' => $service->id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id,
+                        'amount' => $total_a_pagar, 'paymentType' => 'Qr', 'type' => 'Ingreso'
                     ]);
+                } elseif ($request->payment_method == 'ambos') {
+                    if ($request->amount_efectivo > 0) {
+                        ServiceTransaction::create([
+                            'service_id' => $service->id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id,
+                            'amount' => $request->amount_efectivo, 'paymentType' => 'Efectivo', 'type' => 'Ingreso'
+                        ]);
+                    }
+                    if ($request->amount_qr > 0) {
+                        ServiceTransaction::create([
+                            'service_id' => $service->id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id,
+                            'amount' => $request->amount_qr, 'paymentType' => 'Qr', 'type' => 'Ingreso'
+                        ]);
+                    }
+                }
             }
-            
 
             // Cambiar el estado de la sala
             $room->status = 'Ocupada';
@@ -195,7 +203,6 @@ class ServiceController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return 0;
             return redirect()->route('services.index')->with([
                 'message'    => 'Ocurrió un error al iniciar el alquiler: ' . $e->getMessage(),
                 'alert-type' => 'error'

@@ -265,13 +265,13 @@
                                             @php
                                                 $lastServiceTime = $room->service->serviceTimes->last();
                                             @endphp
-                                            <div id="service-info-{{ $room->id }}" style="background-color: rgba(255, 255, 255, 0.5); padding: 10px; border-radius: 5px; margin-top: 10px; color:black;" @if($lastServiceTime && $lastServiceTime->end_time) data-end-time="{{ date('H:i:s', strtotime($lastServiceTime->end_time)) }}" @endif>
+                                            <div id="service-info-{{ $room->id }}" style="background-color: rgba(255, 255, 255, 0.5); padding: 10px; border-radius: 5px; margin-top: 10px; color:black;" data-start-time="{{ date('Y-m-d H:i:s', strtotime($room->service->start_time)) }}" @if($lastServiceTime && $lastServiceTime->end_time) data-end-time="{{ date('Y-m-d H:i:s', strtotime($lastServiceTime->end_time)) }}" @endif>
                                                 <p style="margin-top: 0px; margin-bottom: 0px; font-size: 0.95em;">
-                                                    <i class="voyager-watch"></i> Inicio: <strong>{{ date('h:i A', strtotime($room->service->start_time)) }}</strong>
+                                                    <i class="voyager-watch"></i> Inicio: <strong>{{ date('d/m/y h:i A', strtotime($room->service->start_time)) }}</strong>
                                                 </p>
                                                 @if($lastServiceTime && $lastServiceTime->end_time)
                                                     <p style="margin-bottom: 0px; font-size: 0.95em;">
-                                                        <i class="voyager-alarm-clock"></i> Fin: <strong>{{ date('h:i A', strtotime($lastServiceTime->end_time)) }}</strong>
+                                                        <i class="voyager-alarm-clock"></i> Fin: <strong>{{ date('d/m/y h:i A', strtotime($lastServiceTime->end_time)) }}</strong>
                                                     </p>
                                                 @endif
                                                 <div id="timer-{{ $room->id }}" style="font-size: 18px; font-weight: bold; margin-top: 5px;"></div>
@@ -315,20 +315,17 @@
                         var timerElement = document.getElementById('timer-{{ $room->id }}');
                         if (timerElement && !timerElement.hasAttribute('data-stopped')) {
                             var serviceInfoDiv = document.getElementById('service-info-{{ $room->id }}');
-                            var endTimeString = serviceInfoDiv ? serviceInfoDiv.dataset.endTime : null;
+                    var startTimeString = serviceInfoDiv.dataset.startTime;
+                    var endTimeString = serviceInfoDiv.dataset.endTime;
+
                             var now = new Date();
-                            var startTime = new Date();
-                            var timeParts = "{{ $room->service->start_time }}".split(':');
-                            startTime.setHours(timeParts[0], timeParts[1], timeParts[2] || 0, 0);
+                    var startTime = new Date(startTimeString.replace(/-/g, '/')); // Reemplazar guiones para compatibilidad
 
                             var targetTime = now;
                             var shouldStop = false;
 
                             if (endTimeString) {
-                                var endTime = new Date();
-                                var endTimeParts = endTimeString.split(':');
-                                endTime.setHours(endTimeParts[0], endTimeParts[1], endTimeParts[2] || 0, 0);
-
+                        var endTime = new Date(endTimeString.replace(/-/g, '/'));
                                 if (now > endTime) {
                                     targetTime = endTime;
                                     shouldStop = true;

@@ -545,8 +545,6 @@ class ServiceController extends Controller
         }
     }
 
-
-
     public function updateTime(Request $request, ServiceTime $serviceTime)
     {
         $request->validate([

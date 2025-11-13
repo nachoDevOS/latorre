@@ -720,6 +720,10 @@
                                         </div>
                                         <small class="form-text text-muted">Dejar vacío para alquiler sin límite.</small>
                                     </div>
+                                    <div class="form-group col-md-12" style="margin-top: -10px; display: none;" id="duration-group-additional">
+                                        <p>Duración del período: <strong id="duration_additional">Calculando...</strong></p>
+                                    </div>
+
                                     <div class="form-group col-md-12" id="amount-group-additional" style="display: none;">
                                         <label for="amount" id="amount-label-additional">Monto adicional</label>
                                         <input type="number" name="amountSala" id="amount-additional" class="form-control" min="0" step="0.01" placeholder="0.00">
@@ -983,6 +987,8 @@
                     const amountGroup = document.getElementById('amount-group-additional');
                     const amountInput = document.getElementById('amount-additional');
                     const paymentGroup = document.getElementById('payment-method-group-additional');
+                    const durationGroup = document.getElementById('duration-group-additional');
+                    const durationDisplay = document.getElementById('duration_additional');
 
                     if(endTimeInput) {
                         document.getElementById('clear-end-time-additional').addEventListener('click', function() {
@@ -990,6 +996,30 @@
                             endTimeInput.value = '';
                             updateAmountField();
                         });
+
+                        function calculateDurationAdditional() {
+                            const startDateStr = startDateInput.value;
+                            const startTimeStr = startTimeInput.value;
+                            const endDateStr = endDateInput.value;
+                            const endTimeStr = endTimeInput.value;
+
+                            if (startDateStr && startTimeStr && endDateStr && endTimeStr) {
+                                const startDate = new Date(`${startDateStr}T${startTimeStr}`);
+                                const endDate = new Date(`${endDateStr}T${endTimeStr}`);
+                                if (endDate > startDate) {
+                                    let diff = endDate.getTime() - startDate.getTime();
+                                    let minutes = Math.floor(diff / 60000);
+                                    let days = Math.floor(minutes / (24 * 60));
+                                    minutes -= days * 24 * 60;
+                                    let hours = Math.floor(minutes / 60);
+                                    minutes -= hours * 60;
+
+                                    durationDisplay.textContent = `${days} día(s), ${hours} hora(s) y ${minutes} minuto(s)`;
+                                } else {
+                                    durationDisplay.textContent = 'La fecha fin debe ser mayor a la de inicio.';
+                                }
+                            }
+                        }
 
                         function updateAmountField() {
                             if (endTimeInput.value) {
@@ -1008,15 +1038,20 @@
                                 if (!endTimeInput.value) {
                                     amountGroup.style.display = 'none';
                                     paymentGroup.style.display = 'none';
+                                    durationGroup.style.display = 'none';
                                 }
                                 amountGroup.style.display = 'block';
                                 paymentGroup.style.display = 'block';
+                                durationGroup.style.display = 'block';
                                 amountLabel.textContent = 'Monto del alquiler';
                                 amountInput.required = true; // Monto es requerido si hay hora fin
                                 amountInput.min = 0.01;
+                                calculateDurationAdditional();
                             } else {
                                 amountGroup.style.display = 'none';
                                 paymentGroup.style.display = 'none';
+                                durationGroup.style.display = 'none';
+                                durationDisplay.textContent = 'Calculando...';
                                 amountInput.required = false;
                             }
                             amountInput.value = '';
@@ -1077,6 +1112,8 @@
                         $('#amount_qr_additional').on('keyup change', calculateChangeAdditional);
 
                         endTimeInput.addEventListener('change', updateAmountField);
+                        endDateInput.addEventListener('change', updateAmountField);
+
                         updateAmountField(); // Llamada inicial para establecer el estado correcto
                     }
 

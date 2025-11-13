@@ -97,6 +97,22 @@
             cursor: not-allowed;
         }
 
+        .btn-end-time {
+            background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+            border: none;
+            color: white !important;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn-end-time:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
         .live-indicator {
             display: inline-flex;
             align-items: center;
@@ -204,8 +220,8 @@
                                                         @endif
 
                                                         @if (!$time->end_time)
-                                                            <button type="button" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#updateTimeModal-{{ $time->id }}">
-                                                                <i class="voyager-edit"></i> Finalizar Tiempo
+                                                            <button type="button" class="btn btn-end-time" data-toggle="modal" data-target="#updateTimeModal-{{ $time->id }}">
+                                                                <i class="voyager-edit"></i> Finalizar
                                                             </button>
                                                         @endif
                                                     </td>

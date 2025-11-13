@@ -536,38 +536,76 @@ class ServiceController extends Controller
 
     public function updateTime(Request $request, ServiceTime $serviceTime)
     {
-        if ($request->end_time < $serviceTime->start_time) {
-            // No se hace nada, se asume que es del día siguiente
-        } else {
-            // Si no es del día siguiente, se valida que no sea anterior
-            if (strtotime($request->end_time) < strtotime($serviceTime->start_time)) {
-                return back()->withErrors(['end_time' => 'La hora de fin no puede ser anterior a la de inicio.'])->withInput();
-            }
-        }
-
         $request->validate([
+            'end_date' => 'required|date',
             'end_time' => 'required|date_format:H:i',
-            'amount' => 'required|numeric|min:0',
+            'amount' => 'required|numeric|min:0.01',
+            'payment_method' => 'required|string',
         ], [
+            'end_date.required' => 'La fecha de finalización es obligatoria.',
             'end_time.required' => 'La hora de finalización es obligatoria.',
             'amount.required' => 'El monto es obligatorio.',
-            'amount.min' => 'El monto no puede ser negativo.',
+            'amount.min' => 'El monto debe ser mayor a cero.',
+            'payment_method.required' => 'El método de pago es obligatorio.',
         ]);
 
         DB::beginTransaction();
         try {
-            // Obtener la instancia del servicio ANTES de modificar serviceTime
+            $startDateTime = \Carbon\Carbon::parse($serviceTime->start_time);
+            $endDateTime = \Carbon\Carbon::parse($request->end_date . ' ' . $request->end_time);
+
+            if ($endDateTime->lessThan($startDateTime)) {
+                return back()->with(['message' => 'La fecha y hora de fin no puede ser anterior a la de inicio.']);
+            }
+
+            return 1;
+
+            $cashier = $this->cashier(null, 'user_id = "' . Auth::user()->id . '"', 'status = "Abierta"');
+            if (!$cashier) {
+                return back()->with(['message' => 'No tienes una caja abierta.', 'alert-type' => 'warning']);
+            }
+
+            $transaction = Transaction::create(['status' => 'Completado']);
+
+            if ($request->payment_method == 'efectivo') {
+                $request->validate(['amount_received' => 'nullable|numeric|min:' . $request->amount]);
+                ServiceTransaction::create([
+                    'service_id' => $serviceTime->service_id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id,
+                    'amount' => $request->amount, 'paymentType' => 'Efectivo', 'type' => 'Ingreso'
+                ]);
+            } elseif ($request->payment_method == 'qr') {
+                ServiceTransaction::create([
+                    'service_id' => $serviceTime->service_id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id,
+                    'amount' => $request->amount, 'paymentType' => 'Qr', 'type' => 'Ingreso'
+                ]);
+            } elseif ($request->payment_method == 'ambos') {
+                $request->validate([
+                    'amount_efectivo' => 'required|numeric|min:0.01',
+                    'amount_qr' => 'required|numeric|min:0.01',
+                ]);
+                if (bccomp($request->amount_efectivo + $request->amount_qr, $request->amount, 2) != 0) {
+                    return redirect()->back()->withInput()->withErrors(['message' => 'La suma del monto en efectivo y el monto por QR debe ser igual al monto total del período.']);
+                }
+                if ($request->amount_efectivo > 0) {
+                    ServiceTransaction::create(['service_id' => $serviceTime->service_id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id, 'amount' => $request->amount_efectivo, 'paymentType' => 'Efectivo', 'type' => 'Ingreso']);
+                }
+                if ($request->amount_qr > 0) {
+                    ServiceTransaction::create(['service_id' => $serviceTime->service_id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id, 'amount' => $request->amount_qr, 'paymentType' => 'Qr', 'type' => 'Ingreso']);
+                }
+            }
+
             $service = $serviceTime->service;
 
             // Actualizar el registro de tiempo
-            $serviceTime->end_time = $request->end_time;
+            $serviceTime->end_time = $endDateTime->toDateTimeString();
             $serviceTime->amount = $request->amount;
-            $serviceTime->time_type = 'Tiempo fijo'; // Se convierte en tiempo fijo
+            $serviceTime->time_type = 'Tiempo fijo';
+            $serviceTime->transaction_id = $transaction->id;
             $serviceTime->save();
 
-            // Recalcular y actualizar los montos totales del servicio con la instancia guardada
-            $service->amount_room = $service->serviceTimes()->sum('amount');
-            $service->total_amount = $service->amount_room + $service->amount_products;
+            // Actualizar los montos totales del servicio
+            $service->amount_room += $request->amount;
+            $service->total_amount += $request->amount;
             $service->save();
 
             DB::commit();
@@ -578,7 +616,7 @@ class ServiceController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with(['message' => 'Ocurrió un error al actualizar el tiempo: ' . $e->getMessage(), 'alert-type' => 'error']);
+            return back()->with(['message' => 'Ocurrió un error al finalizar el tiempo: ' . $e->getMessage(), 'alert-type' => 'error']);
         }
     }
 }

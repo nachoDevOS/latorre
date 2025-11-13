@@ -373,7 +373,6 @@ class ServiceController extends Controller
 
     public function addTime(Request $request, Service $service)
     {
-        return 1;
         $request->validate([
             'start_date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
@@ -449,6 +448,7 @@ class ServiceController extends Controller
                 }
             }
  
+            return 1;
             // Actualizar los montos del servicio
             $service->amount_room += $amountToAdd;
             $service->total_amount += $amountToAdd;

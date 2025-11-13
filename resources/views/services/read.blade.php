@@ -126,12 +126,28 @@
                             </div>
                         </div>
                         <div class="panel panel-info">
-                            <div class="panel-heading">
+                            @php
+                                $lastTime = $service->serviceTimes->last();
+                                // Define si se puede agregar tiempo (si el último período está cerrado)
+                                $canAddTime = $lastTime && $lastTime->end_time;
+                                // Define si hay un tiempo en curso que impide finalizar (si el último período está abierto)
+                                // Esta variable se usará más abajo en el botón de "Finalizar y Cobrar"
+                                $canFinishService = $lastTime && !$lastTime->end_time;
+                            @endphp
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                                 <h3 class="panel-title"><i class="voyager-watch"></i> Historial de Tiempo</h3>
+                                @if ($canAddTime)
+                                <!-- Botón para abrir el modal -->
+                                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addTimeModal">
+                                        <i class="voyager-plus"></i> Agregar Tiempo
+                                    </button>
+                                @endif
                             </div>
+                            
+                            
                             <div class="panel-body" style="padding: 0px;">
                                 <div class="table-responsive">
-                                    <table class="table table-hover" style="margin-bottom: 0px;">
+                                    <table class="table table-hover" id="dataTable" style="margin-bottom: 0px;">
                                         <thead>
                                             <tr>
                                                 <th>Inicio</th>
@@ -214,91 +230,9 @@
                             </div>
                         </div>
 
-                        @php
-                            $lastTime = $service->serviceTimes->last();
-                            // Define si se puede agregar tiempo (si el último período está cerrado)
-                            $canAddTime = $lastTime && $lastTime->end_time;
-                            // Define si hay un tiempo en curso que impide finalizar (si el último período está abierto)
-                            // Esta variable se usará más abajo en el botón de "Finalizar y Cobrar"
-                            $canFinishService = $lastTime && !$lastTime->end_time;
-                        @endphp
+                        
 
-                        @if ($canAddTime)
-                            <div class="panel panel-success">
-                                <div class="panel-heading">
-                                    <h3 class="panel-title"><i class="voyager-plus"></i> Agregar Tiempo Adicional</h3>
-                                </div>
-                                <div class="panel-body">
-                                    <form action="{{ route('services.add_time', ['service' => $service->id]) }}" method="POST">
-                                        @csrf
-                                        <div class="row">
-                                            <div class="form-group col-md-6">
-                                                <label for="start_time">Fecha y Hora de Inicio</label>
-                                                <div class="input-group">
-                                                    <input type="date" name="start_date" id="start_date_additional" class="form-control" value="{{ date('Y-m-d', strtotime($lastTime->end_time)) }}" required readonly>
-                                                    <span class="input-group-addon" style="border-radius: 0px; border-left: 0px; border-right: 0px;"><i class="voyager-watch"></i></span>
-                                                    <input type="time" name="start_time" id="start_time_additional" class="form-control" value="{{ date('H:i', strtotime($lastTime->end_time)) }}" required readonly>
-                                                </div>
-                                            </div>
-                                            <div class="form-group col-md-6">
-                                                <label for="end_time">Fecha y Hora Fin (opcional)</label>
-                                                <div class="input-group">
-                                                    <input type="date" name="end_date" id="end_date_additional" class="form-control">
-                                                    <span class="input-group-addon" style="border-radius: 0px; border-left: 0px; border-right: 0px;"><i class="voyager-watch"></i></span>
-                                                    <input type="time" name="end_time" id="end_time_additional" class="form-control">
-                                                    <span class="input-group-btn">
-                                                        <button id="clear-end-time-additional" class="btn btn-default" style="margin: 0px" type="button" title="Limpiar Hora">
-                                                            <i class="voyager-trash"></i>
-                                                        </button>
-                                                    </span>
-                                                </div>
-                                                <small class="form-text text-muted">Dejar vacío para alquiler sin límite.</small>
-                                            </div>
-                                            <div class="form-group col-md-12" id="amount-group-additional">
-                                                <label for="amount" id="amount-label-additional">Monto adicional</label>
-                                                <input type="number" name="amountSala" id="amount-additional" class="form-control" min="0" step="0.01" placeholder="0.00">
-                                            </div>
-                                            <div class="col-md-12" id="payment-method-group-additional" style="display: none;">
-                                                <hr>
-                                                <div class="form-group">
-                                                    <label for="payment_method_additional">Método de Pago</label>
-                                                    <select name="payment_method" id="payment_method_additional" class="form-control">
-                                                        <option value="" selected disabled>--Seleccione una opción--</option>
-                                                        <option value="efectivo">Efectivo</option>
-                                                        <option value="qr">QR</option>
-                                                        <option value="ambos">Ambos</option>
-                                                    </select>
-                                                </div>
-                                                <div id="payment-details-additional" style="display: none;">
-                                                    <div class="form-group">
-                                                        <label for="amount_efectivo_additional">Monto en Efectivo</label>
-                                                        <input type="number" name="amount_efectivo" id="amount_efectivo_additional" class="form-control" step="0.01" min="0" placeholder="0.00">
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <label for="amount_qr_additional">Monto con QR</label>
-                                                        <input type="number" name="amount_qr" id="amount_qr_additional" class="form-control" step="0.01" min="0" placeholder="0.00">
-                                                    </div>
-                                                </div>
-            
-                                                <div id="calculator-additional" style="display: none; margin-top: 15px; border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
-                                                    <div class="form-group">
-                                                        <label for="amount_received_additional" style="font-weight: bold;">Monto Recibido (Efectivo)</label>
-                                                        <input type="number" name="amount_received" id="amount_received_additional" class="form-control" step="0.01" min="0" placeholder="0.00">
-                                                    </div>
-                                                    <div class="summary-item" style="background-color: #f0f0f0; padding: 10px; border-radius: 5px;">
-                                                        <strong style="font-size: 1.1rem;">Cambio a devolver:</strong>
-                                                        <strong class="amount" id="change_due_additional" style="font-size: 1.2rem; color: #28a745;">0.00 Bs.</strong>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="text-right">
-                                            <button type="submit" class="btn btn-success">Agregar Tiempo</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        @else
+                        @if (!$canAddTime)
                             <div class="alert alert-info">
                                 <i class="voyager-watch"></i> El servicio actual se encuentra en curso sin límite de tiempo. Para agregar un nuevo período, primero debe finalizar el servicio actual.
                             </div>
@@ -674,6 +608,77 @@
                 </div>
             </div>
 
+            {{-- Modal para Agregar Tiempo Adicional --}}
+            @if ($canAddTime)
+                <form action="{{ route('services.add_time', ['service' => $service->id]) }}" class="form-edit-add" method="POST">
+                @csrf
+                <div class="modal fade" id="addTimeModal" tabindex="-1" role="dialog" aria-labelledby="addTimeModalLabel">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">                        
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="addTimeModalLabel"><i class="voyager-plus"></i> Agregar Tiempo Adicional</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="form-group col-md-6">
+                                        <label for="start_time">Fecha y Hora de Inicio</label>
+                                        <div class="input-group">
+                                            <input type="date" name="start_date" id="start_date_additional" class="form-control" value="{{ date('Y-m-d', strtotime($lastTime->end_time)) }}" required readonly>
+                                            <span class="input-group-addon" style="border-radius: 0px; border-left: 0px; border-right: 0px;"><i class="voyager-watch"></i></span>
+                                            <input type="time" name="start_time" id="start_time_additional" class="form-control" value="{{ date('H:i', strtotime($lastTime->end_time)) }}" required readonly>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="end_time">Fecha y Hora Fin (opcional)</label>
+                                        <div class="input-group">
+                                            <input type="date" name="end_date" id="end_date_additional" class="form-control">
+                                            <span class="input-group-addon" style="border-radius: 0px; border-left: 0px; border-right: 0px;"><i class="voyager-watch"></i></span>
+                                            <input type="time" name="end_time" id="end_time_additional" class="form-control">
+                                            <span class="input-group-btn">
+                                                <button id="clear-end-time-additional" class="btn btn-default" style="margin: 0px" type="button" title="Limpiar Hora">
+                                                    <i class="voyager-trash"></i>
+                                                </button>
+                                            </span>
+                                        </div>
+                                        <small class="form-text text-muted">Dejar vacío para alquiler sin límite.</small>
+                                    </div>
+                                    <div class="form-group col-md-12" id="amount-group-additional" style="display: none;">
+                                        <label for="amount" id="amount-label-additional">Monto adicional</label>
+                                        <input type="number" name="amountSala" id="amount-additional" class="form-control" min="0" step="0.01" placeholder="0.00">
+                                    </div>
+                                    <div class="col-md-12" id="payment-method-group-additional" style="display: none;">
+                                        <hr>
+                                        <div class="form-group">
+                                            <label for="payment_method_additional">Método de Pago</label>
+                                            <select name="payment_method" id="payment_method_additional" class="form-control">
+                                                <option value="" selected disabled>--Seleccione una opción--</option>
+                                                <option value="efectivo">Efectivo</option>
+                                                <option value="qr">QR</option>
+                                                <option value="ambos">Ambos</option>
+                                            </select>
+                                        </div>
+                                        <div id="payment-details-additional" style="display: none;">
+                                            <div class="form-group"><label for="amount_efectivo_additional">Monto en Efectivo</label><input type="number" name="amount_efectivo" id="amount_efectivo_additional" class="form-control" step="0.01" min="0" placeholder="0.00"></div>
+                                            <div class="form-group"><label for="amount_qr_additional">Monto con QR</label><input type="number" name="amount_qr" id="amount_qr_additional" class="form-control" step="0.01" min="0" placeholder="0.00"></div>
+                                        </div>
+                                        <div id="calculator-additional" style="display: none; margin-top: 15px; border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
+                                            <div class="form-group"><label for="amount_received_additional" style="font-weight: bold;">Monto Recibido (Efectivo)</label><input type="number" name="amount_received" id="amount_received_additional" class="form-control" step="0.01" min="0" placeholder="0.00"></div>
+                                            <div class="summary-item" style="background-color: #f0f0f0; padding: 10px; border-radius: 5px;"><strong style="font-size: 1.1rem;">Cambio a devolver:</strong><strong class="amount" id="change_due_additional" style="font-size: 1.2rem; color: #28a745;">0.00 Bs.</strong></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default btn-cancel" data-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-success btn-submit">Agregar Tiempo</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            @endif
+
         @endsection
 
         @section('javascript')
@@ -918,11 +923,14 @@
                                     endDateInput.value = nextDay.toISOString().split('T')[0];
                                 } else if (!endDateInput.value) {
                                     endDateInput.value = startDateInput.value;
+                                } else if (new Date(endDateInput.value) < new Date(startDateInput.value)) {
+                                    toastr.warning('La fecha de fin no puede ser anterior a la de inicio.', 'Fecha inválida');
+                                    endDateInput.value = startDateInput.value;
                                 }
-                                if (!endTimeInput.value) { // Si se limpió el valor, ocultar y salir
+
+                                if (!endTimeInput.value) {
                                     amountGroup.style.display = 'none';
                                     paymentGroup.style.display = 'none';
-                                    return;
                                 }
                                 amountGroup.style.display = 'block';
                                 paymentGroup.style.display = 'block';

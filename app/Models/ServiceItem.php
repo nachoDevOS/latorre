@@ -16,6 +16,7 @@ class ServiceItem extends Model
     protected $fillable = [
         'service_id',
         'itemStock_id',
+        'transaction_id',
         'pricePurchase',
         'price',
         'quantity',

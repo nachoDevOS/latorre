@@ -15,6 +15,7 @@ class ServiceTime extends Model
 
     protected $fillable = [
         'service_id',
+        'transaction_id',
         'start_time',
         'end_time',
         'total_time',

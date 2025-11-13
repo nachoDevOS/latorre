@@ -143,10 +143,10 @@
                                         <tbody>
                                             @forelse ($service->serviceTimes as $time)
                                                 <tr>
-                                                    <td>{{ date('h:i A', strtotime($time->start_time)) }}</td>
+                                                    <td>{{ date('d-m-Y h:i A', strtotime($time->start_time)) }}</td>
                                                     <td>
                                                         @if ($time->end_time)
-                                                            {{ date('h:i A', strtotime($time->end_time)) }}
+                                                            {{ date('d-m-Y h:i A', strtotime($time->end_time)) }}
                                                         @else
                                                             <span class="badge badge-success" style="font-size: 1em;">En curso</span>
                                                         @endif

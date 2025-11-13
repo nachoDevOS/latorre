@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('service_times', function (Blueprint $table) {
             $table->id();
             $table->foreignId('service_id')->nullable()->constrained('services');
+            $table->foreignId('transaction_id')->nullable()->constrained('transactions');
 
             $table->datetime('start_time')->nullable();  
             $table->datetime('end_time')->nullable();

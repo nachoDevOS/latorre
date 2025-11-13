@@ -141,6 +141,7 @@ class ServiceController extends Controller
 
             ServiceTime::create([
                 'service_id' => $service->id,
+                'transaction_id' => $transaction->id,
                 'time_type' => $request->end_time? 'Tiempo fijo': 'Tiempo sin límite',
                 'start_time' => $startDateTime->toDateTimeString(),
                 'end_time' => $endDateTimeString,
@@ -155,6 +156,7 @@ class ServiceController extends Controller
                     ServiceItem::create([
                         'service_id' => $service->id,
                         'itemStock_id' => $itemStock->id,
+                        'transaction_id' => $transaction->id,
                         'pricePurchase' => $itemStock->pricePurchase,
                         'price' => $value['price'],
                         'quantity' => $value['quantity'],

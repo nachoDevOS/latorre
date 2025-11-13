@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('service_id')->nullable()->constrained('services');
             $table->foreignId('itemStock_id')->nullable()->constrained('item_stocks');
+            $table->foreignId('transaction_id')->nullable()->constrained('transactions');
+
 
             $table->decimal('pricePurchase', 10, 2)->nullable(); // precio de compra del item
 

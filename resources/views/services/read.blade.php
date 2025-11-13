@@ -232,13 +232,19 @@
                                     <form action="{{ route('services.add_time', ['service' => $service->id]) }}" method="POST">
                                         @csrf
                                         <div class="row">
-                                            <div class="form-group col-md-4">
-                                                <label for="start_time">Hora de Inicio</label>
-                                                <input type="time" name="start_time" id="start_time_additional" class="form-control" value="{{ date('H:i', strtotime($lastTime->end_time)) }}" required readonly>
-                                            </div>
-                                            <div class="form-group col-md-4">
-                                                <label for="end_time">Hora Fin (opcional)</label>
+                                            <div class="form-group col-md-6">
+                                                <label for="start_time">Fecha y Hora de Inicio</label>
                                                 <div class="input-group">
+                                                    <input type="date" name="start_date" id="start_date_additional" class="form-control" value="{{ date('Y-m-d', strtotime($lastTime->end_time)) }}" required readonly>
+                                                    <span class="input-group-addon" style="border-radius: 0px; border-left: 0px; border-right: 0px;"><i class="voyager-watch"></i></span>
+                                                    <input type="time" name="start_time" id="start_time_additional" class="form-control" value="{{ date('H:i', strtotime($lastTime->end_time)) }}" required readonly>
+                                                </div>
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label for="end_time">Fecha y Hora Fin (opcional)</label>
+                                                <div class="input-group">
+                                                    <input type="date" name="end_date" id="end_date_additional" class="form-control">
+                                                    <span class="input-group-addon" style="border-radius: 0px; border-left: 0px; border-right: 0px;"><i class="voyager-watch"></i></span>
                                                     <input type="time" name="end_time" id="end_time_additional" class="form-control">
                                                     <span class="input-group-btn">
                                                         <button id="clear-end-time-additional" class="btn btn-default" style="margin: 0px" type="button" title="Limpiar Hora">
@@ -248,7 +254,7 @@
                                                 </div>
                                                 <small class="form-text text-muted">Dejar vacío para alquiler sin límite.</small>
                                             </div>
-                                            <div class="form-group col-md-4" id="amount-group-additional">
+                                            <div class="form-group col-md-12" id="amount-group-additional">
                                                 <label for="amount" id="amount-label-additional">Monto adicional</label>
                                                 <input type="number" name="amountSala" id="amount-additional" class="form-control" min="0" step="0.01" placeholder="0.00">
                                             </div>
@@ -855,13 +861,16 @@
 
                 document.addEventListener('DOMContentLoaded', function() {
                     const endTimeInput = document.getElementById('end_time_additional');
+                    const endDateInput = document.getElementById('end_date_additional');
                     const startTimeInput = document.getElementById('start_time_additional');
+                    const startDateInput = document.getElementById('start_date_additional');
                     const amountLabel = document.getElementById('amount-label-additional');
                     const amountGroup = document.getElementById('amount-group-additional');
                     const amountInput = document.getElementById('amount-additional');
 
                     if(endTimeInput) {
                         document.getElementById('clear-end-time-additional').addEventListener('click', function() {
+                            endDateInput.value = '';
                             endTimeInput.value = '';
                             updateAmountField();
                         });
@@ -869,8 +878,12 @@
                         function updateAmountField() {
                             if (endTimeInput.value) {
                                 if (startTimeInput.value && endTimeInput.value < startTimeInput.value) {
-                                    toastr.error('La hora de fin debe ser mayor que la hora de inicio.', 'Error de validación');
-                                    endTimeInput.value = '';
+                                    // Si la hora de fin es menor, asumimos que es del día siguiente
+                                    let nextDay = new Date(startDateInput.value);
+                                    nextDay.setDate(nextDay.getDate() + 2); // Se suma 2 por la forma en que JS maneja las fechas
+                                    endDateInput.value = nextDay.toISOString().split('T')[0];
+                                } else if (!endDateInput.value) {
+                                    endDateInput.value = startDateInput.value;
                                 }
                                 if (!endTimeInput.value) { // Si se limpió el valor, ocultar y salir
                                     amountGroup.style.display = 'none';

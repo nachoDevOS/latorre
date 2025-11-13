@@ -155,6 +155,7 @@ class ServiceController extends Controller
                     ServiceItem::create([
                         'service_id' => $service->id,
                         'itemStock_id' => $itemStock->id,
+                        'pricePurchase' => $itemStock->pricePurchase,
                         'price' => $value['price'],
                         'quantity' => $value['quantity'],
                         'amount' => $value['price'] * $value['quantity'],
@@ -370,29 +371,32 @@ class ServiceController extends Controller
 
     public function addTime(Request $request, Service $service)
     {
-        
+        return $request;
         $request->validate([
+            'start_date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
-            'end_time' => 'nullable|date_format:H:i|after_or_equal:start_time',
+            'end_date' => 'nullable|date|required_with:end_time',
+            'end_time' => 'nullable|date_format:H:i',
             'amountSala' => 'nullable|numeric|min:0',
         ], [
+            'start_date.required' => 'La fecha de inicio es obligatoria.',
             'start_time.required' => 'La hora de inicio es obligatoria.',
-            'start_time.date_format' => 'El formato de la hora de inicio no es válido.',
-            'end_time.date_format' => 'El formato de la hora de fin no es válido.',
-            'end_time.after_or_equal' => 'La hora de fin no puede ser anterior a la hora de inicio.',
-            'amountSala.required' => 'El monto es obligatorio.',
+            'end_date.required_with' => 'La fecha de fin es obligatoria si se especifica una hora de fin.',
             'amountSala.numeric' => 'El monto debe ser un número.',
             'amountSala.min' => 'El monto no puede ser negativo.',
         ]);
 
         DB::beginTransaction();
         try {
+            $startDateTime = \Carbon\Carbon::parse($request->start_date . ' ' . $request->start_time);
+            $endDateTimeString = $request->end_time ? \Carbon\Carbon::parse($request->end_date . ' ' . $request->end_time)->toDateTimeString() : null;
+
             // Crear el nuevo registro de tiempo
             ServiceTime::create([
                 'service_id' => $service->id,
-                'time_type' => $request->end_time ? 'Tiempo fijo' : 'Tiempo sin límite',
-                'start_time' => $request->start_time,
-                'end_time' => $request->end_time,
+                'time_type' => $endDateTimeString ? 'Tiempo fijo' : 'Tiempo sin límite',
+                'start_time' => $startDateTime->toDateTimeString(),
+                'end_time' => $endDateTimeString,
                 'amount' => $request->amountSala ?? 0,
             ]);
 

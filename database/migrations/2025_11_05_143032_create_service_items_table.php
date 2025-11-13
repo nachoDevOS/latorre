@@ -16,7 +16,9 @@ return new class extends Migration
             $table->foreignId('service_id')->nullable()->constrained('services');
             $table->foreignId('itemStock_id')->nullable()->constrained('item_stocks');
 
-            $table->decimal('price', 10, 2)->nullable();
+            $table->decimal('pricePurchase', 10, 2)->nullable(); // precio de compra del item
+
+            $table->decimal('price', 10, 2)->nullable(); // precio unitario de venta
             $table->decimal('quantity', 10, 2)->nullable();
             $table->decimal('amount', 10, 2)->nullable();
             $table->smallInteger('status')->default(1);

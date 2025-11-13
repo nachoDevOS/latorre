@@ -95,10 +95,12 @@ class ServiceController extends Controller
         }
         
 
-        if ($request->end_time) {
-            $endDateTime = \Carbon\Carbon::parse($request->end_date . ' ' . $request->end_time);
-            if ($endDateTime->lessThan($startDateTime)) {
-                return redirect()->back()->withInput()->withErrors(['message' => 'La fecha y hora de fin no puede ser anterior a la fecha y hora de inicio.']);
+        $endDateTime = $request->end_time ? \Carbon\Carbon::parse($request->end_date . ' ' . $request->end_time) : null;
+
+        if($request->end_date && $request->end_time)
+        {
+            if ($endDateTime->lessThanOrEqualTo($startDateTime)) {
+                return back()->with(['message' => 'La fecha y hora de fin debe ser posterior a la de inicio.', 'alert-type' => 'warning']);
             }
         }
 
@@ -383,14 +385,25 @@ class ServiceController extends Controller
             'start_date.required' => 'La fecha de inicio es obligatoria.',
             'start_time.required' => 'La hora de inicio es obligatoria.',
             'end_date.required_with' => 'La fecha de fin es obligatoria si se especifica una hora de fin.',
+            'end_time.date_format' => 'El campo hora de fin debe tener el formato HH:MM.',
             'amountSala.numeric' => 'El monto debe ser un número.',
             'amountSala.min' => 'El monto no puede ser negativo.',
         ]);
 
+        $startDateTime = \Carbon\Carbon::parse($request->start_date . ' ' . $request->start_time);
+        $endDateTimeString = $request->end_time ? \Carbon\Carbon::parse($request->end_date . ' ' . $request->end_time) : null;
+
+        if($request->end_date && $request->end_time)
+        {
+            if ($endDateTimeString->lessThanOrEqualTo($startDateTime)) {
+                return back()->with(['message' => 'La fecha y hora de fin debe ser posterior a la de inicio.', 'alert-type' => 'warning']);
+            }
+        }
+
         DB::beginTransaction();
         try {
-            $startDateTime = \Carbon\Carbon::parse($request->start_date . ' ' . $request->start_time);
-            $endDateTimeString = $request->end_time ? \Carbon\Carbon::parse($request->end_date . ' ' . $request->end_time)->toDateTimeString() : null;
+            // $startDateTime = \Carbon\Carbon::parse($request->start_date . ' ' . $request->start_time);
+            // $endDateTimeString = $request->end_time ? \Carbon\Carbon::parse($request->end_date . ' ' . $request->end_time)->toDateTimeString() : null;
  
             $transaction = null;
             $amountToAdd = $request->amountSala ?? 0;
@@ -423,7 +436,7 @@ class ServiceController extends Controller
                 'transaction_id' => $transaction ? $transaction->id : null,
                 'time_type' => $endDateTimeString ? 'Tiempo fijo' : 'Tiempo sin límite',
                 'start_time' => $startDateTime->toDateTimeString(),
-                'end_time' => $endDateTimeString,
+                'end_time' => $endDateTimeString->toDateTimeString(),
                 'amount' => $amountToAdd,
             ]);
  
@@ -557,8 +570,6 @@ class ServiceController extends Controller
             if ($endDateTime->lessThanOrEqualTo($startDateTime)) {
                 return back()->with(['message' => 'La fecha y hora de fin debe ser posterior a la de inicio.', 'alert-type' => 'warning']);
             }
-
-            return 1;
 
             $cashier = $this->cashier(null, 'user_id = "' . Auth::user()->id . '"', 'status = "Abierta"');
             if (!$cashier) {

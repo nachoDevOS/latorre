@@ -541,12 +541,12 @@
             {{-- Modal para actualizar tiempo --}}
             @foreach ($service->serviceTimes as $time)
                 @if (!$time->end_time)
-                <div class="modal fade" id="updateTimeModal-{{ $time->id }}" tabindex="-1" role="dialog">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <form action="{{ route('services.update_time', ['serviceTime' => $time->id]) }}" method="POST">
-                                @csrf
-                                @method('PUT')
+                <form action="{{ route('services.update_time', ['serviceTime' => $time->id]) }}" class="form-edit-add" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <div class="modal fade" id="updateTimeModal-{{ $time->id }}" tabindex="-1" role="dialog">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">                            
                                 <div class="modal-header">
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                                     <h4 class="modal-title">Finalizar Período de Tiempo</h4>
@@ -565,13 +565,13 @@
                                     </div>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-                                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                    <button type="button" class="btn btn-default btn-cancel" data-dismiss="modal">Cancelar</button>
+                                    <button type="submit" class="btn btn-primary btn-submit">Guardar Cambios</button>
                                 </div>
-                            </form>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </form>
                 @endif
             @endforeach
 

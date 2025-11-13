@@ -352,8 +352,12 @@
                             <tr class="tr-item" id="tr-item-${product.id}">
                                 <td class="td-item"></td>
                                 <td>
-                                    <input type="hidden" name="products[${product.id}][id]" value="${product.id}"/>
-                                    <div style="font-weight: 500;">${product.item.name}</div>
+                                    <div style="display: flex; align-items: center;">
+                                        <input type="hidden" name="products[${product.id}][id]" value="${product.id}"/>
+                                        <img src="${image}" alt="${product.item.name}" style="width: 40px; height: 40px; border-radius: 4px; margin-right: 10px; object-fit: cover;"
+                                             onerror="this.onerror=null;this.src='{{ asset('images/default.jpg') }}';">
+                                        <div style="font-weight: 500;">${product.item.name}</div>
+                                    </div>
                                 </td>
                                 <td class="text-center" style="vertical-align: middle;">
                                     <input type="number" name="products[${product.id}][price]" step="0.1" min="0.1" class="form-control input-sm text-right input-price" id="input-price-${product.id}" value="${product.priceSale}" onkeyup="getSubtotal(${product.id})" onchange="getSubtotal(${product.id})" required/>

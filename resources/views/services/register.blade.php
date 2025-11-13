@@ -195,6 +195,9 @@
                                 </div>
                                 <small class="form-text text-muted">Dejar vacío para alquiler sin límite.</small>
                             </div>
+                            <div class="form-group" id="duration-group" style="margin-top: -10px; display: none;">
+                                <p>Duración del período: <strong id="duration_display">Calculando...</strong></p>
+                            </div>
                             <div class="form-group" id="monto-group">
                                 <label for="amount" id="amount-label">Registrar un adelanto de la sala</label>
                                 <input type="number" name="amountSala" id="amount" class="form-control"  min="1" placeholder="0.00" required>
@@ -274,6 +277,8 @@
             const hiddenRentalTypeInput = document.getElementById('hidden_rental_type');
             const amountLabel = document.getElementById('amount-label');
             const amountInput = document.getElementById('amount');
+            const durationGroup = document.getElementById('duration-group');
+            const durationDisplay = document.getElementById('duration_display');
 
             document.getElementById('clear-end-time').addEventListener('click', function() {
                 endTimeInput.value = '';
@@ -290,6 +295,30 @@
             const currentMinutes = now.getMinutes().toString().padStart(2, '0');
             startTimeInput.value = `${currentHours}:${currentMinutes}`;            
 
+            function calculateDuration() {
+                const startDateStr = startDateInput.value;
+                const startTimeStr = startTimeInput.value;
+                const endDateStr = endDateInput.value;
+                const endTimeStr = endTimeInput.value;
+
+                if (startDateStr && startTimeStr && endDateStr && endTimeStr) {
+                    const startDate = new Date(`${startDateStr}T${startTimeStr}`);
+                    const endDate = new Date(`${endDateStr}T${endTimeStr}`);
+                    if (endDate > startDate) {
+                        let diff = endDate.getTime() - startDate.getTime();
+                        let minutes = Math.floor(diff / 60000);
+                        let days = Math.floor(minutes / (24 * 60));
+                        minutes -= days * 24 * 60;
+                        let hours = Math.floor(minutes / 60);
+                        minutes -= hours * 60;
+
+                        durationDisplay.textContent = `${days} día(s), ${hours} hora(s) y ${minutes} minuto(s)`;
+                    } else {
+                        durationDisplay.textContent = 'La fecha fin debe ser mayor a la de inicio.';
+                    }
+                }
+            }
+
             // Actualiza el tipo de alquiler y la UI basado en la hora de fin
             function updateRentalType() {
                 if (endTimeInput.value && endDateInput.value) {
@@ -305,10 +334,13 @@
                         endTimeInput.value = '';
                         endDateInput.value = startDateInput.value; // Resetear a la fecha de inicio
                     }
-
+                    durationGroup.style.display = 'block';
+                    calculateDuration();
                 } else {
                     hiddenRentalTypeInput.value = 'por_hora';
                     amountLabel.textContent = 'Registrar un adelanto de la sala';
+                    durationGroup.style.display = 'none';
+                    durationDisplay.textContent = 'Calculando...';
                 }
                 // Limpiamos el valor para que el usuario siempre lo ingrese manualmente
                 amountInput.value = '';

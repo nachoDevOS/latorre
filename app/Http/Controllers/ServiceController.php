@@ -554,8 +554,8 @@ class ServiceController extends Controller
             $startDateTime = \Carbon\Carbon::parse($serviceTime->start_time);
             $endDateTime = \Carbon\Carbon::parse($request->end_date . ' ' . $request->end_time);
 
-            if ($endDateTime->lessThan($startDateTime)) {
-                return back()->with(['message' => 'La fecha y hora de fin no puede ser anterior a la de inicio.']);
+            if ($endDateTime->lessThanOrEqualTo($startDateTime)) {
+                return back()->with(['message' => 'La fecha y hora de fin debe ser posterior a la de inicio.', 'alert-type' => 'warning']);
             }
 
             return 1;
@@ -584,7 +584,7 @@ class ServiceController extends Controller
                     'amount_qr' => 'required|numeric|min:0.01',
                 ]);
                 if (bccomp($request->amount_efectivo + $request->amount_qr, $request->amount, 2) != 0) {
-                    return redirect()->back()->withInput()->withErrors(['message' => 'La suma del monto en efectivo y el monto por QR debe ser igual al monto total del período.']);
+                    return back()->with(['message' => 'La suma del monto en efectivo y el monto por QR debe ser igual al monto total del período.', 'alert-type' => 'warning']);
                 }
                 if ($request->amount_efectivo > 0) {
                     ServiceTransaction::create(['service_id' => $serviceTime->service_id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id, 'amount' => $request->amount_efectivo, 'paymentType' => 'Efectivo', 'type' => 'Ingreso']);
@@ -599,7 +599,7 @@ class ServiceController extends Controller
             // Actualizar el registro de tiempo
             $serviceTime->end_time = $endDateTime->toDateTimeString();
             $serviceTime->amount = $request->amount;
-            $serviceTime->time_type = 'Tiempo fijo';
+            $serviceTime->time_type = 'Tiempo libre';
             $serviceTime->transaction_id = $transaction->id;
             $serviceTime->save();
 

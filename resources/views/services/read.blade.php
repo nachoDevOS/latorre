@@ -584,6 +584,10 @@
                                                 <input type="time" name="end_time" id="end_time_{{ $time->id }}" class="form-control end-time-input" value="{{ $now->format('H:i') }}" required>
                                             </div>
                                         </div>
+                                        <div class="form-group col-md-12" style="margin-top: -10px;">
+                                            <p>Duración del período: <strong id="duration_{{ $time->id }}">Calculando...</strong></p>
+                                            <input type="hidden" class="start-time-value" value="{{ $time->start_time }}">
+                                        </div>
                                         <div class="form-group col-md-12">
                                             <label for="amount_{{ $time->id }}">Monto a cobrar por este período</label>
                                             <input type="number" name="amount" id="amount_{{ $time->id }}" class="form-control amount-input" step="0.01" min="0.01" placeholder="0.00" required>
@@ -1087,6 +1091,10 @@
                         const amountTotal = modal.find('.amount-input');
                         const amountReceived = modal.find('.amount-received-update');
                         const changeDue = modal.find('.change-due-update');
+                        const endDateInput = modal.find('.end-date-input');
+                        const endTimeInput = modal.find('.end-time-input');
+                        const durationDisplay = modal.find('[id^="duration_"]');
+                        const startTimeValue = modal.find('.start-time-value').val();
 
                         paymentMethodSelect.on('change', function() {
                             const paymentMethod = $(this).val();
@@ -1129,7 +1137,32 @@
                             if (change < 0) change = 0;
                             changeDue.text(change.toFixed(2) + ' Bs.');
                         }
+
+                        function calculateDuration() {
+                            const startDate = new Date(startTimeValue);
+                            const endDateStr = endDateInput.val();
+                            const endTimeStr = endTimeInput.val();
+
+                            if (endDateStr && endTimeStr) {
+                                const endDate = new Date(`${endDateStr}T${endTimeStr}`);
+                                if (endDate > startDate) {
+                                    let diff = endDate.getTime() - startDate.getTime();
+                                    let minutes = Math.floor(diff / 60000);
+                                    let days = Math.floor(minutes / (24 * 60));
+                                    minutes -= days * 24 * 60;
+                                    let hours = Math.floor(minutes / 60);
+                                    minutes -= hours * 60;
+
+                                    durationDisplay.text(`${days} día(s), ${hours} hora(s) y ${minutes} minuto(s)`);
+                                } else {
+                                    durationDisplay.text('La fecha fin debe ser mayor a la de inicio.');
+                                }
+                            }
+                        }
+
                         modal.find('.amount-input, .amount-received-update, .amount-efectivo-update, .amount-qr-update').on('keyup change', calculateChangeUpdate);
+                        modal.find('.end-date-input, .end-time-input').on('change', calculateDuration);
+                        calculateDuration(); // Calcular al abrir el modal
                     });
                 });
             </script>

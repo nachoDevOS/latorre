@@ -417,7 +417,7 @@ class ServiceController extends Controller
                     'cashier_id' => $cashier->id,
                     'amount' => $request->amount,
                     'paymentType' => 'Efectivo',
-                    'observation' => 'Adelanto de pago.'
+                    'observation' => $request->observation ?? '',
                 ]);
             } elseif ($request->payment_method == 'qr') {
                 ServiceTransaction::create([
@@ -426,7 +426,7 @@ class ServiceController extends Controller
                     'cashier_id' => $cashier->id,
                     'amount' => $request->amount,
                     'paymentType' => 'Qr',
-                    'observation' => 'Adelanto de pago.'
+                    'observation' => $request->observation ?? '',
                 ]);
             } elseif ($request->payment_method == 'ambos') {
                 $request->validate([
@@ -438,8 +438,8 @@ class ServiceController extends Controller
                     return back()->with(['message' => 'La suma de los montos debe ser igual al adelanto total.', 'alert-type' => 'error'])->withInput();
                 }
 
-                ServiceTransaction::create(['service_id' => $service->id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id, 'amount' => $request->amount_efectivo, 'paymentType' => 'Efectivo', 'observation' => 'Adelanto de pago.']);
-                ServiceTransaction::create(['service_id' => $service->id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id, 'amount' => $request->amount_qr, 'paymentType' => 'Qr', 'observation' => 'Adelanto de pago.']);
+                ServiceTransaction::create(['service_id' => $service->id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id, 'amount' => $request->amount_efectivo, 'paymentType' => 'Efectivo', 'observation' => $request->observation ?? '']);
+                ServiceTransaction::create(['service_id' => $service->id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id, 'amount' => $request->amount_qr, 'paymentType' => 'Qr', 'observation' => $request->observation ?? '']);
             }
 
             DB::commit();

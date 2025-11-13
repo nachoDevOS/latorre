@@ -361,7 +361,7 @@
                 {{-- Historial de Pagos --}}
                 <div class="panel panel-primary">
                     <div>
-                        <div class="panel-heading" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
                             <h3 class="panel-title" style="margin: 0;"><i class="voyager-dollar"></i> Historial de Pagos</h3>
                             <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#addPaymentModal">
                                 <i class="voyager-plus"></i> Agregar Adelanto
@@ -373,16 +373,17 @@
                             <table class="table table-hover" id="dataTable">
                                 <thead>
                                     <tr>
-                                        <th>Fecha y Hora</th>
-                                        <th>Método de pago</th>
-                                        <th class="text-right">Monto</th>
+                                        <th style="text-align: center; width: 25%;">Fecha y Hora</th>
+                                        <th style="text-align: center; width: 15%;">Método de pago</th>
+                                        <th>Detalle de Pago</th>                                    
+                                        <th style="width: 15%" class="text-right">Monto</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @forelse ($service->serviceTransactions as $transaction)
                                         <tr>
-                                            <td>{{ $transaction->created_at->format('d/m/Y h:i a') }}</td>
-                                            <td>
+                                            <td style="text-align: center;">{{ $transaction->created_at->format('d/m/Y h:i a') }}</td>
+                                            <td style="text-align: center;">
                                                 @php
                                                     $paymentMethod = $transaction->paymentType;
                                                     $decodedMethod = json_decode($paymentMethod, true);
@@ -405,6 +406,13 @@
                                                         @default
                                                             {{ ucfirst($paymentMethod) }}
                                                     @endswitch
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if ($transaction->observation)
+                                                    {{ $transaction->observation }}
+                                                @else
+                                                    N/A
                                                 @endif
                                             </td>
                                             <td class="text-right">{{ number_format($transaction->amount, 2, ',', '.') }}
@@ -582,6 +590,10 @@
                                 <div class="form-group">
                                     <label for="amount_adelanto">Monto del Adelanto</label>
                                     <input type="number" name="amount" id="amount_adelanto" class="form-control" step="0.01" min="0.01" placeholder="0.00" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="note_adelanto">Nota (Requerido)</label>
+                                    <textarea name="observation" id="note_adelanto" class="form-control" rows="3" placeholder="Ingrese una nota..." required></textarea>
                                 </div>
                                 <hr>
                                 <div class="form-group">

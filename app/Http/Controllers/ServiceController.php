@@ -373,7 +373,7 @@ class ServiceController extends Controller
 
     public function addTime(Request $request, Service $service)
     {
-        return $request;
+        return 1;
         $request->validate([
             'start_date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
@@ -392,18 +392,64 @@ class ServiceController extends Controller
         try {
             $startDateTime = \Carbon\Carbon::parse($request->start_date . ' ' . $request->start_time);
             $endDateTimeString = $request->end_time ? \Carbon\Carbon::parse($request->end_date . ' ' . $request->end_time)->toDateTimeString() : null;
-
+ 
+            $transaction = null;
+            $amountToAdd = $request->amountSala ?? 0;
+ 
+            // Lógica de pago solo si se agrega un monto y se especifica un método de pago
+            if ($amountToAdd > 0 && $request->payment_method) {
+                $cashier = $this->cashier(null, 'user_id = "' . Auth::user()->id . '"', 'status = "Abierta"');
+                if (!$cashier) {
+                    return redirect()->route('services.show', $service->room_id)->with(['message' => 'No tienes una caja abierta.', 'alert-type' => 'warning']);
+                }
+ 
+                $transaction = Transaction::create(['status' => 'Completado']);
+ 
+                if ($request->payment_method == 'efectivo') {
+                    $request->validate(['amount_received' => 'required|numeric|min:' . $amountToAdd]);
+                } elseif ($request->payment_method == 'ambos') {
+                    $request->validate([
+                        'amount_efectivo' => 'required|numeric|min:0.01',
+                        'amount_qr' => 'required|numeric|min:0.01',
+                    ]);
+                    if (bccomp($request->amount_efectivo + $request->amount_qr, $amountToAdd, 2) != 0) {
+                        return redirect()->back()->withInput()->withErrors(['message' => 'La suma del monto en efectivo y el monto por QR debe ser igual al monto adicional.']);
+                    }
+                }
+            }
+ 
             // Crear el nuevo registro de tiempo
             ServiceTime::create([
                 'service_id' => $service->id,
+                'transaction_id' => $transaction ? $transaction->id : null,
                 'time_type' => $endDateTimeString ? 'Tiempo fijo' : 'Tiempo sin límite',
                 'start_time' => $startDateTime->toDateTimeString(),
                 'end_time' => $endDateTimeString,
-                'amount' => $request->amountSala ?? 0,
+                'amount' => $amountToAdd,
             ]);
-
+ 
+            if ($transaction) {
+                if ($request->payment_method == 'efectivo') {
+                    ServiceTransaction::create([
+                        'service_id' => $service->id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id,
+                        'amount' => $amountToAdd, 'paymentType' => 'Efectivo', 'type' => 'Ingreso'
+                    ]);
+                } elseif ($request->payment_method == 'qr') {
+                    ServiceTransaction::create([
+                        'service_id' => $service->id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id,
+                        'amount' => $amountToAdd, 'paymentType' => 'Qr', 'type' => 'Ingreso'
+                    ]);
+                } elseif ($request->payment_method == 'ambos') {
+                    if ($request->amount_efectivo > 0) {
+                        ServiceTransaction::create(['service_id' => $service->id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id, 'amount' => $request->amount_efectivo, 'paymentType' => 'Efectivo', 'type' => 'Ingreso']);
+                    }
+                    if ($request->amount_qr > 0) {
+                        ServiceTransaction::create(['service_id' => $service->id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id, 'amount' => $request->amount_qr, 'paymentType' => 'Qr', 'type' => 'Ingreso']);
+                    }
+                }
+            }
+ 
             // Actualizar los montos del servicio
-            $amountToAdd = $request->amountSala ?? 0;
             $service->amount_room += $amountToAdd;
             $service->total_amount += $amountToAdd;
             $service->save();

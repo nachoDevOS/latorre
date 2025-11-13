@@ -258,6 +258,39 @@
                                                 <label for="amount" id="amount-label-additional">Monto adicional</label>
                                                 <input type="number" name="amountSala" id="amount-additional" class="form-control" min="0" step="0.01" placeholder="0.00">
                                             </div>
+                                            <div class="col-md-12" id="payment-method-group-additional" style="display: none;">
+                                                <hr>
+                                                <div class="form-group">
+                                                    <label for="payment_method_additional">Método de Pago</label>
+                                                    <select name="payment_method" id="payment_method_additional" class="form-control">
+                                                        <option value="" selected disabled>--Seleccione una opción--</option>
+                                                        <option value="efectivo">Efectivo</option>
+                                                        <option value="qr">QR</option>
+                                                        <option value="ambos">Ambos</option>
+                                                    </select>
+                                                </div>
+                                                <div id="payment-details-additional" style="display: none;">
+                                                    <div class="form-group">
+                                                        <label for="amount_efectivo_additional">Monto en Efectivo</label>
+                                                        <input type="number" name="amount_efectivo" id="amount_efectivo_additional" class="form-control" step="0.01" min="0" placeholder="0.00">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="amount_qr_additional">Monto con QR</label>
+                                                        <input type="number" name="amount_qr" id="amount_qr_additional" class="form-control" step="0.01" min="0" placeholder="0.00">
+                                                    </div>
+                                                </div>
+            
+                                                <div id="calculator-additional" style="display: none; margin-top: 15px; border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
+                                                    <div class="form-group">
+                                                        <label for="amount_received_additional" style="font-weight: bold;">Monto Recibido (Efectivo)</label>
+                                                        <input type="number" name="amount_received" id="amount_received_additional" class="form-control" step="0.01" min="0" placeholder="0.00">
+                                                    </div>
+                                                    <div class="summary-item" style="background-color: #f0f0f0; padding: 10px; border-radius: 5px;">
+                                                        <strong style="font-size: 1.1rem;">Cambio a devolver:</strong>
+                                                        <strong class="amount" id="change_due_additional" style="font-size: 1.2rem; color: #28a745;">0.00 Bs.</strong>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                         <div class="text-right">
                                             <button type="submit" class="btn btn-success">Agregar Tiempo</button>
@@ -867,6 +900,7 @@
                     const amountLabel = document.getElementById('amount-label-additional');
                     const amountGroup = document.getElementById('amount-group-additional');
                     const amountInput = document.getElementById('amount-additional');
+                    const paymentGroup = document.getElementById('payment-method-group-additional');
 
                     if(endTimeInput) {
                         document.getElementById('clear-end-time-additional').addEventListener('click', function() {
@@ -887,18 +921,76 @@
                                 }
                                 if (!endTimeInput.value) { // Si se limpió el valor, ocultar y salir
                                     amountGroup.style.display = 'none';
+                                    paymentGroup.style.display = 'none';
                                     return;
                                 }
                                 amountGroup.style.display = 'block';
+                                paymentGroup.style.display = 'block';
                                 amountLabel.textContent = 'Monto del alquiler';
                                 amountInput.required = true; // Monto es requerido si hay hora fin
                                 amountInput.min = 0.01;
                             } else {
                                 amountGroup.style.display = 'none';
+                                paymentGroup.style.display = 'none';
                                 amountInput.required = false;
                             }
                             amountInput.value = '';
+                            $('#payment_method_additional').val('').trigger('change');
                         }
+
+                        $('#payment_method_additional').on('change', function() {
+                            let paymentMethod = $(this).val();
+                            $('#payment-details-additional').hide();
+                            $('#calculator-additional').hide();
+
+                            $('#amount_efectivo_additional').prop('required', false);
+                            $('#amount_qr_additional').prop('required', false);
+                            $('#payment_method_additional').prop('required', true);
+
+                            if (paymentMethod === 'ambos') {
+                                $('#payment-details-additional').show();
+                                $('#amount_efectivo_additional').prop('required', true);
+                                $('#amount_qr_additional').prop('required', true);
+                            } else if (paymentMethod === 'efectivo') {
+                                $('#calculator-additional').show();
+                            }
+                        });
+
+                        function calculateChangeAdditional() {
+                            let total = parseFloat($('#amount-additional').val()) || 0;
+                            let paymentMethod = $('#payment_method_additional').val();
+                            let received = 0;
+                            let change = 0;
+                        
+                            if (paymentMethod === 'efectivo') {
+                                received = parseFloat($('#amount_received_additional').val()) || 0;
+                                change = received - total;
+                            } else if (paymentMethod === 'ambos') {
+                                let efectivo = parseFloat($('#amount_efectivo_additional').val()) || 0;
+                                let qr = parseFloat($('#amount_qr_additional').val()) || 0;
+                                let sum = efectivo + qr;
+                        
+                                if (sum > total) {
+                                    toastr.warning('La suma de los montos no puede ser mayor al total.', 'Monto excedido', {timeOut: 1500});
+                                    
+                                    // Resetea el campo que se acaba de cambiar si la suma excede el total
+                                    if ($(document.activeElement).is('#amount_efectivo_additional')) {
+                                        $('#amount_efectivo_additional').val((total - qr).toFixed(2));
+                                    } else if ($(document.activeElement).is('#amount_qr_additional')) {
+                                        $('#amount_qr_additional').val((total - efectivo).toFixed(2));
+                                    }
+                                }
+                            }
+                        
+                            if (change < 0) change = 0;
+                            $('#change_due_additional').text(change.toFixed(2) + ' Bs.');
+                        }
+
+                        $('#amount-additional').on('keyup change', calculateChangeAdditional);
+                        $('#amount_received_additional').on('keyup change', calculateChangeAdditional);
+                        $('#amount_efectivo_additional').on('keyup change', calculateChangeAdditional);
+                        $('#amount_qr_additional').on('keyup change', calculateChangeAdditional);
+
                         endTimeInput.addEventListener('change', updateAmountField);
                         updateAmountField(); // Llamada inicial para establecer el estado correcto
                     }

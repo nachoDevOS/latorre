@@ -448,7 +448,7 @@ class ServiceController extends Controller
                 }
             }
  
-            return 1;
+    
             // Actualizar los montos del servicio
             $service->amount_room += $amountToAdd;
             $service->total_amount += $amountToAdd;

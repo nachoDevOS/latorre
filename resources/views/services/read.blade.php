@@ -953,7 +953,7 @@
 
                             $('#amount_efectivo_additional').prop('required', false);
                             $('#amount_qr_additional').prop('required', false);
-                            $('#payment_method_additional').prop('required', true);
+                            $('#payment_method_additional').prop('required', endTimeInput.value ? true : false);
 
                             if (paymentMethod === 'ambos') {
                                 $('#payment-details-additional').show();

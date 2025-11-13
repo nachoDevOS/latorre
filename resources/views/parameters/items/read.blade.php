@@ -172,8 +172,8 @@
                         </label>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-                        <input type="submit" class="btn btn-success btn-form-submit btn-submit" value="Guardar">
+                        <button type="button" class="btn btn-default btn-cancel" data-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success btn-form-submit btn-submit">Sí, guardar</button>
                     </div>
                 </div>
             </div>

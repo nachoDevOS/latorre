@@ -124,7 +124,7 @@ class ServiceController extends Controller
                 'start_time' => $request->start_time,
                 'end_time' => $request->end_time? $request->end_time : null,
                 'total_time' => $request->end_time? null : null,
-                'amount' => $request->amountSala,
+                'amount' => $request->end_time?$request->amountSala: 0,
             ]);
 
             if ($request->products) {

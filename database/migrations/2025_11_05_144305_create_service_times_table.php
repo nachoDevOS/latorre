@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('service_id')->nullable()->constrained('services');
 
-            $table->time('start_time')->nullable();  
-            $table->time('end_time')->nullable();
+            $table->datetime('start_time')->nullable();  
+            $table->datetime('end_time')->nullable();
 
             $table->time('total_time')->nullable();
 

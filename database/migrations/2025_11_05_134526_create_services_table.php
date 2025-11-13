@@ -16,7 +16,8 @@ return new class extends Migration
             $table->foreignId('room_id')->nullable()->constrained('rooms');
             $table->foreignId('person_id')->nullable()->constrained('people');
 
-            $table->time('start_time')->nullable();  
+            // $table->time('start_time')->nullable();  
+            $table->datetime('start_time')->nullable();  
 
             $table->decimal('amount_room', 10, 2)->default(0);
             $table->decimal('amount_products', 10, 2)->default(0);

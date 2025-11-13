@@ -174,20 +174,26 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="start_time">Hora de Inicio</label>
-                                <input type="time" name="start_time" id="start_time" class="form-control" required>
+                                <label for="start_date">Fecha y Hora de Inicio</label>
+                                <div class="input-group">
+                                    <input type="date" name="start_date" id="start_date" class="form-control" value="{{ date('Y-m-d') }}" readonly>
+                                    <span class="input-group-addon" style="border-radius: 0px; border-left: 0px; border-right: 0px;"><i class="voyager-watch"></i></span>
+                                    <input type="time" name="start_time" id="start_time" class="form-control" required>
+                                </div>
                             </div>
                             <div class="form-group">
-                                <label for="end_time">Hora Fin (opcional)</label>
+                                <label for="end_time">Fecha y Hora Fin (opcional)</label>
                                 <div class="input-group">
+                                    <input type="date" name="end_date" id="end_date" class="form-control">
+                                    <span class="input-group-addon" style="border-radius: 0px; border-left: 0px; border-right: 0px;"><i class="voyager-watch"></i></span>
                                     <input type="time" name="end_time" id="end_time" class="form-control">
                                     <span class="input-group-btn">
                                         <button id="clear-end-time" class="btn btn-default" style="margin: 0px" type="button" title="Limpiar Hora">
                                             <i class="voyager-trash"></i>
                                         </button>
-                                    </span>                             
+                                    </span>
                                 </div>
-                                <small class="form-text text-muted">Dejar vacío para alquiler sin limite.</small>
+                                <small class="form-text text-muted">Dejar vacío para alquiler sin límite.</small>
                             </div>
                             <div class="form-group" id="monto-group">
                                 <label for="amount" id="amount-label">Registrar un adelanto de la sala</label>
@@ -262,13 +268,16 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const startTimeInput = document.getElementById('start_time');
+            const startDateInput = document.getElementById('start_date');
             const endTimeInput = document.getElementById('end_time');
+            const endDateInput = document.getElementById('end_date');
             const hiddenRentalTypeInput = document.getElementById('hidden_rental_type');
             const amountLabel = document.getElementById('amount-label');
             const amountInput = document.getElementById('amount');
 
             document.getElementById('clear-end-time').addEventListener('click', function() {
                 endTimeInput.value = '';
+                endDateInput.value = '';
                 const event = new Event('change');
                 endTimeInput.dispatchEvent(event);
             });
@@ -276,17 +285,27 @@
             // Asumimos que el precio de la sala está disponible. Ajusta 'price' si el atributo se llama diferente.
             const roomPricePerHour = {{ $room->price ?? 0 }};
 
-            // Set current time for start_time input
             const now = new Date();
             const currentHours = now.getHours().toString().padStart(2, '0');
             const currentMinutes = now.getMinutes().toString().padStart(2, '0');
-            startTimeInput.value = `${currentHours}:${currentMinutes}`;
+            startTimeInput.value = `${currentHours}:${currentMinutes}`;            
 
             // Actualiza el tipo de alquiler y la UI basado en la hora de fin
             function updateRentalType() {
-                if (endTimeInput.value) {
+                if (endTimeInput.value && endDateInput.value) {
                     hiddenRentalTypeInput.value = 'tiempo_fijo';
                     amountLabel.textContent = 'Monto del alquiler de la sala';
+
+                    // Validar que la fecha/hora de fin no sea anterior a la de inicio
+                    const startDateTime = new Date(`${startDateInput.value}T${startTimeInput.value}`);
+                    const endDateTime = new Date(`${endDateInput.value}T${endTimeInput.value}`);
+
+                    if (endDateTime < startDateTime) {
+                        toastr.error('La fecha y hora de fin no puede ser anterior a la de inicio.', 'Error de Fecha');
+                        endTimeInput.value = '';
+                        endDateInput.value = startDateInput.value; // Resetear a la fecha de inicio
+                    }
+
                 } else {
                     hiddenRentalTypeInput.value = 'por_hora';
                     amountLabel.textContent = 'Registrar un adelanto de la sala';
@@ -295,8 +314,15 @@
                 amountInput.value = '';
             }
 
+            endTimeInput.addEventListener('change', function() {
+                if(this.value && !endDateInput.value) {
+                    endDateInput.value = startDateInput.value;
+                }
+                updateRentalType();
+            });
+
             // Escuchar cambios en los inputs de tiempo
-            endTimeInput.addEventListener('change', updateRentalType);
+            endDateInput.addEventListener('change', updateRentalType);
             updateRentalType(); // Llamada inicial para establecer el estado correcto
         });
 

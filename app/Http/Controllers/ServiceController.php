@@ -64,11 +64,19 @@ class ServiceController extends Controller
     public function startRental(Request $request)
     {      
         $request->validate([
+            'start_date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
+            'end_date' => 'nullable|date|required_with:end_time',
+            'end_time' => 'nullable|date_format:H:i',
         ], [
+            'start_date.required' => 'La fecha es obligatoria.',
             'start_time.date_format' => 'El campo hora debe tener el formato HH:MM (por ejemplo: 14:30)',
-            'start_time.required' => 'La hora es obligatoria',
+            'start_time.required' => 'La hora es obligatoria.',
+            'end_date.required_with' => 'La fecha de fin es obligatoria si se especifica una hora de fin.',
+            'end_time.date_format' => 'El campo hora de fin debe tener el formato HH:MM.',
         ]);
+
+        $startDateTime = \Carbon\Carbon::parse($request->start_date . ' ' . $request->start_time);
 
         $amount_Qr = $request->amount_qr ?? 0;
         $amount_efectivo = $request->payment_method == 'efectivo' ? $request->amount_product + $request->amountSala : ($request->amount_efectivo ?? 0);
@@ -81,6 +89,13 @@ class ServiceController extends Controller
         if($request->payment_method == 'ambos' && ($request->amount_product + $request->amountSala) > ($amount_Qr+$amount_efectivo))
         {
             return redirect()->back()->withInput()->withErrors(['message' => 'La suma del monto en efectivo y el monto por Qr debe ser igual al monto total.']);
+        }
+
+        if ($request->end_time) {
+            $endDateTime = \Carbon\Carbon::parse($request->end_date . ' ' . $request->end_time);
+            if ($endDateTime->lessThan($startDateTime)) {
+                return redirect()->back()->withInput()->withErrors(['message' => 'La fecha y hora de fin no puede ser anterior a la fecha y hora de inicio.']);
+            }
         }
 
         $room = Room::findOrFail($request->room_id);
@@ -99,11 +114,10 @@ class ServiceController extends Controller
         DB::beginTransaction();
 
         try {
-
             $service = Service::create([
                 'room_id' => $request->room_id,
                 'person_id'=>$request->person_id,
-                'start_time' => $request->start_time,
+                'start_time' => $startDateTime->toDateTimeString(),
                 'amount_room'=> $request->amountSala,
                 'amount_products'=> $request->amount_product,
                 'total_amount'=> $request->amountSala + $request->amount_product,
@@ -118,14 +132,17 @@ class ServiceController extends Controller
                 ]);
             }
 
+            $endDateTimeString = $request->end_time ? \Carbon\Carbon::parse($request->end_date . ' ' . $request->end_time)->toDateTimeString() : null;
+
             ServiceTime::create([
                 'service_id' => $service->id,
                 'time_type' => $request->end_time? 'Tiempo fijo': 'Tiempo sin límite',
-                'start_time' => $request->start_time,
-                'end_time' => $request->end_time? $request->end_time : null,
+                'start_time' => $startDateTime->toDateTimeString(),
+                'end_time' => $endDateTimeString,
                 'total_time' => $request->end_time? null : null,
                 'amount' => $request->end_time?$request->amountSala: 0,
             ]);
+
 
             if ($request->products) {
                 foreach ($request->products as $key => $value) {
@@ -151,6 +168,8 @@ class ServiceController extends Controller
                         'paymentType' => 'Efectivo',
                     ]);
             }
+            return $amount_Qr;
+
             if ($request->payment_method == 'qr' || $request->payment_method == 'ambos' && ($amount_efectivo + $amount_Qr) > 0) {
                     ServiceTransaction::create([
                         'service_id' => $service->id,
@@ -161,7 +180,6 @@ class ServiceController extends Controller
                         'paymentType' => 'Qr',
                     ]);
             }
-            
             
 
             // Cambiar el estado de la sala

@@ -552,21 +552,52 @@
                                     <h4 class="modal-title">Finalizar Período de Tiempo</h4>
                                 </div>
                                 <div class="modal-body">
-                                    <p>Inicio: <strong>{{ date('h:i A', strtotime($time->start_time)) }}</strong></p>
+                                    <p>Inicio: <strong>{{ date('d-m-Y h:i A', strtotime($time->start_time)) }}</strong></p>
                                     <div class="row">
-                                        <div class="form-group col-md-6">
-                                            <label for="end_time">Hora de Fin</label>
-                                            <input type="time" name="end_time" class="form-control" value="{{ date('H:i') }}" required>
+                                        <div class="form-group col-md-12">
+                                            <label for="end_time_{{ $time->id }}">Fecha y Hora Fin</label>
+                                            <div class="input-group">
+                                                @php
+                                                    $now = \Carbon\Carbon::now();
+                                                    $startTime = \Carbon\Carbon::parse($time->start_time);
+                                                    // Si la hora actual es menor que la de inicio, es probable que sea del día siguiente
+                                                    $defaultDate = $now->lt($startTime) ? $startTime->copy()->addDay()->format('Y-m-d') : $now->format('Y-m-d');
+                                                @endphp
+                                                <input type="date" name="end_date" id="end_date_{{ $time->id }}" class="form-control end-date-input" value="{{ $defaultDate }}" required>
+                                                <span class="input-group-addon" style="border-radius: 0px; border-left: 0px; border-right: 0px;"><i class="voyager-watch"></i></span>
+                                                <input type="time" name="end_time" id="end_time_{{ $time->id }}" class="form-control end-time-input" value="{{ $now->format('H:i') }}" required>
+                                            </div>
                                         </div>
-                                        <div class="form-group col-md-6">
-                                            <label for="amount">Monto a cobrar por este período</label>
-                                            <input type="number" name="amount" class="form-control" step="0.01" min="0" placeholder="0.00" required>
+                                        <div class="form-group col-md-12">
+                                            <label for="amount_{{ $time->id }}">Monto a cobrar por este período</label>
+                                            <input type="number" name="amount" id="amount_{{ $time->id }}" class="form-control amount-input" step="0.01" min="0.01" placeholder="0.00" required>
+                                        </div>
+
+                                        <div class="col-md-12 payment-method-group-update" style="display: block;">
+                                            <hr>
+                                            <div class="form-group">
+                                                <label for="payment_method_update_{{ $time->id }}">Método de Pago</label>
+                                                <select name="payment_method" id="payment_method_update_{{ $time->id }}" class="form-control payment-method-update" required>
+                                                    <option value="" selected disabled>--Seleccione una opción--</option>
+                                                    <option value="efectivo">Efectivo</option>
+                                                    <option value="qr">QR</option>
+                                                    <option value="ambos">Ambos</option>
+                                                </select>
+                                            </div>
+                                            <div class="payment-details-update" style="display: none;">
+                                                <div class="form-group"><label for="amount_efectivo_update_{{ $time->id }}">Monto en Efectivo</label><input type="number" name="amount_efectivo" id="amount_efectivo_update_{{ $time->id }}" class="form-control amount-efectivo-update" step="0.01" min="0" placeholder="0.00"></div>
+                                                <div class="form-group"><label for="amount_qr_update_{{ $time->id }}">Monto con QR</label><input type="number" name="amount_qr" id="amount_qr_update_{{ $time->id }}" class="form-control amount-qr-update" step="0.01" min="0" placeholder="0.00"></div>
+                                            </div>
+                                            <div class="calculator-update" style="display: none; margin-top: 15px; border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
+                                                <div class="form-group"><label for="amount_received_update_{{ $time->id }}" style="font-weight: bold;">Monto Recibido (Efectivo)</label><input type="number" name="amount_received" id="amount_received_update_{{ $time->id }}" class="form-control amount-received-update" step="0.01" min="0" placeholder="0.00"></div>
+                                                <div class="summary-item" style="background-color: #f0f0f0; padding: 10px; border-radius: 5px;"><strong style="font-size: 1.1rem;">Cambio a devolver:</strong><strong class="amount change-due-update" style="font-size: 1.2rem; color: #28a745;">0.00 Bs.</strong></div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-default btn-cancel" data-dismiss="modal">Cancelar</button>
-                                    <button type="submit" class="btn btn-primary btn-submit">Guardar Cambios</button>
+                                    <button type="submit" class="btn btn-primary btn-submit">Finalizar y Cobrar</button>
                                 </div>
                             </div>
                         </div>
@@ -1028,6 +1059,62 @@
                         endTimeInput.addEventListener('change', updateAmountField);
                         updateAmountField(); // Llamada inicial para establecer el estado correcto
                     }
+
+                    // Lógica para los modales de "Finalizar Tiempo"
+                    $('.modal[id^="updateTimeModal-"]').each(function() {
+                        const modal = $(this);
+                        const paymentMethodSelect = modal.find('.payment-method-update');
+                        const paymentDetails = modal.find('.payment-details-update');
+                        const calculator = modal.find('.calculator-update');
+                        const amountEfectivo = modal.find('.amount-efectivo-update');
+                        const amountQr = modal.find('.amount-qr-update');
+                        const amountTotal = modal.find('.amount-input');
+                        const amountReceived = modal.find('.amount-received-update');
+                        const changeDue = modal.find('.change-due-update');
+
+                        paymentMethodSelect.on('change', function() {
+                            const paymentMethod = $(this).val();
+                            paymentDetails.hide();
+                            calculator.hide();
+                            amountEfectivo.prop('required', false);
+                            amountQr.prop('required', false);
+
+                            if (paymentMethod === 'ambos') {
+                                paymentDetails.show();
+                                amountEfectivo.prop('required', true);
+                                amountQr.prop('required', true);
+                            } else if (paymentMethod === 'efectivo') {
+                                calculator.show();
+                            }
+                        });
+
+                        function calculateChangeUpdate() {
+                            let total = parseFloat(amountTotal.val()) || 0;
+                            let paymentMethod = paymentMethodSelect.val();
+                            let change = 0;
+
+                            if (paymentMethod === 'efectivo') {
+                                let received = parseFloat(amountReceived.val()) || 0;
+                                change = received - total;
+                            } else if (paymentMethod === 'ambos') {
+                                let efectivo = parseFloat(amountEfectivo.val()) || 0;
+                                let qr = parseFloat(amountQr.val()) || 0;
+                                let sum = efectivo + qr;
+
+                                if (sum > total) {
+                                    toastr.warning('La suma de los montos no puede ser mayor al total.', 'Monto excedido', {timeOut: 1500});
+                                    if ($(document.activeElement).is(amountEfectivo)) {
+                                        amountEfectivo.val((total - qr).toFixed(2));
+                                    } else if ($(document.activeElement).is(amountQr)) {
+                                        amountQr.val((total - efectivo).toFixed(2));
+                                    }
+                                }
+                            }
+                            if (change < 0) change = 0;
+                            changeDue.text(change.toFixed(2) + ' Bs.');
+                        }
+                        modal.find('.amount-input, .amount-received-update, .amount-efectivo-update, .amount-qr-update').on('keyup change', calculateChangeUpdate);
+                    });
                 });
             </script>
         @endsection

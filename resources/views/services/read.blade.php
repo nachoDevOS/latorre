@@ -96,6 +96,29 @@
             background: #a5d6a7;
             cursor: not-allowed;
         }
+
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .live-indicator .dot {
+            width: 8px;
+            height: 8px;
+            background-color: #28a745;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse-animation 1.5s infinite;
+        }
+
+        @keyframes pulse-animation {
+            0%, 100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+            50% { transform: scale(1.1); box-shadow: 0 0 0 8px rgba(40, 167, 69, 0); }
+        }
+
+
     </style>
 @endsection
 
@@ -164,7 +187,10 @@
                                                         @if ($time->end_time)
                                                             {{ date('d-m-Y h:i A', strtotime($time->end_time)) }}
                                                         @else
-                                                            <span class="badge badge-success" style="font-size: 1em;">En curso</span>
+                                                            <span class="live-indicator">
+                                                                <span class="dot"></span>
+                                                                En curso
+                                                            </span>
                                                         @endif
                                                     </td>
                                                     <td class="text-right">

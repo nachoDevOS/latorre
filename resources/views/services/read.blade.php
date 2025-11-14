@@ -345,7 +345,7 @@
                         <div class="panel panel-info">
                             <div
                                 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                                <h3 class="panel-title"><i class="voyager-basket"></i> Productos Consumidos</h3>
+                                <h3 class="panel-title"><i class="fa-solid fa-money-bill"></i> Historial de Pagos</h3>
 
                                 <button type="button" class="btn btn-success btn-sm" data-toggle="modal"
                                     data-target="#addPaymentModal">

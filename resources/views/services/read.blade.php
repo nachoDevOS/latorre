@@ -135,13 +135,22 @@
             0%,
             100% {
                 transform: scale(0.9);
-                box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+                box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7);
             }
 
             50% {
                 transform: scale(1.1);
-                box-shadow: 0 0 0 8px rgba(40, 167, 69, 0);
+                box-shadow: 0 0 0 8px rgba(255, 0, 0, 0);
             }
+        }
+
+        .blinking {
+            animation: blinking-background 1s infinite;
+        }
+        @keyframes blinking-background {
+            0%    { background-color: rgba(255, 0, 0, 0.5); color: white; }
+            50%   { background-color: rgba(255, 255, 255, 0.5); color: black; }
+            100%  { background-color: rgba(255, 0, 0, 0.5); color: white; }
         }
     </style>
 @endsection
@@ -171,6 +180,30 @@
                                         <strong>{{ $service->person ? $service->person->name : 'No especificado' }}</strong></span>
                                 </div>
                             </div>
+                            @if ($service->status == 'vigente')
+                                <div class="col-md-12">
+                                    @php
+                                        $lastServiceTime = $service->serviceTimes->last();
+                                    @endphp
+                                    @if ($lastServiceTime && !$lastServiceTime->end_time || ($lastServiceTime && $lastServiceTime->end_time))
+                                        <div id="service-info-{{ $service->id }}" class="detail-card" style="background-color: #fff3cd; border-color: #ffeeba;" data-start-time="{{ date('Y-m-d H:i:s', strtotime($lastServiceTime->start_time)) }}" @if($lastServiceTime && $lastServiceTime->end_time) data-end-time="{{ date('Y-m-d H:i:s', strtotime($lastServiceTime->end_time)) }}" @endif>
+                                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                                <div>
+                                                    <p style="margin: 0; font-size: 1em;">
+                                                        <i class="voyager-watch"></i> Inicio del período actual: <strong>{{ date('d/m/y h:i A', strtotime($lastServiceTime->start_time)) }}</strong>
+                                                    </p>
+                                                    @if ($lastServiceTime->end_time)
+                                                    <p style="margin: 0; font-size: 1em; margin-top: 5px;">
+                                                        <i class="voyager-alarm-clock"></i> Finaliza: <strong>{{ date('d/m/y h:i A', strtotime($lastServiceTime->end_time)) }}</strong>
+                                                    </p>
+                                                    @endif
+                                                </div>
+                                                <div id="timer-{{ $service->id }}" style="font-size: 22px; font-weight: bold; min-width: 100px; text-align: right;"></div>
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
+                            @endif
                         </div>
                         <div class="panel panel-info">
                             @php
@@ -1495,6 +1528,61 @@
                         modal.find('.end-date-input, .end-time-input').on('change', calculateDuration);
                         calculateDuration(); // Calcular al abrir el modal
                     });
+                });
+
+                // Lógica para el contador de tiempo en vivo
+                document.addEventListener('DOMContentLoaded', function () {
+                    @if ($service->status == 'vigente')
+                        const serviceId = {{ $service->id }};
+                        const timerElement = document.getElementById(`timer-${serviceId}`);
+                        const serviceInfoDiv = document.getElementById(`service-info-${serviceId}`);
+
+                        if (timerElement && serviceInfoDiv) {
+                            const startTimeString = serviceInfoDiv.dataset.startTime;
+                            const endTimeString = serviceInfoDiv.dataset.endTime;
+                            const startTime = new Date(startTimeString.replace(/-/g, '/'));
+
+                            let updateTimer;
+
+                            if (endTimeString) { // Si hay tiempo de finalización (Cuenta regresiva)
+                                const endTime = new Date(endTimeString.replace(/-/g, '/'));
+                                updateTimer = () => {
+                                    const now = new Date();
+                                    let remainingTime = endTime - now;
+
+                                    if (remainingTime <= 0) {
+                                        remainingTime = 0; // Asegurarse de que no sea negativo
+                                        timerElement.innerText = '00:00:00';
+                                        serviceInfoDiv.classList.add('blinking');
+                                        if (!timerElement.hasAttribute('data-stopped')) {
+                                            timerElement.setAttribute('data-stopped', 'true');
+                                        }
+                                        // No retornamos para que el intervalo siga ejecutándose y manteniendo el estado
+                                        return;
+                                    }
+
+                                    const hours = String(Math.floor(remainingTime / 3600000)).padStart(2, '0');
+                                    const minutes = String(Math.floor((remainingTime % 3600000) / 60000)).padStart(2, '0');
+                                    const seconds = String(Math.floor((remainingTime % 60000) / 1000)).padStart(2, '0');
+                                    timerElement.innerText = `${hours}:${minutes}:${seconds}`;
+                                    timerElement.style.color = 'red';
+                                };
+                            } else { // Si no hay tiempo de finalización (Cronómetro)
+                                updateTimer = () => {
+                                    const now = new Date();
+                                    let elapsedTime = Math.max(0, now - startTime);
+                                    const hours = String(Math.floor(elapsedTime / 3600000)).padStart(2, '0');
+                                    const minutes = String(Math.floor((elapsedTime % 3600000) / 60000)).padStart(2, '0');
+                                    const seconds = String(Math.floor((elapsedTime % 60000) / 1000)).padStart(2, '0');
+                                    timerElement.innerText = `${hours}:${minutes}:${seconds}`;
+                                    timerElement.style.color = 'green';
+                                };
+                            };
+
+                            setInterval(updateTimer, 1000);
+                            updateTimer(); // Llama una vez para evitar el retraso inicial de 1 segundo
+                        }
+                    @endif
                 });
             </script>
         @endsection

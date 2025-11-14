@@ -148,7 +148,8 @@ class ServiceController extends Controller
                 'start_time' => $startDateTime->toDateTimeString(),
                 'end_time' => $endDateTimeString,
                 'total_time' => $request->end_time? null : null,
-                'amount' => $request->end_time?$request->amountSala: 0,
+                // 'amount' => $request->end_time?$request->amountSala: 0,
+                'amount' => $request->amountSala,
             ]);
 
 

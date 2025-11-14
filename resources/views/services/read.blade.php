@@ -475,7 +475,7 @@
                 {{-- Panel de Resumen de Pago --}}
                 <div class="col-md-4">
                     @php
-                        $totalPagado = $service->serviceTransactions->sum('amount');
+                        $totalPagado = $service->serviceTransactions->where('type', 'Ingreso')->sum('amount')-$service->serviceTransactions->where('type', 'Devolucion')->sum('amount');
                         $deuda = round($service->total_amount - $totalPagado, 2);
                     @endphp
                     <div class="panel summary-panel">

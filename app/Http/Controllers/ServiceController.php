@@ -566,76 +566,97 @@ class ServiceController extends Controller
 
     public function updateTime(Request $request, ServiceTime $serviceTime)
     {
-        return $request;
+        // return $request;
         $request->validate([
             'end_date' => 'required|date',
             'end_time' => 'required|date_format:H:i',
             'amount' => 'required|numeric|min:0.01',
-            'payment_method' => 'required|string',
+            'payment_method' => 'string',
         ], [
             'end_date.required' => 'La fecha de finalización es obligatoria.',
             'end_time.required' => 'La hora de finalización es obligatoria.',
             'amount.required' => 'El monto es obligatorio.',
-            'amount.min' => 'El monto debe ser mayor a cero.',
-            'payment_method.required' => 'El método de pago es obligatorio.',
+            'amount.min' => 'El monto debe ser mayor a cero.'
         ]);
+
+        $startDateTime = \Carbon\Carbon::parse($serviceTime->start_time);
+        $endDateTime = \Carbon\Carbon::parse($request->end_date . ' ' . $request->end_time);
+
+        if ($endDateTime->lessThanOrEqualTo($startDateTime)) {
+            return back()->with(['message' => 'La fecha y hora de fin debe ser posterior a la de inicio.', 'alert-type' => 'warning']);
+        }
+
+        $cashier = $this->cashier(null, 'user_id = "' . Auth::user()->id . '"', 'status = "Abierta"');
+        if (!$cashier) {
+            return back()->with(['message' => 'No tienes una caja abierta.', 'alert-type' => 'warning']);
+        }
 
         DB::beginTransaction();
         try {
-            $startDateTime = \Carbon\Carbon::parse($serviceTime->start_time);
-            $endDateTime = \Carbon\Carbon::parse($request->end_date . ' ' . $request->end_time);
 
-            if ($endDateTime->lessThanOrEqualTo($startDateTime)) {
-                return back()->with(['message' => 'La fecha y hora de fin debe ser posterior a la de inicio.', 'alert-type' => 'warning']);
-            }
-
-            $cashier = $this->cashier(null, 'user_id = "' . Auth::user()->id . '"', 'status = "Abierta"');
-            if (!$cashier) {
-                return back()->with(['message' => 'No tienes una caja abierta.', 'alert-type' => 'warning']);
-            }
-
-            $transaction = Transaction::create(['status' => 'Completado']);
-
-            if ($request->payment_method == 'efectivo') {
-                $request->validate(['amount_received' => 'nullable|numeric|min:' . $request->amount]);
-                ServiceTransaction::create([
-                    'service_id' => $serviceTime->service_id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id,
-                    'amount' => $request->amount, 'paymentType' => 'Efectivo', 'type' => 'Ingreso'
-                ]);
-            } elseif ($request->payment_method == 'qr') {
-                ServiceTransaction::create([
-                    'service_id' => $serviceTime->service_id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id,
-                    'amount' => $request->amount, 'paymentType' => 'Qr', 'type' => 'Ingreso'
-                ]);
-            } elseif ($request->payment_method == 'ambos') {
-                $request->validate([
-                    'amount_efectivo' => 'required|numeric|min:0.01',
-                    'amount_qr' => 'required|numeric|min:0.01',
-                ]);
-                if (bccomp($request->amount_efectivo + $request->amount_qr, $request->amount, 2) != 0) {
-                    return back()->with(['message' => 'La suma del monto en efectivo y el monto por QR debe ser igual al monto total del período.', 'alert-type' => 'warning']);
-                }
-                if ($request->amount_efectivo > 0) {
-                    ServiceTransaction::create(['service_id' => $serviceTime->service_id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id, 'amount' => $request->amount_efectivo, 'paymentType' => 'Efectivo', 'type' => 'Ingreso']);
-                }
-                if ($request->amount_qr > 0) {
-                    ServiceTransaction::create(['service_id' => $serviceTime->service_id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id, 'amount' => $request->amount_qr, 'paymentType' => 'Qr', 'type' => 'Ingreso']);
-                }
-            }
-
+            // $serviceTime = ServiceTime::find($serviceTime->id);
             $service = $serviceTime->service;
+            
+            if($request->amount != $serviceTime->amount)
+            {
+                $transaction = Transaction::where('id', $serviceTime->transaction_id)->first();                        
+
+                if($request->amount > $serviceTime->amount)
+                {
+                    if ($request->payment_method == 'efectivo') {
+                        $request->validate(['amount_received' => 'nullable|numeric|min:' . $request->amount]);
+                        ServiceTransaction::create([
+                            'service_id' => $serviceTime->service_id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id,
+                            'amount' => $request->amount, 'paymentType' => 'Efectivo', 'type' => 'Ingreso'
+                        ]);
+                    } elseif ($request->payment_method == 'qr') {
+                        ServiceTransaction::create([
+                            'service_id' => $serviceTime->service_id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id,
+                            'amount' => $request->amount, 'paymentType' => 'Qr', 'type' => 'Ingreso'
+                        ]);
+                    } elseif ($request->payment_method == 'ambos') {
+                        $request->validate([
+                            'amount_efectivo' => 'required|numeric|min:0.01',
+                            'amount_qr' => 'required|numeric|min:0.01',
+                        ]);
+                        if (bccomp($request->amount_efectivo + $request->amount_qr, $request->amount, 2) != 0) {
+                            return back()->with(['message' => 'La suma del monto en efectivo y el monto por QR debe ser igual al monto total del período.', 'alert-type' => 'warning']);
+                        }
+                        if ($request->amount_efectivo > 0) {
+                            ServiceTransaction::create(['service_id' => $serviceTime->service_id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id, 'amount' => $request->amount_efectivo, 'paymentType' => 'Efectivo', 'type' => 'Ingreso']);
+                        }
+                        if ($request->amount_qr > 0) {
+                            ServiceTransaction::create(['service_id' => $serviceTime->service_id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id, 'amount' => $request->amount_qr, 'paymentType' => 'Qr', 'type' => 'Ingreso']);
+                        }
+                    }
+
+                    $service->amount_room += $request->amount - $serviceTime->amount;
+                    $service->total_amount += $request->amount - $serviceTime->amount;
+                }
+                else
+                {
+                    ServiceTransaction::create([
+                        'service_id' => $serviceTime->service_id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id,
+                        'amount' => ($serviceTime->amount - $request->amount), 'paymentType' => 'Efectivo', 'type' => 'Devolucion',
+                        'observation' => 'Devolución de adelanto',
+                    ]);
+
+                    $service->amount_room -= $serviceTime->amount - $request->amount;
+                    $service->total_amount -= $serviceTime->amount - $request->amount;
+                }
+
+                $serviceTime->amount = $request->amount;
+
+                $service->save();
+            }
+
+            
+
 
             // Actualizar el registro de tiempo
             $serviceTime->end_time = $endDateTime->toDateTimeString();
-            $serviceTime->amount = $request->amount;
-            // $serviceTime->time_type = 'Tiempo libre';
-            $serviceTime->transaction_id = $transaction->id;
             $serviceTime->save();
-
-            // Actualizar los montos totales del servicio
-            $service->amount_room += $request->amount;
-            $service->total_amount += $request->amount;
-            $service->save();
+            
 
             DB::commit();
 

@@ -365,65 +365,64 @@
                                     <table class="table table-hover" id="dataTable">
                                         <thead>
                                             <tr>
-                                                <th style="text-align: center; width: 25%;">Fecha y Hora</th>
-                                                <th style="text-align: center; width: 15%;">Método de pago</th>
-                                                <th>Detalle de Pago</th>
-                                                <th style="width: 15%" class="text-right">Monto</th>
+                                                <th style="width: 20%;">Fecha y Hora</th>
+                                                <th>Detalle</th>
+                                                <th class="text-right" style="width: 15%;">Efectivo</th>
+                                                <th class="text-right" style="width: 15%;">QR</th>
+                                                <th class="text-right" style="width: 15%;">Total</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @forelse ($service->serviceTransactions as $transaction)
+                                            @php
+                                                // Cargamos las relaciones necesarias antes de agrupar para evitar errores
+                                                $transactionsWithRelations = $service->serviceTransactions()->with('transaction.serviceItems', 'transaction.serviceTimes')->get();
+                                                $groupedTransactions = $transactionsWithRelations->groupBy('transaction_id');
+                                            @endphp
+                                            @forelse ($groupedTransactions as $group)
+                                                @php
+                                                    $first = $group->first();
+                                                    $efectivo = $group->where('paymentType', 'Efectivo')->sum('amount');
+                                                    $qr = $group->where('paymentType', 'Qr')->sum('amount');
+                                                    $total = $efectivo + $qr;
+                                                @endphp
                                                 <tr>
-                                                    <td style="text-align: center;">
-                                                        {{ $transaction->created_at->format('d/m/Y h:i a') }}</td>
-                                                    <td style="text-align: center;">
-                                                        @php
-                                                            $paymentMethod = $transaction->paymentType;
-                                                            $decodedMethod = json_decode($paymentMethod, true);
-                                                        @endphp
-
-                                                        @if (is_array($decodedMethod))
-                                                            @if (isset($decodedMethod['efectivo']) && isset($decodedMethod['qr']))
-                                                                Efectivo y QR
-                                                            @endif
-                                                        @else
-                                                            @switch($paymentMethod)
-                                                                @case('efectivo')
-                                                                    Efectivo
-                                                                @break
-
-                                                                @case('qr')
-                                                                    QR
-                                                                @break
-
-                                                                @default
-                                                                    {{ ucfirst($paymentMethod) }}
-                                                            @endswitch
-                                                        @endif
-                                                    </td>
+                                                    <td>{{ $first->created_at->format('d/m/Y h:i a') }}</td>
                                                     <td>
-                                                        @if ($transaction->observation)
-                                                            {{ $transaction->observation }}
+                                                        @if ($first->observation)
+                                                            {{ $first->observation }}
                                                         @else
-                                                            N/A
+                                                            @if ($first->transaction && $first->transaction->serviceItems->isNotEmpty())
+                                                                Pago por productos
+                                                            @elseif ($first->transaction && $first->transaction->serviceTimes->isNotEmpty())
+                                                                Pago por tiempo de sala
+                                                            @else
+                                                                Pago de servicio
+                                                        @endif
                                                         @endif
                                                     </td>
-                                                    <td class="text-right">{{ number_format($transaction->amount, 2, ',', '.') }}
-                                                        Bs.</td>
+                                                    <td class="text-right">
+                                                        {{ $efectivo > 0 ? number_format($efectivo, 2, ',', '.') . ' Bs.' : '' }}
+                                                    </td>
+                                                    <td class="text-right">
+                                                        {{ $qr > 0 ? number_format($qr, 2, ',', '.') . ' Bs.' : '' }}
+                                                    </td>
+                                                    <td class="text-right">
+                                                        <strong>{{ number_format($total, 2, ',', '.') }} Bs.</strong>
+                                                    </td>
                                                 </tr>
-                                                @empty
-                                                    <tr>
-                                                        <td colspan="3" class="text-center" style="padding: 20px;">
-                                                            <i class="voyager-info-circled"
-                                                                style="font-size: 2rem; opacity: 0.5;"></i>
-                                                            <h5 style="margin-top: 10px;">No se han registrado pagos.</h5>
-                                                        </td>
-                                                    </tr>
-                                                @endforelse
+                                            @empty
+                                                <tr>
+                                                    <td colspan="5" class="text-center" style="padding: 20px;">
+                                                        <i class="voyager-info-circled"
+                                                            style="font-size: 2rem; opacity: 0.5;"></i>
+                                                        <h5 style="margin-top: 10px;">No se han registrado pagos.</h5>
+                                                    </td>
+                                                </tr>
+                                            @endforelse
                                             </tbody>
                                             <tfoot>
                                                 <tr>
-                                                    <th colspan="3" class="text-right">Total Pagado:</th>
+                                                    <th colspan="4" class="text-right">Total Pagado:</th>
                                                     <th class="text-right">{{ number_format($service->serviceTransactions->sum('amount'), 2, ',', '.') }} Bs.</th>
                                                 </tr>
                                             </tfoot>

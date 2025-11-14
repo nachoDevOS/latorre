@@ -23,4 +23,17 @@ class Transaction extends Model
         'deleteRole',
         'deleteObservation',
     ];
+
+    public function serviceItems()
+    {
+        return $this->hasMany(ServiceItem::class, 'transaction_id');
+    }
+    public function serviceTimes()
+    {
+        return $this->hasMany(ServiceTime::class, 'transaction_id');
+    }
+    public function serviceTransactions()
+    {
+        return $this->hasMany(ServiceTransaction::class, 'transaction_id');
+    }
 }

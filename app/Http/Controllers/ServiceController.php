@@ -144,7 +144,7 @@ class ServiceController extends Controller
             ServiceTime::create([
                 'service_id' => $service->id,
                 'transaction_id' => $transaction->id,
-                'time_type' => $request->end_time? 'Tiempo fijo': 'Tiempo sin límite',
+                'time_type' => $request->end_time? 'Tiempo fijo': 'Tiempo libre',
                 'start_time' => $startDateTime->toDateTimeString(),
                 'end_time' => $endDateTimeString,
                 'total_time' => $request->end_time? null : null,
@@ -305,30 +305,6 @@ class ServiceController extends Controller
 
         // Lógica para finalizar un tiempo abierto
         $lastTime = $service->serviceTimes->last();
-        // Este bloque se ejecuta solo si hay un tiempo abierto que se está cerrando desde el formulario de cobro.
-        // El modal para finalizar tiempo usa el método updateTime, no este.
-        // if ($lastTime && !$lastTime->end_time) {
-        //     $request->validate([
-        //         'final_end_time' => 'required|date_format:H:i|after_or_equal:'.$lastTime->start_time,
-        //         'final_amount' => 'required|numeric|min:0',
-        //     ], [
-        //         'final_end_time.required' => 'La hora de finalización es obligatoria.',
-        //         'final_end_time.after_or_equal' => 'La hora de fin no puede ser anterior a la de inicio.',
-        //         'final_amount.required' => 'El monto por el último período es obligatorio.',
-        //         'final_amount.min' => 'El monto no puede ser negativo.',
-        //     ]);
-
-        //     // Actualizar el último registro de tiempo
-        //     $lastTime->end_time = $request->final_end_time;
-        //     $lastTime->amount = $request->final_amount;
-        //     $lastTime->time_type = 'Tiempo fijo'; // Se cierra el tiempo
-        //     $lastTime->save();
-
-        //     // Actualizar los montos totales del servicio
-        //     $service->amount_room = $service->serviceTimes()->sum('amount');
-        //     $service->total_amount = $service->amount_room + $service->amount_products;
-        //     $service->save();
-        // }
         
         try {
             $cashier = $this->cashier(null,'user_id = "'.Auth::user()->id.'"', 'status = "Abierta"');
@@ -476,7 +452,7 @@ class ServiceController extends Controller
             ServiceTime::create([
                 'service_id' => $service->id,
                 'transaction_id' => $transaction ? $transaction->id : null,
-                'time_type' => $endDateTimeString ? 'Tiempo fijo' : 'Tiempo sin límite',
+                'time_type' => $endDateTimeString ? 'Tiempo fijo' : 'Tiempo libre',
                 'start_time' => $startDateTime->toDateTimeString(),
                 'end_time' => $endDateTimeString->toDateTimeString(),
                 'amount' => $amountToAdd,
@@ -650,7 +626,7 @@ class ServiceController extends Controller
             // Actualizar el registro de tiempo
             $serviceTime->end_time = $endDateTime->toDateTimeString();
             $serviceTime->amount = $request->amount;
-            $serviceTime->time_type = 'Tiempo libre';
+            // $serviceTime->time_type = 'Tiempo libre';
             $serviceTime->transaction_id = $transaction->id;
             $serviceTime->save();
 

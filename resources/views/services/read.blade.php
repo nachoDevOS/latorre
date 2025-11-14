@@ -293,51 +293,62 @@
                             </div>
                         @endif
 
-                    </div>
-                </div>
 
-                {{-- Panel de Productos Consumidos --}}
+                        <div class="panel panel-info">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <h3 class="panel-title"><i class="voyager-basket"></i> Productos Consumidos</h3>
 
-                <div class="panel products-panel">
-                    <div>
-                        <h3 class="panel-title"><i class="voyager-basket"></i> Productos Consumidos</h3>
-                    </div>
-                    <div class="panel-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover" id="dataTable">
-                                <thead>
-                                    <tr>
-                                        <th>Producto</th>
-                                        <th class="text-right">Precio</th>
-                                        <th class="text-center">Cantidad</th>
-                                        <th class="text-right">Subtotal</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @php $totalProductos = 0; @endphp
-                                    @forelse ($service->serviceItems as $index => $item)
-                                        <tr>
-                                            <td>{{ $item->itemStock->item->name }}</td>
-                                            <td class="text-right">{{ number_format($item->price, 2, ',', '.') }}.
-                                            </td>
-                                            <td class="text-center">{{ $item->quantity }}</td>
-                                            <td class="text-right">{{ number_format($item->amount, 2, ',', '.') }}
-                                                Bs.</td>
-                                        </tr>
-                                        @php $totalProductos += $item->amount; @endphp
-                                    @empty
-                                        <tr>
-                                            <td colspan="4" class="text-center" style="padding: 40px;">
-                                                <i class="voyager-bar-chart" style="font-size: 3rem; opacity: 0.5;"></i>
-                                                <h4 style="margin-top: 10px;">No se han registrado productos.</h4>
-                                            </td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
+                                <button type="button" class="btn btn-success" data-toggle="modal"
+                                    data-target="#addProductModal">
+                                    <i class="voyager-plus"></i> Agregar Productos
+                                </button>
+                            </div>
+                            <div class="panel-body" style="padding: 0px;"class="panel-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="dataTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Producto</th>
+                                                <th class="text-right">Precio</th>
+                                                <th class="text-center">Cantidad</th>
+                                                <th class="text-right">Subtotal</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @php $totalProductos = 0; @endphp
+                                            @forelse ($service->serviceItems as $index => $item)
+                                                <tr>
+                                                    <td>{{ $item->itemStock->item->name }}</td>
+                                                    <td class="text-right">{{ number_format($item->price, 2, ',', '.') }}.
+                                                    </td>
+                                                    <td class="text-center">{{ $item->quantity }}</td>
+                                                    <td class="text-right">{{ number_format($item->amount, 2, ',', '.') }}
+                                                        Bs.</td>
+                                                </tr>
+                                                @php $totalProductos += $item->amount; @endphp
+                                            @empty
+                                                <tr>
+                                                    <td colspan="4" class="text-center" style="padding: 40px;">
+                                                        <i class="voyager-bar-chart"
+                                                            style="font-size: 3rem; opacity: 0.5;"></i>
+                                                        <h4 style="margin-top: 10px;">No se han registrado productos.</h4>
+                                                    </td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
+
                     </div>
+
+
                 </div>
+
+
+
 
                 {{-- Panel para agregar productos --}}
                 <div class="panel panel-info">
@@ -670,7 +681,8 @@
                                                         style="background-color: #f0f0f0; padding: 10px; border-radius: 5px;">
                                                         <strong style="font-size: 1.1rem;">Cambio a devolver:</strong><strong
                                                             class="amount change-due-update"
-                                                            style="font-size: 1.2rem; color: #28a745;">0.00 Bs.</strong></div>
+                                                            style="font-size: 1.2rem; color: #28a745;">0.00 Bs.</strong>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -853,7 +865,8 @@
                                                     style="background-color: #f0f0f0; padding: 10px; border-radius: 5px;">
                                                     <strong style="font-size: 1.1rem;">Cambio a devolver:</strong><strong
                                                         class="amount" id="change_due_additional"
-                                                        style="font-size: 1.2rem; color: #28a745;">0.00 Bs.</strong></div>
+                                                        style="font-size: 1.2rem; color: #28a745;">0.00 Bs.</strong>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -1137,7 +1150,7 @@
                                     // Si la hora de fin es menor, asumimos que es del día siguiente
                                     let nextDay = new Date(startDateInput.value);
                                     nextDay.setDate(nextDay.getDate() +
-                                    2); // Se suma 2 por la forma en que JS maneja las fechas
+                                        2); // Se suma 2 por la forma en que JS maneja las fechas
                                     endDateInput.value = nextDay.toISOString().split('T')[0];
                                 } else if (!endDateInput.value) {
                                     endDateInput.value = startDateInput.value;
@@ -1316,7 +1329,7 @@
 
                         modal.find(
                             '.amount-input, .amount-received-update, .amount-efectivo-update, .amount-qr-update'
-                            ).on('keyup change', calculateChangeUpdate);
+                        ).on('keyup change', calculateChangeUpdate);
                         modal.find('.end-date-input, .end-time-input').on('change', calculateDuration);
                         calculateDuration(); // Calcular al abrir el modal
                     });

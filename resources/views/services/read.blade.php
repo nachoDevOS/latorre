@@ -1507,14 +1507,14 @@
                                 let qr = parseFloat(amountQr.val()) || 0;
                                 let sum = efectivo + qr;
 
-                                if (sum > total) {
+                                if (sum > totalAPagar) {
                                     toastr.warning('La suma de los montos no puede ser mayor al total.',
                                         'Monto excedido', {
                                             timeOut: 1500
                                         });
-                                    if ($(document.activeElement).is(amountEfectivo)) { // Si el campo activo es el de efectivo
+                                    if ($(document.activeElement).is(amountEfectivo)) {
                                         amountEfectivo.val((totalAPagar - qr).toFixed(2));
-                                    } else if ($(document.activeElement).is(amountQr)) { // Si el campo activo es el de QR
+                                    } else if ($(document.activeElement).is(amountQr)) {
                                         amountQr.val((totalAPagar - efectivo).toFixed(2));
                                     }
                                 }
@@ -1522,6 +1522,7 @@
                             if (change < 0) change = 0;
                             changeDue.text(change.toFixed(2) + ' Bs.');
                         }
+
 
                         function calculateDuration() {
                             const startDate = new Date(startTimeValue);
@@ -1579,7 +1580,7 @@
 
                         modal.find(
                             '.amount-input, .amount-received-update, .amount-efectivo-update, .amount-qr-update'
-                        ).on('keyup change', function() { handleAmountChange(); });
+                        ).on('keyup change', handleAmountChange);
                         modal.find('.end-date-input, .end-time-input').on('change', calculateDuration);
                         calculateDuration(); // Calcular al abrir el modal
                     });

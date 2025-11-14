@@ -337,6 +337,12 @@
                                                 </tr>
                                             @endforelse
                                         </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th colspan="3" class="text-right">Total Productos:</th>
+                                                <th class="text-right">{{ number_format($totalProductos, 2, ',', '.') }} Bs.</th>
+                                            </tr>
+                                        </tfoot>
                                     </table>
                                 </div>
                             </div>
@@ -415,6 +421,12 @@
                                                     </tr>
                                                 @endforelse
                                             </tbody>
+                                            <tfoot>
+                                                <tr>
+                                                    <th colspan="3" class="text-right">Total Pagado:</th>
+                                                    <th class="text-right">{{ number_format($service->serviceTransactions->sum('amount'), 2, ',', '.') }} Bs.</th>
+                                                </tr>
+                                            </tfoot>
                                         </table>
                                     </div>
                                 </div>

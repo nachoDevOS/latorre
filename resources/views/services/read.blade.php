@@ -299,7 +299,7 @@
                                 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                                 <h3 class="panel-title"><i class="voyager-basket"></i> Productos Consumidos</h3>
 
-                                <button type="button" class="btn btn-success" data-toggle="modal"
+                                <button type="button" class="btn btn-success btn-sm" data-toggle="modal"
                                     data-target="#addProductModal">
                                     <i class="voyager-plus"></i> Agregar Productos
                                 </button>
@@ -346,50 +346,6 @@
 
 
                 </div>
-
-
-
-
-                {{-- Panel para agregar productos --}}
-                <div class="panel panel-info">
-                    <div>
-                        <h3 class="panel-title"><i class="voyager-plus"></i> Agregar Productos al Servicio</h3>
-                    </div>
-                    <div class="panel-body">
-                        <form action="{{ route('services.add_item', ['service' => $service->id]) }}" method="POST">
-                            @csrf
-                            <div class="row">
-                                <div class="form-group col-md-12">
-                                    <label>Buscar producto</label>
-                                    <select class="form-control" id="select-product_id"></select>
-                                </div>
-                                <div class="form-group col-md-4">
-                                    <label>Precio</label>
-                                    <div class="input-group">
-                                        <input type="number" name="price" id="input-price" class="form-control"
-                                            step="0.01" min="0.01" required />
-                                    </div>
-                                </div>
-                                <div class="form-group col-md-4">
-                                    <label>Cantidad</label>
-                                    <input type="number" name="quantity" id="input-quantity" class="form-control"
-                                        step="1" min="1" required />
-                                </div>
-                                <div class="form-group col-md-4">
-                                    <label>Subtotal</label>
-                                    <div class="input-group">
-                                        <input type="number" id="input-subtotal" class="form-control" readonly />
-                                    </div>
-                                </div>
-                                <input type="hidden" name="item_stock_id" id="input-item_stock_id">
-                            </div>
-                            <div class="text-right">
-                                <button type="submit" class="btn btn-primary">Agregar</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
 
                 {{-- Historial de Pagos --}}
                 <div class="panel panel-primary">
@@ -579,6 +535,86 @@
                                                 class="voyager-dollar"></i> Finalizar y Cobrar</button>
                                     @endif
                                 </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Modal para agregar productos --}}
+            <div class="modal fade" id="addProductModal" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <form action="{{ route('services.add_item', ['service' => $service->id]) }}" method="POST">
+                            @csrf
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                        aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title">Agregar Productos al Servicio</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="form-group col-md-12">
+                                        <label>Buscar producto</label>
+                                        <select class="form-control" id="select-product_id"></select>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label>Precio</label>
+                                        <input type="number" name="price" id="input-price" class="form-control"
+                                            step="0.01" min="0.01" required />
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label>Cantidad</label>
+                                        <input type="number" name="quantity" id="input-quantity" class="form-control"
+                                            step="1" min="1" required />
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label>Subtotal</label>
+                                        <input type="number" id="input-subtotal" class="form-control" readonly />
+                                    </div>
+                                    <input type="hidden" name="item_stock_id" id="input-item_stock_id">
+                                </div>
+                                <hr>
+                                <div class="form-group">
+                                    <label for="payment_method_product">Método de Pago</label>
+                                    <select name="payment_method" id="payment_method_product" class="form-control" required>
+                                        <option value="" selected disabled>--Seleccione una opción--</option>
+                                        <option value="efectivo">Efectivo</option>
+                                        <option value="qr">QR</option>
+                                        <option value="ambos">Ambos</option>
+                                    </select>
+                                </div>
+                                <div id="payment-details-product" style="display: none;">
+                                    <div class="form-group">
+                                        <label for="amount_efectivo_product">Monto en Efectivo</label>
+                                        <input type="number" name="amount_efectivo" id="amount_efectivo_product"
+                                            class="form-control" step="0.01" min="0" placeholder="0.00">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="amount_qr_product">Monto con QR</label>
+                                        <input type="number" name="amount_qr" id="amount_qr_product" class="form-control"
+                                            step="0.01" min="0" placeholder="0.00">
+                                    </div>
+                                </div>
+                                <div id="calculator-product"
+                                    style="display: none; margin-top: 15px; border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
+                                    <div class="form-group">
+                                        <label for="amount_received_product" style="font-weight: bold;">Monto Recibido
+                                            (Efectivo)</label>
+                                        <input type="number" name="amount_received" id="amount_received_product"
+                                            class="form-control" step="0.01" min="0" placeholder="0.00">
+                                    </div>
+                                    <div class="summary-item"
+                                        style="background-color: #f0f0f0; padding: 10px; border-radius: 5px;">
+                                        <strong style="font-size: 1.1rem;">Cambio a devolver:</strong>
+                                        <strong class="amount" id="change_due_product"
+                                            style="font-size: 1.2rem; color: #28a745;">0.00 Bs.</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Agregar y Pagar</button>
                             </div>
                         </form>
                     </div>
@@ -913,6 +949,53 @@
                     $('#change_due_adelanto').text(change.toFixed(2).replace('.', ',') + ' Bs.');
                 });
 
+                // Lógica para el modal de agregar producto
+                $('#payment_method_product').on('change', function() {
+                    let paymentMethod = $(this).val();
+                    $('#payment-details-product').hide();
+                    $('#calculator-product').hide();
+
+                    $('#amount_efectivo_product').prop('required', false).prop('min', '');
+                    $('#amount_qr_product').prop('required', false).prop('min', '');
+
+                    if (paymentMethod === 'ambos') {
+                        $('#payment-details-product').show();
+                        $('#amount_efectivo_product').prop('required', true).prop('min', 0.01);
+                        $('#amount_qr_product').prop('required', true).prop('min', 0.01);
+                    } else if (paymentMethod === 'efectivo') {
+                        $('#calculator-product').show();
+                    }
+                });
+
+                function calculateProductChange() {
+                    let total = parseFloat($('#input-subtotal').val()) || 0;
+                    let paymentMethod = $('#payment_method_product').val();
+                    let change = 0;
+
+                    if (paymentMethod === 'efectivo') {
+                        let received = parseFloat($('#amount_received_product').val()) || 0;
+                        change = received - total;
+                    } else if (paymentMethod === 'ambos') {
+                        let efectivo = parseFloat($('#amount_efectivo_product').val()) || 0;
+                        let qr = parseFloat($('#amount_qr_product').val()) || 0;
+                        let sum = efectivo + qr;
+
+                        if (sum > total) {
+                            toastr.warning('La suma de los montos no puede ser mayor al subtotal.', 'Monto excedido', { timeOut: 1500 });
+                            if ($(document.activeElement).is('#amount_efectivo_product')) {
+                                $('#amount_efectivo_product').val((total - qr).toFixed(2));
+                            } else if ($(document.activeElement).is('#amount_qr_product')) {
+                                $('#amount_qr_product').val((total - efectivo).toFixed(2));
+                            }
+                        }
+                    }
+
+                    if (change < 0) change = 0;
+                    $('#change_due_product').text(change.toFixed(2) + ' Bs.');
+                }
+
+                $('#input-subtotal, #amount_received_product, #amount_efectivo_product, #amount_qr_product').on('keyup change', calculateProductChange);
+
                 $(document).ready(function() {
                     var productSelected;
 
@@ -963,6 +1046,7 @@
                             $('#input-quantity').val('');
                             $('#input-subtotal').val('');
                             $('#input-item_stock_id').val('');
+                            calculateProductChange();
                         }
                     });
 
@@ -978,6 +1062,7 @@
                             toastr.warning('La cantidad no puede ser mayor al stock', 'Advertencia');
                         }
                     });
+
 
                     @php
                         $totalPagado = $service->serviceTransactions->sum('amount');
@@ -1099,6 +1184,7 @@
                     let price = $('#input-price').val() ? parseFloat($('#input-price').val()) : 0;
                     let quantity = $('#input-quantity').val() ? parseFloat($('#input-quantity').val()) : 0;
                     $('#input-subtotal').val((price * quantity).toFixed(2));
+                    calculateProductChange();
                 }
 
                 document.addEventListener('DOMContentLoaded', function() {

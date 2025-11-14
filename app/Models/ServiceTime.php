@@ -23,6 +23,7 @@ class ServiceTime extends Model
         'amount',
         'status',
 
+        'closed_at',
         'registerUser_id',
         'registerRole',
         'deleted_at',

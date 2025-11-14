@@ -12,6 +12,7 @@ use App\Models\ServiceItem;
 use App\Models\ServiceTime;
 use App\Models\ServiceTransaction;
 use App\Models\Transaction;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class ServiceController extends Controller
@@ -120,11 +121,13 @@ class ServiceController extends Controller
         DB::beginTransaction();
 
         try {
+            // return $request;
+
             $service = Service::create([
                 'room_id' => $request->room_id,
                 'person_id'=>$request->person_id,
                 'start_time' => $startDateTime->toDateTimeString(),
-                'amount_room'=> $request->amountSala,
+                'amount_room'=> $request->amountSala?? 0,
                 'amount_products'=> $request->amount_product,
                 'total_amount'=> $total_a_pagar,
 
@@ -148,9 +151,12 @@ class ServiceController extends Controller
                 'start_time' => $startDateTime->toDateTimeString(),
                 'end_time' => $endDateTimeString,
                 'total_time' => $request->end_time? null : null,
+                'closed_at' => $request->end_time? Carbon::now() : null,
                 // 'amount' => $request->end_time?$request->amountSala: 0,
-                'amount' => $request->amountSala,
+                'amount' => $request->amountSala??0,
             ]);
+            return $request;
+
 
 
             if ($request->products) {
@@ -210,7 +216,7 @@ class ServiceController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->route('services.index')->with([
-                'message'    => 'Ocurrió un error al iniciar el alquiler: ',
+                'message'    => 'Ocurrió un error al iniciar el alquiler',
                 'alert-type' => 'error'
             ]);
         }

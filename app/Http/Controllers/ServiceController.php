@@ -454,7 +454,7 @@ class ServiceController extends Controller
                 'transaction_id' => $transaction ? $transaction->id : null,
                 'time_type' => $endDateTimeString ? 'Tiempo fijo' : 'Tiempo libre',
                 'start_time' => $startDateTime->toDateTimeString(),
-                'end_time' => $endDateTimeString->toDateTimeString(),
+                'end_time' => $endDateTimeString?$endDateTimeString->toDateTimeString():null,
                 'amount' => $amountToAdd,
             ]);
  

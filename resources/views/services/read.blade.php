@@ -353,10 +353,10 @@
                                 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                                 <h3 class="panel-title"><i class="fa-solid fa-money-bill"></i> Historial de Pagos</h3>
 
-                                <button type="button" class="btn btn-success btn-sm" data-toggle="modal"
+                                {{-- <button type="button" class="btn btn-success btn-sm" data-toggle="modal"
                                     data-target="#addPaymentModal">
                                     <i class="voyager-plus"></i> Agregar Adelantos
-                                </button>
+                                </button> --}}
                             </div>
 
                      
@@ -392,12 +392,11 @@
                                                             {{ $first->observation }}
                                                         @else
                                                             @if ($first->transaction && $first->transaction->serviceItems->isNotEmpty())
-                                                                Pago por productos
-                                                            @elseif ($first->transaction && $first->transaction->serviceTimes->isNotEmpty())
+                                                                Pago por productos <br>
+                                                            @endif
+                                                            @if ($first->transaction && $first->transaction->serviceTimes->isNotEmpty())
                                                                 Pago por tiempo de sala
-                                                            @else
-                                                                Pago de servicio
-                                                        @endif
+                                                            @endif
                                                         @endif
                                                     </td>
                                                     <td class="text-right">

@@ -200,13 +200,13 @@
                             </div>
                             <div class="form-group" id="monto-group">
                                 <label for="amount" id="amount-label">Registrar un adelanto de la sala</label>
-                                <input type="number" name="amountSala" id="amount" class="form-control"  min="1" placeholder="0.00" required>
+                                <input type="number" name="amountSala" id="amount" class="form-control"  min="0" step="0.01" placeholder="0.00">
                             </div>
 
 
                             <div class="summary-section">
                                 <div class="summary-item">
-                                    <span>Adelanto de la Sala:</span>
+                                    <span>Total de la Sala:</span>
                                     <span class="amount" id="summary-advance">0,00 Bs.</span>
                                 </div>
                                 <div class="summary-item">
@@ -219,36 +219,38 @@
                                     <strong class="amount" id="summary-total">0,00 Bs.</strong>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="payment_method">Método de Pago</label>
-                                <select name="payment_method" id="payment_method" class="form-control" required>
-                                    <option value="" selected disabled>--Seleccione una opción--</option>
-                                    <option value="efectivo">Efectivo</option>
-                                    <option value="qr">QR</option>
-                                    <option value="ambos">Ambos</option>
-                                </select>
-                            </div>
-                            <div id="payment-details" style="display: none;">
+                            <div id="payment-section-wrapper" style="display: none;">
                                 <div class="form-group">
-                                    <label for="amount_efectivo">Monto en Efectivo</label>
-                                    <input type="number" name="amount_efectivo" id="amount_efectivo" class="form-control" min="0" placeholder="0.00">
+                                    <label for="payment_method">Método de Pago</label>
+                                    <select name="payment_method" id="payment_method" class="form-control" required>
+                                        <option value="" selected disabled>--Seleccione una opción--</option>
+                                        <option value="efectivo">Efectivo</option>
+                                        <option value="qr">QR</option>
+                                        <option value="ambos">Ambos</option>
+                                    </select>
                                 </div>
-                                <div class="form-group">
-                                    <label for="amount_qr">Monto con QR</label>
-                                    <input type="number" name="amount_qr" id="amount_qr" class="form-control" min="0" placeholder="0.00">
+                                <div id="payment-details" style="display: none;">
+                                    <div class="form-group">
+                                        <label for="amount_efectivo">Monto en Efectivo</label>
+                                        <input type="number" name="amount_efectivo" id="amount_efectivo" class="form-control" min="0" placeholder="0.00">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="amount_qr">Monto con QR</label>
+                                        <input type="number" name="amount_qr" id="amount_qr" class="form-control" min="0" placeholder="0.00">
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div id="calculator" style="display: none; margin-top: 15px; border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
-                                <div class="form-group">
-                                    <label for="amount_received" style="font-weight: bold;">Monto Recibido (Efectivo)</label>
-                                    <input type="number" name="amount_received" id="amount_received" class="form-control" min="0" placeholder="0.00">
+    
+                                <div id="calculator" style="display: none; margin-top: 15px; border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
+                                    <div class="form-group">
+                                        <label for="amount_received" style="font-weight: bold;">Monto Recibido (Efectivo)</label>
+                                        <input type="number" name="amount_received" id="amount_received" class="form-control" min="0" placeholder="0.00">
+                                    </div>
+                                    <div class="summary-item" style="background-color: #f0f0f0; padding: 10px; border-radius: 5px;">
+                                        <strong style="font-size: 1.1rem;">Cambio a devolver:</strong>
+                                        <strong class="amount" id="change_due" style="font-size: 1.2rem; color: #28a745;">0.00 Bs.</strong>
+                                    </div>
                                 </div>
-                                <div class="summary-item" style="background-color: #f0f0f0; padding: 10px; border-radius: 5px;">
-                                    <strong style="font-size: 1.1rem;">Cambio a devolver:</strong>
-                                    <strong class="amount" id="change_due" style="font-size: 1.2rem; color: #28a745;">0.00 Bs.</strong>
-                                </div>
-                            </div>
+                            </div>                            
                             
                             <button type="submit" class="btn btn-success btn-block btn-action"><i class="voyager-play"></i> Iniciar Alquiler</button>
                         </div>
@@ -328,6 +330,8 @@
                     // Validar que la fecha/hora de fin no sea anterior a la de inicio
                     const startDateTime = new Date(`${startDateInput.value}T${startTimeInput.value}`);
                     const endDateTime = new Date(`${endDateInput.value}T${endTimeInput.value}`);
+                    amountInput.required = true;
+                    amountInput.min = 1;
 
                     if (endDateTime < startDateTime) {
                         toastr.error('La fecha y hora de fin no puede ser anterior a la de inicio.', 'Error de Fecha');
@@ -341,6 +345,8 @@
                     amountLabel.textContent = 'Registrar un adelanto de la sala';
                     durationGroup.style.display = 'none';
                     durationDisplay.textContent = 'Calculando...';
+                    amountInput.required = false;
+                    amountInput.min = 0;
                 }
                 // Limpiamos el valor para que el usuario siempre lo ingrese manualmente
                 amountInput.value = '';
@@ -508,6 +514,16 @@
             // Clear the inputs for "Ambos"
             $('#amount_efectivo').val('');
             $('#amount_qr').val('');
+
+            // Mostrar u ocultar la sección de pago
+            if (total > 0) {
+                $('#payment-section-wrapper').show();
+                $('#payment_method').prop('required', true);
+            } else {
+                $('#payment-section-wrapper').hide();
+                $('#payment_method').prop('required', false).val(''); // Limpiar y quitar requerido
+                $('#payment_method').trigger('change'); // Disparar change para ocultar detalles
+            }
 
             // Limpiar también el monto recibido para 'efectivo' y recalcular el cambio
             $('#amount_received').val('').trigger('change');

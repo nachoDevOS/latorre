@@ -342,92 +342,92 @@
                             </div>
                         </div>
 
+                        <div class="panel panel-info">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <h3 class="panel-title"><i class="voyager-basket"></i> Productos Consumidos</h3>
+
+                                <button type="button" class="btn btn-success btn-sm" data-toggle="modal"
+                                    data-target="#addPaymentModal">
+                                    <i class="voyager-plus"></i> Agregar Adelantos
+                                </button>
+                            </div>
+
+                     
+                            <div class="panel-body" style="padding: 0px;"class="panel-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="dataTable">
+                                        <thead>
+                                            <tr>
+                                                <th style="text-align: center; width: 25%;">Fecha y Hora</th>
+                                                <th style="text-align: center; width: 15%;">Método de pago</th>
+                                                <th>Detalle de Pago</th>
+                                                <th style="width: 15%" class="text-right">Monto</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse ($service->serviceTransactions as $transaction)
+                                                <tr>
+                                                    <td style="text-align: center;">
+                                                        {{ $transaction->created_at->format('d/m/Y h:i a') }}</td>
+                                                    <td style="text-align: center;">
+                                                        @php
+                                                            $paymentMethod = $transaction->paymentType;
+                                                            $decodedMethod = json_decode($paymentMethod, true);
+                                                        @endphp
+
+                                                        @if (is_array($decodedMethod))
+                                                            @if (isset($decodedMethod['efectivo']) && isset($decodedMethod['qr']))
+                                                                Efectivo y QR
+                                                            @endif
+                                                        @else
+                                                            @switch($paymentMethod)
+                                                                @case('efectivo')
+                                                                    Efectivo
+                                                                @break
+
+                                                                @case('qr')
+                                                                    QR
+                                                                @break
+
+                                                                @default
+                                                                    {{ ucfirst($paymentMethod) }}
+                                                            @endswitch
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if ($transaction->observation)
+                                                            {{ $transaction->observation }}
+                                                        @else
+                                                            N/A
+                                                        @endif
+                                                    </td>
+                                                    <td class="text-right">{{ number_format($transaction->amount, 2, ',', '.') }}
+                                                        Bs.</td>
+                                                </tr>
+                                                @empty
+                                                    <tr>
+                                                        <td colspan="3" class="text-center" style="padding: 20px;">
+                                                            <i class="voyager-info-circled"
+                                                                style="font-size: 2rem; opacity: 0.5;"></i>
+                                                            <h5 style="margin-top: 10px;">No se han registrado pagos.</h5>
+                                                        </td>
+                                                    </tr>
+                                                @endforelse
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
 
 
                 </div>
 
                 {{-- Historial de Pagos --}}
-                <div class="panel panel-primary">
-                    <div>
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <h3 class="panel-title" style="margin: 0;"><i class="voyager-dollar"></i> Historial de Pagos
-                            </h3>
-                            <button type="button" class="btn btn-info btn-sm" data-toggle="modal"
-                                data-target="#addPaymentModal">
-                                <i class="voyager-plus"></i> Agregar Adelanto
-                            </button>
-                        </div>
-                    </div>
-                    <div class="panel-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover" id="dataTable">
-                                <thead>
-                                    <tr>
-                                        <th style="text-align: center; width: 25%;">Fecha y Hora</th>
-                                        <th style="text-align: center; width: 15%;">Método de pago</th>
-                                        <th>Detalle de Pago</th>
-                                        <th style="width: 15%" class="text-right">Monto</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse ($service->serviceTransactions as $transaction)
-                                        <tr>
-                                            <td style="text-align: center;">
-                                                {{ $transaction->created_at->format('d/m/Y h:i a') }}</td>
-                                            <td style="text-align: center;">
-                                                @php
-                                                    $paymentMethod = $transaction->paymentType;
-                                                    $decodedMethod = json_decode($paymentMethod, true);
-                                                @endphp
-
-                                                @if (is_array($decodedMethod))
-                                                    @if (isset($decodedMethod['efectivo']) && isset($decodedMethod['qr']))
-                                                        Efectivo y QR
-                                                    @endif
-                                                @else
-                                                    @switch($paymentMethod)
-                                                        @case('efectivo')
-                                                            Efectivo
-                                                        @break
-
-                                                        @case('qr')
-                                                            QR
-                                                        @break
-
-                                                        @default
-                                                            {{ ucfirst($paymentMethod) }}
-                                                    @endswitch
-                                                @endif
-                                            </td>
-                                            <td>
-                                                @if ($transaction->observation)
-                                                    {{ $transaction->observation }}
-                                                @else
-                                                    N/A
-                                                @endif
-                                            </td>
-                                            <td class="text-right">{{ number_format($transaction->amount, 2, ',', '.') }}
-                                                Bs.</td>
-                                        </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="3" class="text-center" style="padding: 20px;">
-                                                    <i class="voyager-info-circled"
-                                                        style="font-size: 2rem; opacity: 0.5;"></i>
-                                                    <h5 style="margin-top: 10px;">No se han registrado pagos.</h5>
-                                                </td>
-                                            </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-
-
-                </div>
+                
 
                 {{-- Panel de Resumen de Pago --}}
                 <div class="col-md-4">

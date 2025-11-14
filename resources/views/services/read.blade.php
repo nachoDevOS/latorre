@@ -409,39 +409,46 @@
                                             @php
                                                 // Cargamos las relaciones necesarias antes de agrupar para evitar errores
                                                 $transactionsWithRelations = $service->serviceTransactions()->with('transaction.serviceItems', 'transaction.serviceTimes')->get();
-                                                $groupedTransactions = $transactionsWithRelations->groupBy('transaction_id');
+                                                // Agrupamos primero por transaction_id
+                                                $groupedByTransactionId = $transactionsWithRelations->groupBy('transaction_id');
                                             @endphp
-                                            @forelse ($groupedTransactions as $group)
-                                                @php
-                                                    $first = $group->first();
-                                                    $efectivo = $group->where('paymentType', 'Efectivo')->sum('amount');
-                                                    $qr = $group->where('paymentType', 'Qr')->sum('amount');
-                                                    $total = $efectivo + $qr;
-                                                @endphp
-                                                <tr>
-                                                    <td>{{ $first->created_at->format('d/m/Y h:i a') }}</td>
-                                                    <td>
-                                                        @if ($first->observation)
-                                                            {{ $first->observation }}
-                                                        @else
-                                                            @if ($first->transaction && $first->transaction->serviceItems->isNotEmpty())
-                                                                Pago por productos <br>
+                                            @forelse ($groupedByTransactionId as $transactionId => $transactions)
+                                                @foreach ($transactions->groupBy('type') as $type => $group)
+                                                    @php
+                                                        $first = $group->first();
+                                                        $efectivo = $group->where('paymentType', 'Efectivo')->sum('amount');
+                                                        $qr = $group->where('paymentType', 'Qr')->sum('amount');
+                                                        $total = $efectivo + $qr;
+                                                        // Si es una devolución, el total debe ser negativo
+                                                        if ($type === 'Devolucion') {
+                                                            $total = -$total;
+                                                        }
+                                                    @endphp
+                                                    <tr>
+                                                        <td>{{ $first->created_at->format('d/m/Y h:i a') }}</td>
+                                                        <td>
+                                                            @if ($first->observation)
+                                                                {{ $first->observation }}
+                                                            @else
+                                                                @if ($first->transaction && $first->transaction->serviceItems->isNotEmpty())
+                                                                    Pago por productos <br>
+                                                                @endif
+                                                                @if ($first->transaction && $first->transaction->serviceTimes->isNotEmpty())
+                                                                    Pago por tiempo de sala
+                                                                @endif
                                                             @endif
-                                                            @if ($first->transaction && $first->transaction->serviceTimes->isNotEmpty())
-                                                                Pago por tiempo de sala
-                                                            @endif
-                                                        @endif
-                                                    </td>
-                                                    <td class="text-right">
-                                                        {{ $efectivo > 0 ? number_format($efectivo, 2, ',', '.') . ' Bs.' : '' }}
-                                                    </td>
-                                                    <td class="text-right">
-                                                        {{ $qr > 0 ? number_format($qr, 2, ',', '.') . ' Bs.' : '' }}
-                                                    </td>
-                                                    <td class="text-right">
-                                                        <strong>{{ number_format($total, 2, ',', '.') }} Bs.</strong>
-                                                    </td>
-                                                </tr>
+                                                        </td>
+                                                        <td class="text-right">
+                                                            {{ $efectivo > 0 ? ($type === 'Devolucion' ? '-' : '') . number_format($efectivo, 2, ',', '.') . ' Bs.' : '' }}
+                                                        </td>
+                                                        <td class="text-right">
+                                                            {{ $qr > 0 ? ($type === 'Devolucion' ? '-' : '') . number_format($qr, 2, ',', '.') . ' Bs.' : '' }}
+                                                        </td>
+                                                         <td class="text-right" style="{{ $type === 'Devolucion' ? 'color: red;' : '' }}">
+                                                            <strong>{{ number_format($total, 2, ',', '.') }} Bs.</strong>
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
                                             @empty
                                                 <tr>
                                                     <td colspan="5" class="text-center" style="padding: 20px;">
@@ -454,8 +461,12 @@
                                             </tbody>
                                             <tfoot>
                                                 <tr>
+                                                    @php
+                                                        $totalIngresos = $service->serviceTransactions->where('type', 'Ingreso')->sum('amount');
+                                                        $totalDevoluciones = $service->serviceTransactions->where('type', 'Devolucion')->sum('amount');
+                                                    @endphp
                                                     <th colspan="4" class="text-right">Total Pagado:</th>
-                                                    <th class="text-right">{{ number_format($service->serviceTransactions->sum('amount'), 2, ',', '.') }} Bs.</th>
+                                                    <th class="text-right">{{ number_format($totalIngresos - $totalDevoluciones, 2, ',', '.') }} Bs.</th>
                                                 </tr>
                                             </tfoot>
                                         </table>

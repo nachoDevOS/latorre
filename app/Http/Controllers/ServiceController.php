@@ -303,75 +303,20 @@ class ServiceController extends Controller
     public function finishService(Request $request, Service $service)
     {
         DB::beginTransaction();
+        $cashier = $this->cashier(null,'user_id = "'.Auth::user()->id.'"', 'status = "Abierta"');
+        if (!$cashier) {
+            return redirect()->route('services.index')->with(['message' => 'No tienes una caja abierta.', 'alert-type' => 'warning']);
+        }
 
-        // Lógica para finalizar un tiempo abierto
-        $lastTime = $service->serviceTimes->last();
-        
+        $totalPagado = $service->serviceTransactions->where('type', 'Ingreso')->sum('amount') -$service->serviceTransactions->where('type', 'Devolucion')->sum('amount');
+
+        $deuda = $service->total_amount - $totalPagado;
+        if($deuda > 0)
+        {
+            // si la deueda es mayor entonce retornara a la vista principal salas
+            return redirect()->route('services.show', $service->room_id)->with(['message' => 'Ocurrió un error al finalizar el servicio y la deuda', 'alert-type' => 'error']);
+        }
         try {
-            $cashier = $this->cashier(null,'user_id = "'.Auth::user()->id.'"', 'status = "Abierta"');
-            if (!$cashier) {
-                return redirect()->route('services.index')->with(['message' => 'No tienes una caja abierta.', 'alert-type' => 'warning']);
-            }
-
-            $totalPagado = $service->serviceTransactions->sum('amount');
-            $deuda = $service->total_amount - $totalPagado;
-
-            if ($deuda > 0) {
-                $request->validate([
-                    'payment_method' => 'required'
-                ]);
-
-                $transaction = Transaction::create([
-                    'status' => 'Completado',
-                ]);
-
-                if ($request->payment_method == 'efectivo') {
-                    $request->validate([
-                        'amount_received' => 'required|numeric|min:'.$deuda
-                    ]);
-                    ServiceTransaction::create([
-                        'service_id' => $service->id,
-                        'transaction_id' => $transaction->id,
-                        'cashier_id' => $cashier->id,
-                        'amount' => $deuda,
-                        'paymentType' => 'Efectivo',
-                    ]);
-                } elseif ($request->payment_method == 'qr') {
-                    ServiceTransaction::create([
-                        'service_id' => $service->id,
-                        'transaction_id' => $transaction->id,
-                        'cashier_id' => $cashier->id,
-                        'amount' => $deuda,
-                        'paymentType' => 'Qr',
-                    ]);
-                } elseif ($request->payment_method == 'ambos') {
-                    $request->validate([
-                        'amount_efectivo' => 'required|numeric|min:0.01',
-                        'amount_qr' => 'required|numeric|min:0.01',
-                    ]);
-
-                    if( ($request->amount_efectivo + $request->amount_qr) != $deuda) {
-                        return back()->with(['message' => 'La suma de los montos debe ser igual a la deuda.', 'alert-type' => 'error']);
-                    }
-
-                    ServiceTransaction::create([
-                        'service_id' => $service->id,
-                        'transaction_id' => $transaction->id,
-                        'cashier_id' => $cashier->id,
-                        'amount' => $request->amount_efectivo,
-                        'paymentType' => 'Efectivo',
-                    ]);
-
-                    ServiceTransaction::create([
-                        'service_id' => $service->id,
-                        'transaction_id' => $transaction->id,
-                        'cashier_id' => $cashier->id,
-                        'amount' => $request->amount_qr,
-                        'paymentType' => 'Qr',
-                    ]);
-                }
-            }
-
             $service->status = 'Finalizado';
             $service->save();
 
@@ -388,7 +333,7 @@ class ServiceController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with(['message' => 'Ocurrió un error al finalizar el servicio: ' . $e->getMessage(), 'alert-type' => 'error']);
+            return back()->with(['message' => 'Ocurrió un error al finalizar el servicio', 'alert-type' => 'error']);
         }
     }
 
@@ -496,7 +441,7 @@ class ServiceController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->route('services.show', $service->room_id)->with([
-                'message'    => 'Ocurrió un error al agregar tiempo adicional: ',
+                'message'    => 'Ocurrió un error al agregar tiempo adicional',
                 'alert-type' => 'error'
             ]);
         }
@@ -560,7 +505,7 @@ class ServiceController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with(['message' => 'Ocurrió un error al registrar el adelanto: ', 'alert-type' => 'error']);
+            return back()->with(['message' => 'Ocurrió un error al registrar el adelanto', 'alert-type' => 'error']);
         }
     }
 

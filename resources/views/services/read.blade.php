@@ -542,42 +542,59 @@
             </div>
 
             {{-- Modal para agregar productos --}}
-            <div class="modal fade" id="addProductModal" role="dialog">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <form action="{{ route('services.add_item', ['service' => $service->id]) }}" method="POST">
-                            @csrf
+            <form action="{{ route('services.add_item', ['service' => $service->id]) }}" class="form-edit-add" method="POST">
+            @csrf
+                <div class="modal fade" id="addProductModal" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">                        
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                                         aria-hidden="true">&times;</span></button>
                                 <h4 class="modal-title">Agregar Productos al Servicio</h4>
                             </div>
                             <div class="modal-body">
-                                <div class="row">
-                                    <div class="form-group col-md-12">
-                                        <label>Buscar producto</label>
-                                        <select class="form-control" id="select-product_id"></select>
-                                    </div>
-                                    <div class="form-group col-md-4">
-                                        <label>Precio</label>
-                                        <input type="number" name="price" id="input-price" class="form-control"
-                                            step="0.01" min="0.01" required />
-                                    </div>
-                                    <div class="form-group col-md-4">
-                                        <label>Cantidad</label>
-                                        <input type="number" name="quantity" id="input-quantity" class="form-control"
-                                            step="1" min="1" required />
-                                    </div>
-                                    <div class="form-group col-md-4">
-                                        <label>Subtotal</label>
-                                        <input type="number" id="input-subtotal" class="form-control" readonly />
-                                    </div>
-                                    <input type="hidden" name="item_stock_id" id="input-item_stock_id">
+                                <div class="form-group">
+                                    <label for="select-product_id_modal">Buscar y añadir producto</label>
+                                    <select class="form-control" id="select-product_id_modal"></select>
                                 </div>
+                                <div class="table-responsive">
+                                    <table id="product-cart-table" class="table table-hover table-products">
+                                        <thead>
+                                            <tr>
+                                                <th>Detalles</th>
+                                                <th style="text-align: center; width:20%">Precio</th>
+                                                <th style="text-align: center; width:15%">Cantidad</th>
+                                                <th style="text-align: center; width:20%">Subtotal</th>
+                                                <th style="width: 5%"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="product-cart-body">
+                                            <tr id="product-cart-empty">
+                                                <td colspan="5" style="height: 150px">
+                                                    <h4 class="text-center text-muted" style="margin-top: 30px">
+                                                        <i class="voyager-basket" style="font-size: 30px"></i> <br><br>
+                                                        Carrito de productos vacío
+                                                    </h4>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th colspan="3" class="text-right">
+                                                    <h5>TOTAL</h5>
+                                                </th>
+                                                <th class="text-center"><h5 id="product-cart-total">0.00</h5></th>
+                                                <th></th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+
                                 <hr>
                                 <div class="form-group">
                                     <label for="payment_method_product">Método de Pago</label>
-                                    <select name="payment_method" id="payment_method_product" class="form-control" required>
+                                    <select name="payment_method" id="payment_method_product" class="form-control"
+                                        required>
                                         <option value="" selected disabled>--Seleccione una opción--</option>
                                         <option value="efectivo">Efectivo</option>
                                         <option value="qr">QR</option>
@@ -613,13 +630,14 @@
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-                                <button type="submit" class="btn btn-primary">Agregar y Pagar</button>
+                                <button type="button" class="btn btn-default btn-cancel" data-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary btn-submit">Agregar y Pagar</button>
                             </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </form>
+
 
             {{-- Modal para actualizar tiempo --}}
             @foreach ($service->serviceTimes as $time)
@@ -736,11 +754,11 @@
             @endforeach
 
             {{-- Modal para agregar adelanto --}}
-            <div class="modal fade" id="addPaymentModal" tabindex="-1" role="dialog">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <form action="{{ route('services.add_payment', ['service' => $service->id]) }}" method="POST">
-                            @csrf
+            <form action="{{ route('services.add_payment', ['service' => $service->id]) }}" class="form-edit-add" method="POST">
+            @csrf
+                <div class="modal fade" id="addPaymentModal" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">                        
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                                         aria-hidden="true">&times;</span></button>
@@ -796,13 +814,14 @@
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-                                <button type="submit" class="btn btn-primary">Guardar Adelanto</button>
+                                <button type="button" class="btn btn-default btn-cancel" data-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary btn-submit">Guardar Adelanto</button>
                             </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </form>
+
 
             {{-- Modal para Agregar Tiempo Adicional --}}
             @if ($canAddTime)
@@ -968,7 +987,7 @@
                 });
 
                 function calculateProductChange() {
-                    let total = parseFloat($('#input-subtotal').val()) || 0;
+                    let total = parseFloat($('#product-cart-total').text()) || 0;
                     let paymentMethod = $('#payment_method_product').val();
                     let change = 0;
 
@@ -994,12 +1013,11 @@
                     $('#change_due_product').text(change.toFixed(2) + ' Bs.');
                 }
 
-                $('#input-subtotal, #amount_received_product, #amount_efectivo_product, #amount_qr_product').on('keyup change', calculateProductChange);
+                $('#product-cart-total, #amount_received_product, #amount_efectivo_product, #amount_qr_product').on('keyup change DOMSubtreeModified', calculateProductChange);
 
                 $(document).ready(function() {
                     var productSelected;
-
-                    $('#select-product_id').select2({
+                    $('#select-product_id_modal').select2({
                         width: '100%',
                         placeholder: '<i class="fa fa-search"></i> Buscar...',
                         escapeMarkup: function(markup) {
@@ -1026,43 +1044,60 @@
                         },
                         templateResult: formatResultProducts,
                         templateSelection: (opt) => {
-                            productSelected = opt;
-                            return productSelected.name_item
+                            if (opt.id) {
+                                productSelected = opt;
+                                return opt.item.name;
+                            }
                         }
                     }).change(function() {
-                        if ($('#select-product_id option:selected').val()) {
+                        if ($('#select-product_id_modal option:selected').val()) {
                             let product = productSelected;
-                            if (product.id) {
-                                $('#input-stock').val(product.stock);
-                                $('#input-price').val(product.priceSale);
-                                $('#input-quantity').val(1);
-                                $('#input-quantity').attr('max', product.stock);
-                                $('#input-item_stock_id').val(product.id);
-                                updateSubtotal();
+                            let image = "{{ asset('images/default.jpg') }}";
+                            if (product.image) {
+                                image = "{{ asset('storage') }}/" + product.image.replace('.avif',
+                                    '-cropped.webp');
+                            } else if (product.item.image) {
+                                image = "{{ asset('storage') }}/" + product.item.image.replace('.avif',
+                                    '-cropped.webp');
                             }
-                        } else {
-                            $('#input-stock').val('');
-                            $('#input-price').val('');
-                            $('#input-quantity').val('');
-                            $('#input-subtotal').val('');
-                            $('#input-item_stock_id').val('');
-                            calculateProductChange();
+
+                            if ($('#product-cart-table').find(`#tr-item-${product.id}`).length === 0) {
+                                let subtotal = parseFloat(product.priceSale) * 1;
+                                $('#product-cart-body').append(`
+                                    <tr class="tr-item" id="tr-item-${product.id}">
+                                        <td>
+                                            <div style="display: flex; align-items: center;">
+                                                <input type="hidden" name="products[${product.id}][id]" value="${product.id}"/>
+                                                <img src="${image}" alt="${product.item.name}" style="width: 40px; height: 40px; border-radius: 4px; margin-right: 10px; object-fit: cover;"
+                                                    onerror="this.onerror=null;this.src='{{ asset('images/default.jpg') }}';">
+                                                <div style="font-weight: 500;">${product.item.name}</div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center" style="vertical-align: middle;">
+                                            <input type="number" name="products[${product.id}][price]" step="0.1" min="0.1" class="form-control input-sm text-right input-price" id="input-price-${product.id}" value="${product.priceSale}" onkeyup="getSubtotalModal(${product.id})" onchange="getSubtotalModal(${product.id})" required/>
+                                        </td>
+                                        <td class="text-center" style="vertical-align: middle;">
+                                            <div class="input-group" style="max-width: 100px; margin: auto;">
+                                                <input type="number" name="products[${product.id}][quantity]" step="1" min="1" class="form-control input-sm text-right input-quantity" id="input-quantity-${product.id}" value="1" max="${product.stock}" onkeyup="getSubtotalModal(${product.id})" onchange="getSubtotalModal(${product.id})" required/>
+                                            </div>
+                                        </td>
+                                        <td class="text-center" style="vertical-align: middle;">
+                                            <h5 class="label-subtotal-modal" id="label-subtotal-modal-${product.id}">${subtotal.toFixed(2)}</h5>
+                                        </td>
+                                        <td class="text-center" style="vertical-align: middle; width: 5%">
+                                            <button type="button" onclick="removeTrModal(${product.id})" class="btn btn-link"><i class="voyager-trash text-danger"></i></button>
+                                        </td>
+                                    </tr>
+                                `);
+                                setNumberModal();
+                                getSubtotalModal(product.id);
+                                toastr.success(`+1 ${product.item.name}`, 'Producto agregado');
+                            } else {
+                                toastr.info('El producto ya está agregado', 'Información');
+                            }
+                            $('#select-product_id_modal').val(null).trigger('change');
                         }
                     });
-
-                    $('#input-price, #input-quantity').on('keyup change', function() {
-                        updateSubtotal();
-                    });
-
-                    $('#input-quantity').on('keyup change', function() {
-                        let max = $('#input-stock').val() ? parseFloat($('#input-stock').val()) : 0;
-                        let value = $(this).val() ? parseFloat($(this).val()) : 0;
-                        if (value > max) {
-                            $(this).val(max);
-                            toastr.warning('La cantidad no puede ser mayor al stock', 'Advertencia');
-                        }
-                    });
-
 
                     @php
                         $totalPagado = $service->serviceTransactions->sum('amount');
@@ -1168,6 +1203,44 @@
                     @endif
                 });
 
+                function getSubtotalModal(id) {
+                    let price = $(`#input-price-${id}`).val() ? parseFloat($(`#input-price-${id}`).val()) : 0;
+                    let quantity = $(`#input-quantity-${id}`).val() ? parseInt($(`#input-quantity-${id}`).val()) : 0;
+                    let stock = parseInt($(`#input-quantity-${id}`).attr('max')) || 0;
+
+                    if (quantity > stock) {
+                        $(`#input-quantity-${id}`).val(stock);
+                        quantity = stock;
+                        toastr.warning(`La cantidad no puede ser mayor al stock (${stock})`, 'Stock insuficiente');
+                    }
+                    let subtotal = price * quantity;
+                    $(`#label-subtotal-modal-${id}`).text(subtotal.toFixed(2));
+                    getTotalModal();
+                }
+
+                function getTotalModal() {
+                    let total = 0;
+                    $(".label-subtotal-modal").each(function() { total += parseFloat($(this).text()) || 0; });
+                    $('#product-cart-total').text(total.toFixed(2));
+                }
+
+                function setNumberModal() {
+                    var length = 0;
+                    $("#product-cart-body .tr-item").each(function(index) { length++; });
+                    if (length > 0) {
+                        $('#product-cart-empty').css('display', 'none');
+                    } else {
+                        $('#product-cart-empty').fadeIn('fast');
+                    }
+                }
+
+                function removeTrModal(id) {
+                    $(`#tr-item-${id}`).remove();
+                    setNumberModal();
+                    getTotalModal();
+                    toastr.info('Producto eliminado del carrito', 'Eliminado');
+                }
+
                 function formatResultProducts(option) {
                     if (option.loading)
                         return '<span class="text-center"><i class="fas fa-spinner fa-spin"></i> Buscando...</span>';
@@ -1178,13 +1251,6 @@
                     return $(
                         `<div style="display: flex; align-items: center; padding: 5px;"><img src="${image}" style="width: 50px; height: 50px; border-radius: 4px; margin-right: 10px; object-fit: cover;" onerror="this.onerror=null;this.src='${fallbackImage}';"/><div style="line-height: 1.2;"><div style="font-weight: bold;">${option.item.name}</div><small><b>Stock:</b> ${option.stock} Unid. | <b>Precio:</b> ${option.priceSale} Bs.</small></div></div>`
                     );
-                }
-
-                function updateSubtotal() {
-                    let price = $('#input-price').val() ? parseFloat($('#input-price').val()) : 0;
-                    let quantity = $('#input-quantity').val() ? parseFloat($('#input-quantity').val()) : 0;
-                    $('#input-subtotal').val((price * quantity).toFixed(2));
-                    calculateProductChange();
                 }
 
                 document.addEventListener('DOMContentLoaded', function() {

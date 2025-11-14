@@ -209,7 +209,7 @@ class ServiceController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->route('services.index')->with([
-                'message'    => 'Ocurrió un error al iniciar el alquiler: ' . $e->getMessage(),
+                'message'    => 'Ocurrió un error al iniciar el alquiler: ',
                 'alert-type' => 'error'
             ]);
         }
@@ -217,43 +217,85 @@ class ServiceController extends Controller
 
     public function addItem(Request $request, Service $service)
     {
+        // Validaciones
         $request->validate([
-            'item_stock_id' => 'required|exists:item_stocks,id',
-            'quantity' => 'required|numeric|min:1',
-            'price' => 'required|numeric|min:0.01',
+            'products' => 'required|array|min:1',
+            'products.*.id' => 'required|exists:item_stocks,id',
+            'products.*.quantity' => 'required|numeric|min:1',
+            'products.*.price' => 'required|numeric|min:0.01',
+            'payment_method' => 'required|string',
         ]);
 
-        $itemStock = ItemStock::findOrFail($request->item_stock_id);
-
-        if ($itemStock->stock < $request->quantity) {
-            return back()->with(['message' => 'Stock insuficiente.', 'alert-type' => 'error']);
+        $cashier = $this->cashier(null, 'user_id = "' . Auth::user()->id . '"', 'status = "Abierta"');
+        if (!$cashier) {
+            return back()->with(['message' => 'No tienes una caja abierta.', 'alert-type' => 'warning']);
         }
+
+        $totalAmount = 0;
+        foreach ($request->products as $product) {
+            $totalAmount += $product['price'] * $product['quantity'];
+        }
+
+        // Validaciones de pago
+        if ($request->payment_method == 'efectivo') {
+            $request->validate(['amount_received' => 'nullable|numeric|min:'.$totalAmount]);
+        } elseif ($request->payment_method == 'ambos') {
+            $request->validate([
+                'amount_efectivo' => 'required|numeric|min:0.01',
+                'amount_qr' => 'required|numeric|min:0.01',
+            ]);
+            if (bccomp($request->amount_efectivo + $request->amount_qr, $totalAmount, 2) != 0) {
+                return back()->with(['message' => 'La suma de los montos debe ser igual al total de productos.', 'alert-type' => 'error'])->withInput();
+            }
+        }
+
 
         DB::beginTransaction();
         try {
-            ServiceItem::create([
-                'service_id' => $service->id,
-                'itemStock_id' => $itemStock->id,
-                'price' => $request->price,
-                'quantity' => $request->quantity,
-                'amount' => $request->price * $request->quantity,
-            ]);
+            $transaction = Transaction::create(['status' => 'Completado']);
 
-            $itemStock->decrement('stock', $request->quantity);
+            foreach ($request->products as $product) {
+                $itemStock = ItemStock::findOrFail($product['id']);
+                if ($itemStock->stock < $product['quantity']) {
+                    DB::rollBack();
+                    return back()->with(['message' => 'Stock insuficiente para el producto: ' . $itemStock->item->name, 'alert-type' => 'error']);
+                }
 
-            $service->total_amount += $request->price * $request->quantity;
-            $service->amount_products += $request->price * $request->quantity;
+                ServiceItem::create([
+                    'service_id' => $service->id,
+                    'transaction_id' => $transaction->id,
+                    'itemStock_id' => $itemStock->id,
+                    'pricePurchase' => $itemStock->pricePurchase,
+                    'price' => $product['price'],
+                    'quantity' => $product['quantity'],
+                    'amount' => $product['price'] * $product['quantity'],
+                ]);
+
+                $itemStock->decrement('stock', $product['quantity']);
+            }
+
+            // Registrar transacciones de pago
+            if ($request->payment_method == 'efectivo' || $request->payment_method == 'qr') {
+                ServiceTransaction::create(['service_id' => $service->id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id, 'amount' => $totalAmount, 'paymentType' => ucfirst($request->payment_method), 'type' => 'Ingreso']);
+            } elseif ($request->payment_method == 'ambos') {
+                if ($request->amount_efectivo > 0) {
+                    ServiceTransaction::create(['service_id' => $service->id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id, 'amount' => $request->amount_efectivo, 'paymentType' => 'Efectivo', 'type' => 'Ingreso']);
+                }
+                if ($request->amount_qr > 0) {
+                    ServiceTransaction::create(['service_id' => $service->id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id, 'amount' => $request->amount_qr, 'paymentType' => 'Qr', 'type' => 'Ingreso']);
+                }
+            }
+
+            $service->total_amount += $totalAmount;
+            $service->amount_products += $totalAmount;
             $service->save();
 
             DB::commit();
 
-            return redirect()->route('services.show', $service->room_id)->with([
-                'message'    => 'Producto agregado exitosamente.',
-                'alert-type' => 'success',
-            ]);
+            return redirect()->route('services.show', $service->room_id)->with(['message' => 'Productos agregados y pagados exitosamente.', 'alert-type' => 'success']);
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with(['message' => 'Ocurrió un error al agregar el producto: ' . $e->getMessage(), 'alert-type' => 'error']);
+            return back()->with(['message' => 'Ocurrió un error al agregar el producto: ', 'alert-type' => 'error']);
         }
     }
 
@@ -477,7 +519,7 @@ class ServiceController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->route('services.show', $service->room_id)->with([
-                'message'    => 'Ocurrió un error al agregar tiempo adicional: ' . $e->getMessage(),
+                'message'    => 'Ocurrió un error al agregar tiempo adicional: ',
                 'alert-type' => 'error'
             ]);
         }
@@ -541,7 +583,7 @@ class ServiceController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with(['message' => 'Ocurrió un error al registrar el adelanto: ' . $e->getMessage(), 'alert-type' => 'error']);
+            return back()->with(['message' => 'Ocurrió un error al registrar el adelanto: ', 'alert-type' => 'error']);
         }
     }
 
@@ -625,7 +667,7 @@ class ServiceController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with(['message' => 'Ocurrió un error al finalizar el tiempo: ' . $e->getMessage(), 'alert-type' => 'error']);
+            return back()->with(['message' => 'Ocurrió un error al finalizar el tiempo: ', 'alert-type' => 'error']);
         }
     }
 }

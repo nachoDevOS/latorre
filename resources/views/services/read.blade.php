@@ -728,12 +728,25 @@
                                                 <input type="hidden" class="start-time-value"
                                                     value="{{ $time->start_time }}">
                                             </div>
+                                            @if ($time->amount > 0)
+                                                <div class="form-group col-md-12">
+                                                    <p>Adelanto registrado: <strong class="text-success">{{ number_format($time->amount, 2, ',', '.') }} Bs.</strong></p>
+                                                    <input type="hidden" class="adelanto-value" value="{{ $time->amount }}">
+                                                </div>
+                                            @else
+                                                <input type="hidden" class="adelanto-value" value="0">
+                                            @endif
                                             <div class="form-group col-md-12">
-                                                <label for="amount_{{ $time->id }}">Monto a cobrar por este
-                                                    período</label>
+                                                <label for="amount_{{ $time->id }}">Costo Total del Período</label>
                                                 <input type="number" name="amount" id="amount_{{ $time->id }}"
                                                     class="form-control amount-input" step="0.01" min="0.01"
                                                     placeholder="0.00" required>
+                                            </div>
+
+                                            <div class="form-group col-md-12" id="diferencia-group-{{$time->id}}" style="display: none; font-size: 1.2em; text-align: center; padding: 10px; border-radius: 5px;">
+                                                <p style="margin: 0;">
+                                                    <span id="diferencia-label-{{$time->id}}"></span>: <strong id="diferencia-value-{{$time->id}}"></strong>
+                                                </p>
                                             </div>
 
                                             <div class="col-md-12 payment-method-group-update" style="display: block;">
@@ -1455,6 +1468,11 @@
                         const durationDisplay = modal.find('[id^="duration_"]');
                         const startTimeValue = modal.find('.start-time-value').val();
 
+                        const adelantoValue = parseFloat(modal.find('.adelanto-value').val()) || 0;
+                        const diferenciaGroup = modal.find('[id^="diferencia-group-"]');
+                        const diferenciaLabel = modal.find('[id^="diferencia-label-"]');
+                        const diferenciaValue = modal.find('[id^="diferencia-value-"]');
+
                         paymentMethodSelect.on('change', function() {
                             const paymentMethod = $(this).val();
                             paymentDetails.hide();
@@ -1472,13 +1490,18 @@
                         });
 
                         function calculateChangeUpdate() {
-                            let total = parseFloat(amountTotal.val()) || 0;
+                            let costoTotal = parseFloat(amountTotal.val()) || 0;
+                            let diferencia = costoTotal - adelantoValue;
+
+                            // Lógica de pago basada en la diferencia
+                            let totalAPagar = Math.max(0, diferencia);
+
                             let paymentMethod = paymentMethodSelect.val();
                             let change = 0;
 
                             if (paymentMethod === 'efectivo') {
                                 let received = parseFloat(amountReceived.val()) || 0;
-                                change = received - total;
+                                change = received - totalAPagar;
                             } else if (paymentMethod === 'ambos') {
                                 let efectivo = parseFloat(amountEfectivo.val()) || 0;
                                 let qr = parseFloat(amountQr.val()) || 0;
@@ -1489,10 +1512,10 @@
                                         'Monto excedido', {
                                             timeOut: 1500
                                         });
-                                    if ($(document.activeElement).is(amountEfectivo)) {
-                                        amountEfectivo.val((total - qr).toFixed(2));
-                                    } else if ($(document.activeElement).is(amountQr)) {
-                                        amountQr.val((total - efectivo).toFixed(2));
+                                    if ($(document.activeElement).is(amountEfectivo)) { // Si el campo activo es el de efectivo
+                                        amountEfectivo.val((totalAPagar - qr).toFixed(2));
+                                    } else if ($(document.activeElement).is(amountQr)) { // Si el campo activo es el de QR
+                                        amountQr.val((totalAPagar - efectivo).toFixed(2));
                                     }
                                 }
                             }
@@ -1522,9 +1545,41 @@
                             }
                         }
 
+                        function handleAmountChange() {
+                            let costoTotal = parseFloat(amountTotal.val()) || 0;
+                            let diferencia = costoTotal - adelantoValue;
+
+                            if (costoTotal > 0) {
+                                diferenciaGroup.show();
+                                if (diferencia > 0) {
+                                    diferenciaLabel.text('Monto a Cobrar');
+                                    diferenciaValue.text(diferencia.toFixed(2) + ' Bs.');
+                                    diferenciaGroup.css({'background-color': '#dff0d8', 'color': '#3c763d'}); // Estilo de éxito
+                                    modal.find('.payment-method-group-update').show();
+                                    paymentMethodSelect.prop('required', true);
+                                } else if (diferencia < 0) {
+                                    diferenciaLabel.text('Cambio a Devolver');
+                                    diferenciaValue.text(Math.abs(diferencia).toFixed(2) + ' Bs.');
+                                    diferenciaGroup.css({'background-color': '#d9edf7', 'color': '#31708f'}); // Estilo de información
+                                    modal.find('.payment-method-group-update').hide();
+                                    paymentMethodSelect.prop('required', false).val('');
+                                } else {
+                                    diferenciaLabel.text('Sin diferencia');
+                                    diferenciaValue.text('0.00 Bs.');
+                                    diferenciaGroup.css({'background-color': '#f5f5f5', 'color': '#333'}); // Estilo neutral
+                                    modal.find('.payment-method-group-update').hide();
+                                    paymentMethodSelect.prop('required', false).val('');
+                                }
+                            } else {
+                                diferenciaGroup.hide();
+                                modal.find('.payment-method-group-update').show();
+                            }
+                            calculateChangeUpdate();
+                        }
+
                         modal.find(
                             '.amount-input, .amount-received-update, .amount-efectivo-update, .amount-qr-update'
-                        ).on('keyup change', calculateChangeUpdate);
+                        ).on('keyup change', function() { handleAmountChange(); });
                         modal.find('.end-date-input, .end-time-input').on('change', calculateDuration);
                         calculateDuration(); // Calcular al abrir el modal
                     });

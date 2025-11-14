@@ -566,6 +566,7 @@ class ServiceController extends Controller
 
     public function updateTime(Request $request, ServiceTime $serviceTime)
     {
+        return $request;
         $request->validate([
             'end_date' => 'required|date',
             'end_time' => 'required|date_format:H:i',

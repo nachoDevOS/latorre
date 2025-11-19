@@ -12,6 +12,7 @@ use App\Http\Controllers\MicroServiceController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\ServiceSaleController;
 use App\Http\Controllers\WhatsappController;
 
 /*
@@ -49,6 +50,13 @@ Route::group(['prefix' => 'admin', 'middleware' => ['loggin', 'system']], functi
     Route::post('services/{service}/add-time', [ServiceController::class, 'addTime'])->name('services.add_time');
     Route::put('services/time/{serviceTime}', [ServiceController::class, 'updateTime'])->name('services.update_time');
     Route::post('services/{service}/add-payment', [ServiceController::class, 'addPayment'])->name('services.add_payment');
+
+    Route::get('services-sales', [ServiceSaleController::class, 'index'])->name('services-sales.index');
+    Route::get('services-sales/ajax/list', [ServiceSaleController::class, 'list']);
+    Route::get('services-sales/create', [ServiceSaleController::class, 'create'])->name('services-sales.create');
+    Route::get('services-sales/{id}', [ServiceSaleController::class, 'show'])->name('services-sales.show');
+    Route::post('services-sales/store', [ServiceSaleController::class, 'store'])->name('services-sales.store');
+    Route::post('services-sales/items', [ServiceController::class, 'addItem'])->name('services.add_item');
 
 
 

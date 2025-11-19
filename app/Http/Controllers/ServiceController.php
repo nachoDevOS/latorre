@@ -155,7 +155,7 @@ class ServiceController extends Controller
                 // 'amount' => $request->end_time?$request->amountSala: 0,
                 'amount' => $request->amountSala??0,
             ]);
-            return $request;
+            // return $request;
 
 
 

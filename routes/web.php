@@ -51,14 +51,14 @@ Route::group(['prefix' => 'admin', 'middleware' => ['loggin', 'system']], functi
     Route::put('services/time/{serviceTime}', [ServiceController::class, 'updateTime'])->name('services.update_time');
     Route::post('services/{service}/add-payment', [ServiceController::class, 'addPayment'])->name('services.add_payment');
 
+
+
     Route::get('services-sales', [ServiceSaleController::class, 'index'])->name('services-sales.index');
     Route::get('services-sales/ajax/list', [ServiceSaleController::class, 'list']);
     Route::get('services-sales/create', [ServiceSaleController::class, 'create'])->name('services-sales.create');
     Route::get('services-sales/{id}', [ServiceSaleController::class, 'show'])->name('services-sales.show');
     Route::post('services-sales/store', [ServiceSaleController::class, 'store'])->name('services-sales.store');
     Route::post('services-sales/items', [ServiceController::class, 'addItem'])->name('services.add_item');
-
-
 
     Route::resource('cashiers', CashierController::class);
     Route::get('cashiers/list/ajax', [CashierController::class, 'list'])->name('cashiers.list');

@@ -132,4 +132,21 @@ class ServiceSaleController extends Controller
             ->paginate($paginate);
         return view('services.list', compact('data'));
     }
+
+    public function show($id)
+    {
+        $service = Service::with([
+            'person',
+            'room',
+            'serviceItems.itemStock.item', // Cargar ítems vendidos y sus detalles
+            'serviceTimes',               // Cargar tiempos de alquiler
+            'serviceTransactions'         // Cargar transacciones de pago
+        ])->findOrFail($id);
+
+        // Puedes añadir lógica de permisos aquí si es necesario
+        // if (!Auth::user()->hasPermission('read_services-sales')) {
+        //     return redirect()->back()->with(['message' => 'No tienes permiso para ver este servicio.', 'alert-type' => 'error']);
+        // }
+        return view('services.show', compact('service'));
+    }
 }

@@ -4,74 +4,74 @@
             <thead>
                 <tr>
                     <th style="text-align: center">ID</th>
-                    <th style="text-align: center">CI/Pasaporte</th>
-                    <th style="text-align: center">Nombre completo</th>                    
-                    <th style="text-align: center">Fecha nac.</th>
-                    <th style="text-align: center">Telefono/Celular</th>
+                    <th style="text-align: center">Cliente</th>
+                    <th style="text-align: center">Tipo de Servicio</th>
+                    <th style="text-align: center">Detalles</th>
+                    <th style="text-align: center">Monto Total</th>
+                    <th style="text-align: center">Fecha</th>
                     <th style="text-align: center">Estado</th>
                     <th style="text-align: center">Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse ($data as $item)
-                @php
-                    $image = asset('images/default.jpg');
-                    if($item->image){
-                        $image = asset('storage/' . str_replace('.avif', '', $item->image) . '-cropped.webp');
-                    }
-                    $now = \Carbon\Carbon::now();
-                    $birthday = new \Carbon\Carbon($item->birth_date);
-                    $age = $birthday->diffInYears($now);
-                @endphp
                 <tr>
                     <td>{{ $item->id }}</td>
-                    <td>{{ $item->ci }}</td>
                     <td>
-                        <div style="display: flex; align-items: center;">
-                            <img src="{{ $image }}" alt="{{ $item->first_name }}" class="image-expandable" style="width: 60px; height: 60px; border-radius: 30px; margin-right: 10px; object-fit: cover;">
-                            <div>
-                                {{ strtoupper($item->first_name) }} {{ $item->middle_name ? strtoupper($item->middle_name) : '' }} {{ strtoupper($item->paternal_surname) }}  {{ strtoupper($item->maternal_surname) }}
-                            </div>
-                        </div>
-                    </td>
-                    <td style="text-align: center">
-                        @if ($item->birth_date)
-                            {{ \Carbon\Carbon::parse($item->birth_date)->format('d/m/Y') }} <br> <small>{{ $age }} años</small>
+                        @if($item->person)
+                            {{ $item->person->first_name }} {{ $item->person->paternal_surname }}
                         @else
-                            Sin Datos                            
+                            <span class="text-muted">No especificado</span>
                         @endif
                     </td>
-                    <td style="text-align: center">{{ $item->phone?$item->phone:'SN' }}</td>
                     <td style="text-align: center">
-                        @if ($item->status==1)  
-                            <label class="label label-success">Activo</label>
+                        @if ($item->room_id)
+                            <label class="label label-info">Alquiler de Sala</label>
                         @else
-                            <label class="label label-warning">Inactivo</label>
+                            <label class="label label-primary">Venta de Productos</label>
                         @endif
-
-                        
+                    </td>
+                    <td>
+                        @if ($item->room_id && $item->room)
+                            Sala: <strong>{{ $item->room->name }}</strong><br>
+                        @endif
+                        <small>{{ $item->observation }}</small>
+                    </td>
+                    <td style="text-align: right;">{{ number_format($item->total_amount, 2, ',', '.') }} Bs.</td>
+                    <td style="text-align: center">{{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i') }}</td>
+                    <td style="text-align: center">
+                        @if ($item->status == 'Finalizado')
+                            <label class="label label-success">Finalizado</label>
+                        @elseif($item->status == 'Vigente')
+                            <label class="label label-warning">Vigente</label>
+                        @else
+                            <label class="label label-default">{{ $item->status }}</label>
+                        @endif
                     </td>
                     <td style="width: 18%" class="no-sort no-click bread-actions text-right">
-                        @if (auth()->user()->hasPermission('read_people'))
-                            <a href="{{ route('voyager.people.show', ['id' => $item->id]) }}" title="Ver" class="btn btn-sm btn-warning view">
+                        {{-- El botón de Ver siempre está disponible --}}
+                        @if ($item->room_id)
+                            <a href="{{ route('services.show', ['id' => $item->room_id]) }}" title="Ver" class="btn btn-sm btn-warning view">
+                                <i class="voyager-eye"></i> <span class="hidden-xs hidden-sm">Ver</span>
+                            </a>
+                        @else
+                             <a href="{{ route('services-sales.show', ['id' => $item->id]) }}" title="Ver" class="btn btn-sm btn-warning view">
                                 <i class="voyager-eye"></i> <span class="hidden-xs hidden-sm">Ver</span>
                             </a>
                         @endif
-                        @if (auth()->user()->hasPermission('edit_people'))
-                            <a href="{{ route('voyager.people.edit', ['id' => $item->id]) }}" title="Editar" class="btn btn-sm btn-primary edit">
+
+                        {{-- El botón de Editar solo aparece si es una venta de productos (room_id es null) --}}
+                        @if (!$item->room_id && auth()->user()->hasPermission('edit_services-sales'))
+                            <a href="{{ route('services-sales.edit', ['id' => $item->id]) }}" title="Editar" class="btn btn-sm btn-primary edit">
                                 <i class="voyager-edit"></i> <span class="hidden-xs hidden-sm">Editar</span>
                             </a>
                         @endif
-                        @if (auth()->user()->hasPermission('delete_people'))
-                            <a href="#" onclick="deleteItem('{{ route('voyager.people.destroy', ['id' => $item->id]) }}')" title="Eliminar" data-toggle="modal" data-target="#modal-delete" class="btn btn-sm btn-danger delete">
-                                <i class="voyager-trash"></i> <span class="hidden-xs hidden-sm">Eliminar</span>
-                            </a>
-                        @endif
+
                     </td>
                 </tr>
                 @empty
                     <tr>
-                        <td colspan="7">
+                        <td colspan="8">
                             <h5 class="text-center" style="margin-top: 50px">
                                 <img src="{{ asset('images/empty.png') }}" width="120px" alt="" style="opacity: 0.8">
                                 <br><br>

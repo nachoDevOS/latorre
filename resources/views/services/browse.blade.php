@@ -120,7 +120,7 @@
         function list(page = 1){
             $('#div-results').loading({message: 'Cargando...'});
 
-            let url = '{{ url("admin/people/ajax/list") }}';
+            let url = '{{ url("admin/services-sales/ajax/list") }}';
             let search = $('#input-search').val() ? $('#input-search').val() : '';
 
             $.ajax({

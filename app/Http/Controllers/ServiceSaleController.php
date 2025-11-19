@@ -107,4 +107,29 @@ class ServiceSaleController extends Controller
             return back()->with(['message' => 'Ocurrió un error al registrar la venta.', 'alert-type' => 'error'])->withInput();
         }
     }
+
+    public function list(Request $request)
+    {
+        $search = $request->search ?? null;
+        $paginate = $request->paginate ?? 10;
+
+        $data = Service::with(['person', 'room'])
+            ->where(function ($query) use ($search) {
+                if ($search) {
+                    $query->where('id', 'like', "%$search%")
+                        ->orWhere('observation', 'like', "%$search%")
+                        ->orWhereHas('person', function ($q) use ($search) {
+                            $q->where('first_name', 'like', "%$search%")
+                              ->orWhere('paternal_surname', 'like', "%$search%");
+                        })
+                        ->orWhereHas('room', function ($q) use ($search) {
+                            $q->where('name', 'like', "%$search%");
+                        });
+                }
+            })
+            ->whereNull('deleted_at')
+            ->orderBy('id', 'DESC')
+            ->paginate($paginate);
+        return view('services.list', compact('data'));
+    }
 }

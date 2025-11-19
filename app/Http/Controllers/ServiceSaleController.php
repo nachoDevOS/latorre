@@ -37,7 +37,7 @@ class ServiceSaleController extends Controller
             'products.*.id' => 'required|exists:item_stocks,id',
             'products.*.quantity' => 'required|numeric|min:1',
             'products.*.price' => 'required|numeric|min:0',
-            'total_amount' => 'required|numeric|min:0.01',
+            'amount_product' => 'required|numeric|min:0.01', // Cambiado de total_amount a amount_product
             'payment_method' => 'required|string|in:efectivo,qr,ambos',
         ]);
 
@@ -46,7 +46,7 @@ class ServiceSaleController extends Controller
             return back()->with(['message' => 'No tienes una caja abierta.', 'alert-type' => 'warning'])->withInput();
         }
 
-        $total_a_pagar = $request->total_amount;
+        $total_a_pagar = $request->amount_product; // Usar el valor correcto del formulario
 
         if ($request->payment_method == 'efectivo') {
             $request->validate(['amount_received' => 'required|numeric|min:'.$total_a_pagar]);
@@ -55,16 +55,16 @@ class ServiceSaleController extends Controller
                 'amount_efectivo' => 'required|numeric|min:0.01',
                 'amount_qr' => 'required|numeric|min:0.01',
             ]);
-            if (bccomp($request->amount_efectivo + $request->amount_qr, $total_a_pagar, 2) != 0) {
-                return redirect()->back()->withInput()->withErrors(['message' => 'La suma del monto en efectivo y el monto por QR debe ser igual al monto total.']);
+            if (bccomp($request->amount_efectivo + $request->amount_qr, $total_a_pagar, 2) < 0) {
+                return redirect()->back()->withInput()->withErrors(['message' => 'La suma del monto en efectivo y el monto por QR no puede ser menor al monto total.']);
             }
         }
 
         DB::beginTransaction();
         try {
             $service = Service::create([
-                'person_id' => 1, // Cliente por defecto o puedes agregar un selector
-                'start_time' => Carbon::now(),
+                'person_id' => $request->person_id, // Usar el cliente del selector, o 1 por defecto
+                // 'start_time' => Carbon::now(),
                 'amount_room' => 0,
                 'amount_products' => $total_a_pagar,
                 'total_amount' => $total_a_pagar,
@@ -90,21 +90,21 @@ class ServiceSaleController extends Controller
             }
 
             if ($request->payment_method == 'efectivo' || $request->payment_method == 'qr') {
-                ServiceTransaction::create(['service_id' => $service->id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id, 'amount' => $total_a_pagar, 'paymentType' => ucfirst($request->payment_method), 'type' => 'Ingreso']);
+                ServiceTransaction::create(['service_id' => $service->id, 'transaction_id' => $transaction->id, 'cashier_id' => 1, 'amount' => $total_a_pagar, 'paymentType' => ucfirst($request->payment_method), 'type' => 'Ingreso']);
             } elseif ($request->payment_method == 'ambos') {
                 if ($request->amount_efectivo > 0) {
-                    ServiceTransaction::create(['service_id' => $service->id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id, 'amount' => $request->amount_efectivo, 'paymentType' => 'Efectivo', 'type' => 'Ingreso']);
+                    ServiceTransaction::create(['service_id' => $service->id, 'transaction_id' => $transaction->id, 'cashier_id' => 1, 'amount' => $request->amount_efectivo, 'paymentType' => 'Efectivo', 'type' => 'Ingreso']);
                 }
                 if ($request->amount_qr > 0) {
-                    ServiceTransaction::create(['service_id' => $service->id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id, 'amount' => $request->amount_qr, 'paymentType' => 'Qr', 'type' => 'Ingreso']);
+                    ServiceTransaction::create(['service_id' => $service->id, 'transaction_id' => $transaction->id, 'cashier_id' => 1, 'amount' => $request->amount_qr, 'paymentType' => 'Qr', 'type' => 'Ingreso']);
                 }
             }
 
             DB::commit();
-            return redirect()->route('services.index')->with(['message' => 'Venta de productos registrada exitosamente.', 'alert-type' => 'success']);
+            return redirect()->route('services-sales.index')->with(['message' => 'Venta de productos registrada exitosamente.', 'alert-type' => 'success']);
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with(['message' => 'Ocurrió un error al registrar la venta: ' . $e->getMessage(), 'alert-type' => 'error'])->withInput();
+            return back()->with(['message' => 'Ocurrió un error al registrar la venta.', 'alert-type' => 'error'])->withInput();
         }
     }
 }

@@ -65,6 +65,23 @@
                             @endif
                         </td>
                         <td style="vertical-align: middle;">
+                            {{-- @php
+                                $cashierIn = $item->movements->where('type', 'ingreso')->where('deleted_at', NULL)->where('status', 'Aceptado')->sum('amount');
+                                $cashierOut =0;
+
+                                $paymentEfectivo = $item->sales->where('deleted_at', NULL)
+                                    ->flatMap(function($sale) {
+                                        return $sale->saleTransactions->where('paymentType', 'Efectivo')->pluck('amount');
+                                    })
+                                    ->sum();
+
+                                $paymentQr = $item->sales->where('deleted_at', NULL)
+                                    ->flatMap(function($sale) {
+                                        return $sale->saleTransactions->where('paymentType', 'Qr')->pluck('amount');
+                                    })
+                                    ->sum();
+                                $amountCashier = ($cashierIn + $paymentEfectivo) - $cashierOut;
+                            @endphp --}}
                             @if ($item->status=='Cerrada')
                                 <small>Monto de cierre:</small> <b>Bs. {{ number_format($item->amountClosed, 2, ',', '.') }}</b><br>
                                 <small>Monto faltante:</small> <b class="@if($item->amountMissing > 0) text-danger @endif">Bs. {{ number_format($item->amountMissing, 2, ',', '.') }}</b><br>

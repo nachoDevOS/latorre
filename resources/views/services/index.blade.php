@@ -235,8 +235,8 @@
             @forelse ($rooms as $room)
                 <div class="col-md-3 col-sm-6">
                     @php
-                        $bgStyle = $room->image ? "background-image: url('" . asset('storage/' . $room->image) . "');" : "";
-                        $bgClass = $room->image ? "room-card-bg" : "";
+                        $bgStyle = $room->image ? "background-image: url('" . asset('storage/' . $room->image) . "');" : "background-image: url('" . asset('images/rooms/default.jpg') . "');";
+                        $bgClass = "room-card-bg";
                     @endphp
                     <div class="panel room-card {{ $bgClass }}" style="{{ $bgStyle }}">
                         <div class="panel-heading">

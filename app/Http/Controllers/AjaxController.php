@@ -31,6 +31,10 @@ class AjaxController extends Controller
     }
 
     public function personStore(Request $request){
+        $person = Person::withTrashed()->where('ci', $request->ci)->first();
+        if ($person) {
+            return response()->json(['error' => 'El CI ya se encuentra registrado a nombre de: ' . $person->first_name . ' ' . $person->paternal_surname]);
+        }
         DB::beginTransaction();
         try {
             $person =Person::create($request->all());
@@ -38,7 +42,7 @@ class AjaxController extends Controller
             return response()->json(['person' => $person]);
         } catch (\Throwable $th) {
             DB::rollback();
-            return response()->json(['error' => $th->getMessage()], 500);
+            return response()->json(['error' => 'Ocurrió un error al guardar...']);
         }
     }
 }

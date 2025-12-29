@@ -133,8 +133,7 @@ class ServiceController extends Controller
             ]);
 
             $transaction = null;
-            return $request;
-            return $total_a_pagar;
+
             if($total_a_pagar > 0 && $request->payment_method)
             {
                 $transaction = Transaction::create([
@@ -143,11 +142,11 @@ class ServiceController extends Controller
             }
 
             $endDateTimeString = $request->end_time ? \Carbon\Carbon::parse($request->end_date . ' ' . $request->end_time)->toDateTimeString() : null;
-            return $request;
+            // return $request->amountSala?$transaction->id:null;
 
             ServiceTime::create([
                 'service_id' => $service->id,
-                'transaction_id' => $transaction->id,
+                'transaction_id' => $request->amountSala?$transaction->id:null,
                 'time_type' => $request->end_time? 'Tiempo fijo': 'Tiempo libre',
                 'start_time' => $startDateTime->toDateTimeString(),
                 'end_time' => $endDateTimeString,
@@ -156,7 +155,7 @@ class ServiceController extends Controller
                 // 'amount' => $request->end_time?$request->amountSala: 0,
                 'amount' => $request->amountSala??0,
             ]);
-            return $request;
+            // return $request;
 
             if ($request->products) {
                 foreach ($request->products as $key => $value) {
@@ -307,7 +306,6 @@ class ServiceController extends Controller
 
     public function finishService(Request $request, Service $service)
     {
-
         DB::beginTransaction();
         $cashier = $this->cashier(null,'user_id = "'.Auth::user()->id.'"', 'status = "Abierta"');
         if (!$cashier) {
@@ -319,8 +317,13 @@ class ServiceController extends Controller
         $deuda = $service->total_amount - $totalPagado;
         if($deuda > 0)
         {
-            // si la deueda es mayor entonce retornara a la vista principal salas
             return redirect()->route('services.show', $service->room_id)->with(['message' => 'Ocurrió un error al finalizar el servicio y la deuda', 'alert-type' => 'error']);
+        }
+
+        $serv = ServiceTime::where('service_id', $service->id)->where('end_time', null)->first();
+        if($serv)
+        {
+            return redirect()->route('services.show', $service->room_id)->with(['message' => 'Ocurrio un error al finalizar el servicio, tiene un tiempo libre sin finalizar', 'alert-type' => 'error']);
         }
         try {
             $service->status = 'Finalizado';
@@ -328,6 +331,7 @@ class ServiceController extends Controller
 
             $room = Room::find($service->room_id);
             $room->status = 'Disponible';
+
             $room->save();
 
             DB::commit();
@@ -548,21 +552,18 @@ class ServiceController extends Controller
         }
 
         if($service->status == 'Finalizado')
-        {
+        {   
             return back()->with(['message' => 'El servicio ya ha sido finalizado.', 'alert-type' => 'warning']);
         }
-
         DB::beginTransaction();
         try {
-            // $serviceTime = ServiceTime::find($serviceTime->id);
-            // return $serviceTime->service;
-            
             $transaction = Transaction::create(['status' => 'Completado']);
             
             if($request->amount != $serviceTime->amount)
             {                
-                // $transaction = Transaction::where('id', $serviceTime->transaction_id)->first();                      
+                // $transaction = Transaction::where('id', $serviceTime->transaction_id)->first();              
 
+                // Si el monto es mayor al adelanto
                 if($request->amount > $serviceTime->amount)
                 {
                     if ($request->payment_method == 'efectivo') {
@@ -597,17 +598,22 @@ class ServiceController extends Controller
                     $service->total_amount += $request->amount - $serviceTime->amount;
 
                 }
-                // else
-                // {
-                //     ServiceTransaction::create([
-                //         'service_id' => $serviceTime->service_id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id,
-                //         'amount' => ($serviceTime->amount - $request->amount), 'paymentType' => 'Efectivo', 'type' => 'Devolucion',
-                //         'observation' => 'Devolución de adelanto',
-                //     ]);
+                else
+                {   
+                    // Si el monto es menor al adelanto
+                    ServiceTransaction::create([
+                        'service_id' => $serviceTime->service_id, 
+                        'transaction_id' => $transaction->id, 
+                        'cashier_id' => $cashier->id,
+                        'amount' => ($serviceTime->amount - $request->amount), 
+                        'paymentType' => 'Efectivo', 
+                        'type' => 'Devolucion',
+                        'observation' => 'Devolución de adelanto',
+                    ]);
 
-                //     $service->amount_room -= $serviceTime->amount - $request->amount;
-                //     $service->total_amount -= $serviceTime->amount - $request->amount;
-                // }
+                    $service->amount_room -= $serviceTime->amount - $request->amount;
+                    $service->total_amount -= $serviceTime->amount - $request->amount;
+                }
 
                 $serviceTime->transaction_id = $transaction->id;
                 $serviceTime->amount = $request->amount;
@@ -615,9 +621,10 @@ class ServiceController extends Controller
                 $service->save();
             }
             // Actualizar el registro de tiempo
+
             $serviceTime->end_time = $endDateTime->toDateTimeString();
             $serviceTime->save();
-            
+
             DB::commit();
 
             return redirect()->route('services.show', $service->room_id)->with([

@@ -6,20 +6,22 @@ $(document).ready(function(){
 
         let form = $(this);
         
-        // $.post($(this).attr('action'), $(this).serialize(), function(data){
         $.post(form.attr('action'), $(this).serialize(), function(data){
-            if(data.person.id){
-                toastr.success('Usuario creado', 'Éxito');
-                // $(this).trigger('reset');
+            if(data.person){
+                toastr.success('Persona registrada', 'Éxito');
                 form[0].reset();
+                $('#modal-create-person').modal('hide');
             }else{
                 toastr.error(data.error, 'Error');
             }
         })
+        .fail(function(data){
+            toastr.error(data.responseJSON.error, 'Error');
+        })
         .always(function(){
             $('.btn-save-person').attr('disabled', false);
             $('.btn-save-person').val('Guardar');
-            $('#modal-create-person').modal('hide');
         });
     });
 });
+

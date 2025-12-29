@@ -32,7 +32,7 @@ class ServiceSaleController extends Controller
 
     public function store(Request $request)
     {
-        return $request;
+
         $request->validate([
             'products' => 'required|array|min:1',
             'products.*.id' => 'required|exists:item_stocks,id',

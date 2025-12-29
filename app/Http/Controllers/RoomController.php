@@ -96,7 +96,6 @@ class RoomController extends Controller
             $room->name = $request->name;
             $room->type = $request->type;
             $room->observation = $request->observation;
-            $room->status = $request->status=='on' ? 1 : 0;
 
             if ($request->image) {
                 $room->image = $this->storageController->store_image($request->image, 'rooms');

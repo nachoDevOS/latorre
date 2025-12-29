@@ -29,7 +29,6 @@ return new class extends Migration
             $table->timestamps();    
             $table->timestamps('closed_at');
 
-            $table->
             $table->foreignId('registerUser_id')->nullable()->constrained('users');
             $table->string('registerRole')->nullable();
 

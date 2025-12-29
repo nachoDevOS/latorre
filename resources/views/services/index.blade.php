@@ -160,7 +160,6 @@
             background-position: center;
             position: relative;
             color: #fff;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
             /* Sombra de texto más pronunciada para mejorar la legibilidad en cualquier fondo */
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
         }
@@ -168,7 +167,6 @@
             content: '';
             position: absolute;
             top: 0; right: 0; bottom: 0; left: 0;
-            background-color: rgba(0, 0, 0, 0.3); /* Overlay oscuro para legibilidad */
             /* Gradiente para oscurecer áreas clave y mejorar contraste del texto sin tapar toda la imagen */
             background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.85) 100%);
             border-radius: 12px;
@@ -269,7 +267,6 @@
                                             @php
                                                 $lastServiceTime = $room->service->serviceTimes->last();
                                             @endphp
-                                            <div id="service-info-{{ $room->id }}" style="background-color: rgba(255, 255, 255, 0.5); padding: 10px; border-radius: 5px; margin-top: 10px; color:black;" data-start-time="{{ date('Y-m-d H:i:s', strtotime($room->service->start_time)) }}" @if($lastServiceTime && $lastServiceTime->end_time) data-end-time="{{ date('Y-m-d H:i:s', strtotime($lastServiceTime->end_time)) }}" @endif>
                                             <div id="service-info-{{ $room->id }}" style="background-color: rgba(0, 0, 0, 0.45); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 10px; border-radius: 8px; margin-top: 10px; color:white;" data-start-time="{{ date('Y-m-d H:i:s', strtotime($room->service->start_time)) }}" @if($lastServiceTime && $lastServiceTime->end_time) data-end-time="{{ date('Y-m-d H:i:s', strtotime($lastServiceTime->end_time)) }}" @endif>
                                                 <p style="margin-top: 0px; margin-bottom: 0px; font-size: 0.95em;">
                                                     <i class="voyager-watch"></i> Inicio: <strong>{{ date('d/m/y h:i A', strtotime($room->service->start_time)) }}</strong>

@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('expenses', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('categoryExpense_id')->nullable()->constrained('category_expenses');
             $table->foreignId('cashier_id')->nullable()->constrained('cashiers');
             $table->decimal('amount', 10, 2)->nullable();
             $table->text('observation')->nullable();

@@ -14,7 +14,6 @@ class Expense extends Model
     protected $dates = ['deleted_at'];
 
     protected $fillable = [
-        'categoryExpense_id',
         'cashier_id',
         'amount',
         'observation',
@@ -26,9 +25,8 @@ class Expense extends Model
         'deleteRole',
         'deleteObservation',
     ];
-
-    public function categoryExpense()
+    public function cashier()
     {
-        return $this->belongsTo(CategoryExpense::class, 'categoryExpense_id');
+        return $this->belongsTo(Cashier::class, 'cashier_id');
     }
 }

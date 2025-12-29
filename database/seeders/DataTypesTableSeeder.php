@@ -75,42 +75,6 @@ class DataTypesTableSeeder extends Seeder
             ),
             3 => 
             array (
-                'id' => 5,
-                'name' => 'posts',
-                'slug' => 'posts',
-                'display_name_singular' => 'Post',
-                'display_name_plural' => 'Posts',
-                'icon' => 'voyager-news',
-                'model_name' => 'TCG\\Voyager\\Models\\Post',
-                'policy_name' => 'TCG\\Voyager\\Policies\\PostPolicy',
-                'controller' => '',
-                'description' => '',
-                'generate_permissions' => 1,
-                'server_side' => 0,
-                'details' => NULL,
-                'created_at' => '2024-10-18 14:28:45',
-                'updated_at' => '2024-10-18 14:28:45',
-            ),
-            4 => 
-            array (
-                'id' => 6,
-                'name' => 'pages',
-                'slug' => 'pages',
-                'display_name_singular' => 'Page',
-                'display_name_plural' => 'Pages',
-                'icon' => 'voyager-file-text',
-                'model_name' => 'TCG\\Voyager\\Models\\Page',
-                'policy_name' => NULL,
-                'controller' => '',
-                'description' => '',
-                'generate_permissions' => 1,
-                'server_side' => 0,
-                'details' => NULL,
-                'created_at' => '2024-10-18 14:28:45',
-                'updated_at' => '2024-10-18 14:28:45',
-            ),
-            5 => 
-            array (
                 'id' => 8,
                 'name' => 'people',
                 'slug' => 'people',
@@ -127,7 +91,7 @@ class DataTypesTableSeeder extends Seeder
                 'created_at' => '2025-04-07 09:43:00',
                 'updated_at' => '2025-11-04 11:15:23',
             ),
-            6 => 
+            4 => 
             array (
                 'id' => 9,
                 'name' => 'category_expenses',
@@ -145,7 +109,7 @@ class DataTypesTableSeeder extends Seeder
                 'created_at' => '2025-11-03 23:39:02',
                 'updated_at' => '2025-11-03 23:45:23',
             ),
-            7 => 
+            5 => 
             array (
                 'id' => 10,
                 'name' => 'item_categories',
@@ -163,7 +127,7 @@ class DataTypesTableSeeder extends Seeder
                 'created_at' => '2025-11-04 00:05:02',
                 'updated_at' => '2025-11-04 00:05:02',
             ),
-            8 => 
+            6 => 
             array (
                 'id' => 11,
                 'name' => 'items',
@@ -181,7 +145,7 @@ class DataTypesTableSeeder extends Seeder
                 'created_at' => '2025-11-04 00:10:57',
                 'updated_at' => '2025-11-04 00:14:53',
             ),
-            9 => 
+            7 => 
             array (
                 'id' => 12,
                 'name' => 'rooms',
@@ -197,7 +161,7 @@ class DataTypesTableSeeder extends Seeder
                 'server_side' => 0,
                 'details' => '{"order_column":null,"order_display_column":null,"order_direction":"asc","default_search_key":null,"scope":null}',
                 'created_at' => '2025-11-04 11:15:12',
-                'updated_at' => '2025-11-04 12:25:24',
+                'updated_at' => '2025-12-29 14:35:19',
             ),
         ));
         

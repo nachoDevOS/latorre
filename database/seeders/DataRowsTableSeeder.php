@@ -357,438 +357,6 @@ class DataRowsTableSeeder extends Seeder
             ),
             21 => 
             array (
-                'id' => 29,
-                'data_type_id' => 5,
-                'field' => 'id',
-                'type' => 'number',
-                'display_name' => 'ID',
-                'required' => 1,
-                'browse' => 0,
-                'read' => 0,
-                'edit' => 0,
-                'add' => 0,
-                'delete' => 0,
-                'details' => NULL,
-                'order' => 1,
-            ),
-            22 => 
-            array (
-                'id' => 30,
-                'data_type_id' => 5,
-                'field' => 'author_id',
-                'type' => 'text',
-                'display_name' => 'Author',
-                'required' => 1,
-                'browse' => 0,
-                'read' => 1,
-                'edit' => 1,
-                'add' => 0,
-                'delete' => 1,
-                'details' => NULL,
-                'order' => 2,
-            ),
-            23 => 
-            array (
-                'id' => 31,
-                'data_type_id' => 5,
-                'field' => 'category_id',
-                'type' => 'text',
-                'display_name' => 'Category',
-                'required' => 1,
-                'browse' => 0,
-                'read' => 1,
-                'edit' => 1,
-                'add' => 1,
-                'delete' => 0,
-                'details' => NULL,
-                'order' => 3,
-            ),
-            24 => 
-            array (
-                'id' => 32,
-                'data_type_id' => 5,
-                'field' => 'title',
-                'type' => 'text',
-                'display_name' => 'Title',
-                'required' => 1,
-                'browse' => 1,
-                'read' => 1,
-                'edit' => 1,
-                'add' => 1,
-                'delete' => 1,
-                'details' => NULL,
-                'order' => 4,
-            ),
-            25 => 
-            array (
-                'id' => 33,
-                'data_type_id' => 5,
-                'field' => 'excerpt',
-                'type' => 'text_area',
-                'display_name' => 'Excerpt',
-                'required' => 1,
-                'browse' => 0,
-                'read' => 1,
-                'edit' => 1,
-                'add' => 1,
-                'delete' => 1,
-                'details' => NULL,
-                'order' => 5,
-            ),
-            26 => 
-            array (
-                'id' => 34,
-                'data_type_id' => 5,
-                'field' => 'body',
-                'type' => 'rich_text_box',
-                'display_name' => 'Body',
-                'required' => 1,
-                'browse' => 0,
-                'read' => 1,
-                'edit' => 1,
-                'add' => 1,
-                'delete' => 1,
-                'details' => NULL,
-                'order' => 6,
-            ),
-            27 => 
-            array (
-                'id' => 35,
-                'data_type_id' => 5,
-                'field' => 'image',
-                'type' => 'image',
-                'display_name' => 'Post Image',
-                'required' => 0,
-                'browse' => 1,
-                'read' => 1,
-                'edit' => 1,
-                'add' => 1,
-                'delete' => 1,
-                'details' => '{"resize":{"width":"1000","height":"null"},"quality":"70%","upsize":true,"thumbnails":[{"name":"medium","scale":"50%"},{"name":"small","scale":"25%"},{"name":"cropped","crop":{"width":"300","height":"250"}}]}',
-                'order' => 7,
-            ),
-            28 => 
-            array (
-                'id' => 36,
-                'data_type_id' => 5,
-                'field' => 'slug',
-                'type' => 'text',
-                'display_name' => 'Slug',
-                'required' => 1,
-                'browse' => 0,
-                'read' => 1,
-                'edit' => 1,
-                'add' => 1,
-                'delete' => 1,
-                'details' => '{"slugify":{"origin":"title","forceUpdate":true},"validation":{"rule":"unique:posts,slug"}}',
-                'order' => 8,
-            ),
-            29 => 
-            array (
-                'id' => 37,
-                'data_type_id' => 5,
-                'field' => 'meta_description',
-                'type' => 'text_area',
-                'display_name' => 'Meta Description',
-                'required' => 1,
-                'browse' => 0,
-                'read' => 1,
-                'edit' => 1,
-                'add' => 1,
-                'delete' => 1,
-                'details' => NULL,
-                'order' => 9,
-            ),
-            30 => 
-            array (
-                'id' => 38,
-                'data_type_id' => 5,
-                'field' => 'meta_keywords',
-                'type' => 'text_area',
-                'display_name' => 'Meta Keywords',
-                'required' => 1,
-                'browse' => 0,
-                'read' => 1,
-                'edit' => 1,
-                'add' => 1,
-                'delete' => 1,
-                'details' => NULL,
-                'order' => 10,
-            ),
-            31 => 
-            array (
-                'id' => 39,
-                'data_type_id' => 5,
-                'field' => 'status',
-                'type' => 'select_dropdown',
-                'display_name' => 'Status',
-                'required' => 1,
-                'browse' => 1,
-                'read' => 1,
-                'edit' => 1,
-                'add' => 1,
-                'delete' => 1,
-                'details' => '{"default":"DRAFT","options":{"PUBLISHED":"published","DRAFT":"draft","PENDING":"pending"}}',
-                'order' => 11,
-            ),
-            32 => 
-            array (
-                'id' => 40,
-                'data_type_id' => 5,
-                'field' => 'created_at',
-                'type' => 'timestamp',
-                'display_name' => 'Created At',
-                'required' => 0,
-                'browse' => 1,
-                'read' => 1,
-                'edit' => 0,
-                'add' => 0,
-                'delete' => 0,
-                'details' => NULL,
-                'order' => 12,
-            ),
-            33 => 
-            array (
-                'id' => 41,
-                'data_type_id' => 5,
-                'field' => 'updated_at',
-                'type' => 'timestamp',
-                'display_name' => 'Updated At',
-                'required' => 0,
-                'browse' => 0,
-                'read' => 0,
-                'edit' => 0,
-                'add' => 0,
-                'delete' => 0,
-                'details' => NULL,
-                'order' => 13,
-            ),
-            34 => 
-            array (
-                'id' => 42,
-                'data_type_id' => 5,
-                'field' => 'seo_title',
-                'type' => 'text',
-                'display_name' => 'SEO Title',
-                'required' => 0,
-                'browse' => 1,
-                'read' => 1,
-                'edit' => 1,
-                'add' => 1,
-                'delete' => 1,
-                'details' => NULL,
-                'order' => 14,
-            ),
-            35 => 
-            array (
-                'id' => 43,
-                'data_type_id' => 5,
-                'field' => 'featured',
-                'type' => 'checkbox',
-                'display_name' => 'Featured',
-                'required' => 1,
-                'browse' => 1,
-                'read' => 1,
-                'edit' => 1,
-                'add' => 1,
-                'delete' => 1,
-                'details' => NULL,
-                'order' => 15,
-            ),
-            36 => 
-            array (
-                'id' => 44,
-                'data_type_id' => 6,
-                'field' => 'id',
-                'type' => 'number',
-                'display_name' => 'ID',
-                'required' => 1,
-                'browse' => 0,
-                'read' => 0,
-                'edit' => 0,
-                'add' => 0,
-                'delete' => 0,
-                'details' => NULL,
-                'order' => 1,
-            ),
-            37 => 
-            array (
-                'id' => 45,
-                'data_type_id' => 6,
-                'field' => 'author_id',
-                'type' => 'text',
-                'display_name' => 'Author',
-                'required' => 1,
-                'browse' => 0,
-                'read' => 0,
-                'edit' => 0,
-                'add' => 0,
-                'delete' => 0,
-                'details' => NULL,
-                'order' => 2,
-            ),
-            38 => 
-            array (
-                'id' => 46,
-                'data_type_id' => 6,
-                'field' => 'title',
-                'type' => 'text',
-                'display_name' => 'Title',
-                'required' => 1,
-                'browse' => 1,
-                'read' => 1,
-                'edit' => 1,
-                'add' => 1,
-                'delete' => 1,
-                'details' => NULL,
-                'order' => 3,
-            ),
-            39 => 
-            array (
-                'id' => 47,
-                'data_type_id' => 6,
-                'field' => 'excerpt',
-                'type' => 'text_area',
-                'display_name' => 'Excerpt',
-                'required' => 1,
-                'browse' => 0,
-                'read' => 1,
-                'edit' => 1,
-                'add' => 1,
-                'delete' => 1,
-                'details' => NULL,
-                'order' => 4,
-            ),
-            40 => 
-            array (
-                'id' => 48,
-                'data_type_id' => 6,
-                'field' => 'body',
-                'type' => 'rich_text_box',
-                'display_name' => 'Body',
-                'required' => 1,
-                'browse' => 0,
-                'read' => 1,
-                'edit' => 1,
-                'add' => 1,
-                'delete' => 1,
-                'details' => NULL,
-                'order' => 5,
-            ),
-            41 => 
-            array (
-                'id' => 49,
-                'data_type_id' => 6,
-                'field' => 'slug',
-                'type' => 'text',
-                'display_name' => 'Slug',
-                'required' => 1,
-                'browse' => 0,
-                'read' => 1,
-                'edit' => 1,
-                'add' => 1,
-                'delete' => 1,
-                'details' => '{"slugify":{"origin":"title"},"validation":{"rule":"unique:pages,slug"}}',
-                'order' => 6,
-            ),
-            42 => 
-            array (
-                'id' => 50,
-                'data_type_id' => 6,
-                'field' => 'meta_description',
-                'type' => 'text',
-                'display_name' => 'Meta Description',
-                'required' => 1,
-                'browse' => 0,
-                'read' => 1,
-                'edit' => 1,
-                'add' => 1,
-                'delete' => 1,
-                'details' => NULL,
-                'order' => 7,
-            ),
-            43 => 
-            array (
-                'id' => 51,
-                'data_type_id' => 6,
-                'field' => 'meta_keywords',
-                'type' => 'text',
-                'display_name' => 'Meta Keywords',
-                'required' => 1,
-                'browse' => 0,
-                'read' => 1,
-                'edit' => 1,
-                'add' => 1,
-                'delete' => 1,
-                'details' => NULL,
-                'order' => 8,
-            ),
-            44 => 
-            array (
-                'id' => 52,
-                'data_type_id' => 6,
-                'field' => 'status',
-                'type' => 'select_dropdown',
-                'display_name' => 'Status',
-                'required' => 1,
-                'browse' => 1,
-                'read' => 1,
-                'edit' => 1,
-                'add' => 1,
-                'delete' => 1,
-                'details' => '{"default":"INACTIVE","options":{"INACTIVE":"INACTIVE","ACTIVE":"ACTIVE"}}',
-                'order' => 9,
-            ),
-            45 => 
-            array (
-                'id' => 53,
-                'data_type_id' => 6,
-                'field' => 'created_at',
-                'type' => 'timestamp',
-                'display_name' => 'Created At',
-                'required' => 1,
-                'browse' => 1,
-                'read' => 1,
-                'edit' => 0,
-                'add' => 0,
-                'delete' => 0,
-                'details' => NULL,
-                'order' => 10,
-            ),
-            46 => 
-            array (
-                'id' => 54,
-                'data_type_id' => 6,
-                'field' => 'updated_at',
-                'type' => 'timestamp',
-                'display_name' => 'Updated At',
-                'required' => 1,
-                'browse' => 0,
-                'read' => 0,
-                'edit' => 0,
-                'add' => 0,
-                'delete' => 0,
-                'details' => NULL,
-                'order' => 11,
-            ),
-            47 => 
-            array (
-                'id' => 55,
-                'data_type_id' => 6,
-                'field' => 'image',
-                'type' => 'image',
-                'display_name' => 'Page Image',
-                'required' => 0,
-                'browse' => 1,
-                'read' => 1,
-                'edit' => 1,
-                'add' => 1,
-                'delete' => 1,
-                'details' => NULL,
-                'order' => 12,
-            ),
-            48 => 
-            array (
                 'id' => 75,
                 'data_type_id' => 8,
                 'field' => 'id',
@@ -803,7 +371,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 1,
             ),
-            49 => 
+            22 => 
             array (
                 'id' => 76,
                 'data_type_id' => 8,
@@ -819,7 +387,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{"validation":{"rule":"required|max:191|unique:people"},"display":{"width":4}}',
                 'order' => 2,
             ),
-            50 => 
+            23 => 
             array (
                 'id' => 77,
                 'data_type_id' => 8,
@@ -835,7 +403,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{"validation":{"rule":"required|max:191"},"display":{"width":4}}',
                 'order' => 5,
             ),
-            51 => 
+            24 => 
             array (
                 'id' => 78,
                 'data_type_id' => 8,
@@ -851,7 +419,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{"validation":{"rule":"max:191"},"display":{"width":4}}',
                 'order' => 6,
             ),
-            52 => 
+            25 => 
             array (
                 'id' => 79,
                 'data_type_id' => 8,
@@ -867,7 +435,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{"validation":{"rule":"required|max:191"},"display":{"width":4}}',
                 'order' => 7,
             ),
-            53 => 
+            26 => 
             array (
                 'id' => 80,
                 'data_type_id' => 8,
@@ -883,7 +451,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{"validation":{"rule":"max:191"},"display":{"width":4}}',
                 'order' => 8,
             ),
-            54 => 
+            27 => 
             array (
                 'id' => 81,
                 'data_type_id' => 8,
@@ -899,7 +467,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{"validation":{"rule":"max:191"},"display":{"width":4}}',
                 'order' => 3,
             ),
-            55 => 
+            28 => 
             array (
                 'id' => 82,
                 'data_type_id' => 8,
@@ -915,7 +483,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{"validation":{"rule":"max:191"},"display":{"width":4}}',
                 'order' => 9,
             ),
-            56 => 
+            29 => 
             array (
                 'id' => 83,
                 'data_type_id' => 8,
@@ -931,7 +499,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{"validation":{"rule":"max:191"},"display":{"width":4}}',
                 'order' => 10,
             ),
-            57 => 
+            30 => 
             array (
                 'id' => 84,
                 'data_type_id' => 8,
@@ -947,7 +515,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{"validation":{"rule":"max:191"},"display":{"width":12}}',
                 'order' => 12,
             ),
-            58 => 
+            31 => 
             array (
                 'id' => 85,
                 'data_type_id' => 8,
@@ -963,7 +531,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{"options":{"Masculino":"Masculino","Femenino":"Femenino"},"display":{"width":4},"validation":{"rule":"required"}}',
                 'order' => 4,
             ),
-            59 => 
+            32 => 
             array (
                 'id' => 86,
                 'data_type_id' => 8,
@@ -979,7 +547,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{"display":{"width":6},"resize":{"width":"1000","height":null},"quality":"70%","upsize":true,"thumbnails":[{"name":"medium","scale":"50%"},{"name":"small","scale":"25%"},{"name":"cropped","crop":{"width":"300","height":"250"}}]}',
                 'order' => 11,
             ),
-            60 => 
+            33 => 
             array (
                 'id' => 87,
                 'data_type_id' => 8,
@@ -995,7 +563,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{"on":"Activo","off":"Inactivo","checked":true}',
                 'order' => 13,
             ),
-            61 => 
+            34 => 
             array (
                 'id' => 88,
                 'data_type_id' => 8,
@@ -1011,7 +579,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 14,
             ),
-            62 => 
+            35 => 
             array (
                 'id' => 89,
                 'data_type_id' => 8,
@@ -1027,7 +595,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 15,
             ),
-            63 => 
+            36 => 
             array (
                 'id' => 90,
                 'data_type_id' => 8,
@@ -1043,7 +611,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 16,
             ),
-            64 => 
+            37 => 
             array (
                 'id' => 91,
                 'data_type_id' => 8,
@@ -1059,7 +627,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 17,
             ),
-            65 => 
+            38 => 
             array (
                 'id' => 92,
                 'data_type_id' => 8,
@@ -1075,7 +643,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 18,
             ),
-            66 => 
+            39 => 
             array (
                 'id' => 93,
                 'data_type_id' => 8,
@@ -1091,7 +659,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 19,
             ),
-            67 => 
+            40 => 
             array (
                 'id' => 94,
                 'data_type_id' => 8,
@@ -1107,7 +675,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 20,
             ),
-            68 => 
+            41 => 
             array (
                 'id' => 95,
                 'data_type_id' => 8,
@@ -1123,7 +691,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 21,
             ),
-            69 => 
+            42 => 
             array (
                 'id' => 96,
                 'data_type_id' => 1,
@@ -1139,7 +707,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 7,
             ),
-            70 => 
+            43 => 
             array (
                 'id' => 97,
                 'data_type_id' => 1,
@@ -1155,7 +723,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 13,
             ),
-            71 => 
+            44 => 
             array (
                 'id' => 98,
                 'data_type_id' => 1,
@@ -1171,7 +739,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 3,
             ),
-            72 => 
+            45 => 
             array (
                 'id' => 99,
                 'data_type_id' => 1,
@@ -1187,7 +755,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 14,
             ),
-            73 => 
+            46 => 
             array (
                 'id' => 100,
                 'data_type_id' => 1,
@@ -1203,7 +771,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 15,
             ),
-            74 => 
+            47 => 
             array (
                 'id' => 101,
                 'data_type_id' => 1,
@@ -1219,7 +787,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 16,
             ),
-            75 => 
+            48 => 
             array (
                 'id' => 102,
                 'data_type_id' => 1,
@@ -1235,7 +803,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 17,
             ),
-            76 => 
+            49 => 
             array (
                 'id' => 103,
                 'data_type_id' => 1,
@@ -1251,7 +819,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 18,
             ),
-            77 => 
+            50 => 
             array (
                 'id' => 104,
                 'data_type_id' => 1,
@@ -1267,7 +835,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 19,
             ),
-            78 => 
+            51 => 
             array (
                 'id' => 105,
                 'data_type_id' => 9,
@@ -1283,7 +851,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 1,
             ),
-            79 => 
+            52 => 
             array (
                 'id' => 106,
                 'data_type_id' => 9,
@@ -1299,7 +867,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 5,
             ),
-            80 => 
+            53 => 
             array (
                 'id' => 107,
                 'data_type_id' => 9,
@@ -1315,7 +883,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 6,
             ),
-            81 => 
+            54 => 
             array (
                 'id' => 108,
                 'data_type_id' => 9,
@@ -1331,7 +899,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{"display":{"width":12}}',
                 'order' => 2,
             ),
-            82 => 
+            55 => 
             array (
                 'id' => 109,
                 'data_type_id' => 9,
@@ -1347,7 +915,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{"display":{"width":12}}',
                 'order' => 3,
             ),
-            83 => 
+            56 => 
             array (
                 'id' => 110,
                 'data_type_id' => 9,
@@ -1363,7 +931,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{"on":"Activo","off":"Inactivo","checked":true}',
                 'order' => 4,
             ),
-            84 => 
+            57 => 
             array (
                 'id' => 111,
                 'data_type_id' => 9,
@@ -1379,7 +947,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 7,
             ),
-            85 => 
+            58 => 
             array (
                 'id' => 112,
                 'data_type_id' => 9,
@@ -1395,7 +963,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 8,
             ),
-            86 => 
+            59 => 
             array (
                 'id' => 113,
                 'data_type_id' => 9,
@@ -1411,7 +979,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 9,
             ),
-            87 => 
+            60 => 
             array (
                 'id' => 114,
                 'data_type_id' => 9,
@@ -1427,7 +995,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 10,
             ),
-            88 => 
+            61 => 
             array (
                 'id' => 115,
                 'data_type_id' => 9,
@@ -1443,7 +1011,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 11,
             ),
-            89 => 
+            62 => 
             array (
                 'id' => 116,
                 'data_type_id' => 9,
@@ -1459,7 +1027,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 12,
             ),
-            90 => 
+            63 => 
             array (
                 'id' => 117,
                 'data_type_id' => 10,
@@ -1475,7 +1043,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 1,
             ),
-            91 => 
+            64 => 
             array (
                 'id' => 118,
                 'data_type_id' => 10,
@@ -1491,7 +1059,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{"validation":{"rule":"required|max:191"},"display":{"width":4}}',
                 'order' => 2,
             ),
-            92 => 
+            65 => 
             array (
                 'id' => 119,
                 'data_type_id' => 10,
@@ -1507,7 +1075,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{"display":{"width":12}}',
                 'order' => 3,
             ),
-            93 => 
+            66 => 
             array (
                 'id' => 120,
                 'data_type_id' => 10,
@@ -1523,7 +1091,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{"on":"Activo","off":"Inactivo","checked":true}',
                 'order' => 4,
             ),
-            94 => 
+            67 => 
             array (
                 'id' => 121,
                 'data_type_id' => 10,
@@ -1539,7 +1107,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 5,
             ),
-            95 => 
+            68 => 
             array (
                 'id' => 122,
                 'data_type_id' => 10,
@@ -1555,7 +1123,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 6,
             ),
-            96 => 
+            69 => 
             array (
                 'id' => 123,
                 'data_type_id' => 10,
@@ -1571,7 +1139,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 7,
             ),
-            97 => 
+            70 => 
             array (
                 'id' => 124,
                 'data_type_id' => 10,
@@ -1587,7 +1155,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 8,
             ),
-            98 => 
+            71 => 
             array (
                 'id' => 125,
                 'data_type_id' => 10,
@@ -1603,7 +1171,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 9,
             ),
-            99 => 
+            72 => 
             array (
                 'id' => 126,
                 'data_type_id' => 10,
@@ -1619,7 +1187,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 10,
             ),
-            100 => 
+            73 => 
             array (
                 'id' => 127,
                 'data_type_id' => 10,
@@ -1635,7 +1203,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 11,
             ),
-            101 => 
+            74 => 
             array (
                 'id' => 128,
                 'data_type_id' => 10,
@@ -1651,7 +1219,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 12,
             ),
-            102 => 
+            75 => 
             array (
                 'id' => 129,
                 'data_type_id' => 11,
@@ -1667,7 +1235,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 1,
             ),
-            103 => 
+            76 => 
             array (
                 'id' => 130,
                 'data_type_id' => 11,
@@ -1683,7 +1251,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 2,
             ),
-            104 => 
+            77 => 
             array (
                 'id' => 131,
                 'data_type_id' => 11,
@@ -1699,7 +1267,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{"display":{"width":6},"resize":{"width":"1000","height":null},"quality":"70%","upsize":true,"thumbnails":[{"name":"medium","scale":"50%"},{"name":"small","scale":"25%"},{"name":"cropped","crop":{"width":"300","height":"250"}}]}',
                 'order' => 5,
             ),
-            105 => 
+            78 => 
             array (
                 'id' => 132,
                 'data_type_id' => 11,
@@ -1715,7 +1283,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{"validation":{"rule":"required|max:191"},"display":{"width":4}}',
                 'order' => 4,
             ),
-            106 => 
+            79 => 
             array (
                 'id' => 134,
                 'data_type_id' => 11,
@@ -1731,7 +1299,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{"display":{"width":12}}',
                 'order' => 6,
             ),
-            107 => 
+            80 => 
             array (
                 'id' => 136,
                 'data_type_id' => 11,
@@ -1747,7 +1315,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 7,
             ),
-            108 => 
+            81 => 
             array (
                 'id' => 137,
                 'data_type_id' => 11,
@@ -1763,7 +1331,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 8,
             ),
-            109 => 
+            82 => 
             array (
                 'id' => 138,
                 'data_type_id' => 11,
@@ -1779,7 +1347,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 9,
             ),
-            110 => 
+            83 => 
             array (
                 'id' => 139,
                 'data_type_id' => 11,
@@ -1795,7 +1363,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 10,
             ),
-            111 => 
+            84 => 
             array (
                 'id' => 140,
                 'data_type_id' => 11,
@@ -1811,7 +1379,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 11,
             ),
-            112 => 
+            85 => 
             array (
                 'id' => 141,
                 'data_type_id' => 11,
@@ -1827,7 +1395,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 12,
             ),
-            113 => 
+            86 => 
             array (
                 'id' => 142,
                 'data_type_id' => 11,
@@ -1843,7 +1411,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 13,
             ),
-            114 => 
+            87 => 
             array (
                 'id' => 143,
                 'data_type_id' => 11,
@@ -1859,7 +1427,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 14,
             ),
-            115 => 
+            88 => 
             array (
                 'id' => 144,
                 'data_type_id' => 11,
@@ -1875,7 +1443,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 15,
             ),
-            116 => 
+            89 => 
             array (
                 'id' => 145,
                 'data_type_id' => 11,
@@ -1891,7 +1459,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{"display":{"width":4},"model":"App\\\\Models\\\\ItemCategory","table":"item_categories","type":"belongsTo","column":"itemCategory_id","key":"id","label":"name","pivot_table":"cashiers","pivot":"0","taggable":"0"}',
                 'order' => 3,
             ),
-            117 => 
+            90 => 
             array (
                 'id' => 146,
                 'data_type_id' => 12,
@@ -1907,7 +1475,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 1,
             ),
-            118 => 
+            91 => 
             array (
                 'id' => 147,
                 'data_type_id' => 12,
@@ -1923,7 +1491,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{"options":{"Normal":"Normal","Vip":"Vip"},"display":{"width":4},"validation":{"rule":"required"}}',
                 'order' => 2,
             ),
-            119 => 
+            92 => 
             array (
                 'id' => 148,
                 'data_type_id' => 12,
@@ -1939,7 +1507,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{"validation":{"rule":"required|max:191"},"display":{"width":4}}',
                 'order' => 3,
             ),
-            120 => 
+            93 => 
             array (
                 'id' => 149,
                 'data_type_id' => 12,
@@ -1955,23 +1523,23 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{"validation":{"rule":"max:191"},"display":{"width":12}}',
                 'order' => 5,
             ),
-            121 => 
+            94 => 
             array (
                 'id' => 150,
                 'data_type_id' => 12,
                 'field' => 'status',
                 'type' => 'checkbox',
                 'display_name' => 'Estado',
-                'required' => 1,
-                'browse' => 1,
-                'read' => 1,
-                'edit' => 1,
+                'required' => 0,
+                'browse' => 0,
+                'read' => 0,
+                'edit' => 0,
                 'add' => 0,
                 'delete' => 0,
-                'details' => '{"on":"Activo","off":"Inactivo","checked":true}',
+                'details' => 'null',
                 'order' => 6,
             ),
-            122 => 
+            95 => 
             array (
                 'id' => 151,
                 'data_type_id' => 12,
@@ -1987,7 +1555,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 7,
             ),
-            123 => 
+            96 => 
             array (
                 'id' => 152,
                 'data_type_id' => 12,
@@ -2003,7 +1571,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 8,
             ),
-            124 => 
+            97 => 
             array (
                 'id' => 153,
                 'data_type_id' => 12,
@@ -2019,7 +1587,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 9,
             ),
-            125 => 
+            98 => 
             array (
                 'id' => 154,
                 'data_type_id' => 12,
@@ -2035,7 +1603,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 10,
             ),
-            126 => 
+            99 => 
             array (
                 'id' => 155,
                 'data_type_id' => 12,
@@ -2051,7 +1619,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 11,
             ),
-            127 => 
+            100 => 
             array (
                 'id' => 156,
                 'data_type_id' => 12,
@@ -2067,7 +1635,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 12,
             ),
-            128 => 
+            101 => 
             array (
                 'id' => 157,
                 'data_type_id' => 12,
@@ -2083,7 +1651,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 13,
             ),
-            129 => 
+            102 => 
             array (
                 'id' => 158,
                 'data_type_id' => 12,
@@ -2099,7 +1667,7 @@ class DataRowsTableSeeder extends Seeder
                 'details' => '{}',
                 'order' => 14,
             ),
-            130 => 
+            103 => 
             array (
                 'id' => 159,
                 'data_type_id' => 12,

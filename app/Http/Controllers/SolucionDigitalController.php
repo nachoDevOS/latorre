@@ -44,7 +44,7 @@ class SolucionDigitalController extends Controller
                 }
                 else
                 {
-                    $value = "vigente";
+                    $value = "Vigente";
                 }
             }
         }

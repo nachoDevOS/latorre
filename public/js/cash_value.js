@@ -1,5 +1,6 @@
 $(document).ready(function(){
-    let cortes = new Array('200', '100', '50', '20', '10', '5', '2', '1', '0.5', '0.2', '0.1');
+    // let cortes = new Array('200', '100', '50', '20', '10', '5', '2', '1', '0.5', '0.2', '0.1');
+    let cortes = new Array('200', '100', '50', '20', '10', '5', '2', '1', '0.5');
     cortes.map(function(value){
         $('#lista_cortes').append(`<tr>
             <td><h4 style="margin: 0px"><img src="${APP_URL}/images/cash/${value}.jpg" alt="${value} Bs." width="70px"> ${value} Bs. </h4></td>

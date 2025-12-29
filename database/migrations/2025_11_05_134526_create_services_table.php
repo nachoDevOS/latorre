@@ -24,7 +24,7 @@ return new class extends Migration
             $table->decimal('total_amount', 10, 2)->default(0);
             $table->text('observation')->nullable();            
 
-            $table->string('status')->default('vigente');
+            $table->string('status')->default('Vigente');
            
             $table->timestamps();            
             $table->foreignId('registerUser_id')->nullable()->constrained('users');

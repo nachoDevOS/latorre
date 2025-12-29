@@ -106,7 +106,7 @@
             <form action="{{ route('services.rental.start') }}" method="POST">
                 @csrf
                 <input type="hidden" name="room_id" value="{{ $room->id }}">
-                <input type="hidden" name="rental_type" id="hidden_rental_type" value="por_hora">
+                <input type="hidden" name="rental_type" id="hidden_rental_type" value="Tiempo libre">
                 <input type="hidden" name="amount_product" id="amount_product" value="0">
 
                 <div class="col-md-8">
@@ -324,7 +324,7 @@
             // Actualiza el tipo de alquiler y la UI basado en la hora de fin
             function updateRentalType() {
                 if (endTimeInput.value && endDateInput.value) {
-                    hiddenRentalTypeInput.value = 'tiempo_fijo';
+                    hiddenRentalTypeInput.value = 'Tiempo fijo';
                     amountLabel.textContent = 'Monto del alquiler de la sala';
 
                     // Validar que la fecha/hora de fin no sea anterior a la de inicio
@@ -341,7 +341,7 @@
                     durationGroup.style.display = 'block';
                     calculateDuration();
                 } else {
-                    hiddenRentalTypeInput.value = 'por_hora';
+                    hiddenRentalTypeInput.value = 'Tiempo libre';
                     amountLabel.textContent = 'Registrar un adelanto de la sala';
                     durationGroup.style.display = 'none';
                     durationDisplay.textContent = 'Calculando...';

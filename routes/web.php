@@ -58,7 +58,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['loggin', 'system']], functi
     Route::get('services-sales/create', [ServiceSaleController::class, 'create'])->name('services-sales.create');
     Route::get('services-sales/{id}', [ServiceSaleController::class, 'show'])->name('services-sales.show');
     Route::post('services-sales/store', [ServiceSaleController::class, 'store'])->name('services-sales.store');
-    Route::post('services-sales/items', [ServiceController::class, 'addItem'])->name('services.add_item');
+    // Route::post('services-sales/items', [ServiceController::class, 'addItem'])->name('services.add_item');  //Eliminado temproralmente
 
     Route::resource('cashiers', CashierController::class);
     Route::get('cashiers/list/ajax', [CashierController::class, 'list'])->name('cashiers.list');

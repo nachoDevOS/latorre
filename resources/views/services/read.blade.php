@@ -180,7 +180,7 @@
                                         <strong>{{ $service->person ? $service->person->name : 'No especificado' }}</strong></span>
                                 </div>
                             </div>
-                            @if ($service->status == 'vigente')
+                            @if ($service->status == 'Vigente')
                                 <div class="col-md-12">
                                     @php
                                         $lastServiceTime = $service->serviceTimes->last();
@@ -1599,7 +1599,7 @@
 
                 // Lógica para el contador de tiempo en vivo
                 document.addEventListener('DOMContentLoaded', function () {
-                    @if ($service->status == 'vigente')
+                    @if ($service->status == 'Vigente')
                         const serviceId = {{ $service->id }};
                         const timerElement = document.getElementById(`timer-${serviceId}`);
                         const serviceInfoDiv = document.getElementById(`service-info-${serviceId}`);

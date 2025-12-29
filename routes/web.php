@@ -100,7 +100,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['loggin', 'system']], functi
 
 
 
-    Route::resource('expeses', ExpenseController::class);
+    Route::resource('expenses', ExpenseController::class);
 
     Route::get('people', [PersonController::class, 'index'])->name('voyager.people.index');
     Route::get('people/ajax/list', [PersonController::class, 'list']);

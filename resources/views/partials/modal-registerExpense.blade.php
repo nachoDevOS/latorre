@@ -1,4 +1,4 @@
-<form class="form-edit-add" action="{{ route('expeses.store') }}"  method="POST">
+<form class="form-edit-add" action="{{ route('expenses.store') }}"  method="POST">
     <div class="modal fade" id="modal-create-expense" role="dialog">
         <div class="modal-dialog modal-success">
             <div class="modal-content">
@@ -11,7 +11,7 @@
                 <div class="modal-body">
                     @csrf
                     <div class="row">
-                        <div class="form-group col-md-6">
+                        {{-- <div class="form-group col-md-6">
                             <label for="full_name">Tipo de Gastos</label>
                             <select name="categoryExpense_id" class="form-control select2" required>
                                 <option value="" disabled selected>--Seleccione una Opción--</option>
@@ -19,7 +19,7 @@
                                     <option value="{{ $item->id }}">{{ $item->name }}</option>
                                 @endforeach
                             </select>
-                        </div>
+                        </div> --}}
                         <div class="form-group col-md-6">
                             <label for="full_name">Monto</label>
                             <input type="number" style="text-align: right" min="0.5" step="0.5" name="amount"
@@ -40,3 +40,4 @@
         </div>
     </div>
 </form>
+

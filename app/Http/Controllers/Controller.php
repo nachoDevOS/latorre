@@ -42,7 +42,7 @@ class Controller extends BaseController
                         },
 
 
-                        'expenses.categoryExpense'
+                        'expenses'
 
                     ])
                     ->whereRaw($id?$id:1) // id de cashier

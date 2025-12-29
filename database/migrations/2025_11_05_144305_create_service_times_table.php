@@ -26,8 +26,8 @@ return new class extends Migration
             $table->decimal('amount', 10, 2)->nullable();
             $table->smallInteger('status')->default(1);
 
-            $table->timestamps();    
-            $table->timestamps('closed_at');
+            $table->timestamps();
+            $table->timestamp('closed_at')->nullable();
 
             $table->foreignId('registerUser_id')->nullable()->constrained('users');
             $table->string('registerRole')->nullable();

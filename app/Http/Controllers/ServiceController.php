@@ -560,7 +560,7 @@ class ServiceController extends Controller
             // $transaction = Transaction::create(['status' => 'Completado']);
             
             if($request->amount != $serviceTime->amount)
-            {                
+            {          
                 // Si el monto es mayor al adelanto
                 if($request->amount > $serviceTime->amount)
                 {
@@ -601,7 +601,7 @@ class ServiceController extends Controller
                 else
                 {   
                     // Si el monto es menor al adelanto
-                    return $serviceTime->amount - $request->amount;
+                    // return $serviceTime->amount - $request->amount;
                     ServiceTransaction::create([
                         'service_id' => $serviceTime->service_id, 
                         'transaction_id' => $serviceTime->transaction_id, 
@@ -614,13 +614,11 @@ class ServiceController extends Controller
                     $service->amount_room -= $serviceTime->amount - $request->amount;
                     $service->total_amount -= $serviceTime->amount - $request->amount;
                 }
-
                 $serviceTime->amount = $request->amount;
-
                 $service->save();
             }
-            // Actualizar el registro de tiempo
 
+            // Actualizar el registro de tiempo
             $serviceTime->end_time = $endDateTime->toDateTimeString();
             $serviceTime->save();
             DB::commit();

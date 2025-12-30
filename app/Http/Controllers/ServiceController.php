@@ -306,6 +306,7 @@ class ServiceController extends Controller
 
     public function finishService(Request $request, Service $service)
     {
+        return $service;
         DB::beginTransaction();
         $cashier = $this->cashier(null,'user_id = "'.Auth::user()->id.'"', 'status = "Abierta"');
         if (!$cashier) {

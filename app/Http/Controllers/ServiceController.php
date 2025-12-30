@@ -557,28 +557,27 @@ class ServiceController extends Controller
         }
         DB::beginTransaction();
         try {
-            $transaction = Transaction::create(['status' => 'Completado']);
+            // $transaction = Transaction::create(['status' => 'Completado']);
             
             if($request->amount != $serviceTime->amount)
             {                
-                // $transaction = Transaction::where('id', $serviceTime->transaction_id)->first();              
-
                 // Si el monto es mayor al adelanto
                 if($request->amount > $serviceTime->amount)
                 {
+                    $request['amount']=$request->amount - $serviceTime->amount;
                     if ($request->payment_method == 'efectivo') {
                         $request->validate(['amount_received' => 'nullable|numeric|min:' . $request->amount]);
                         ServiceTransaction::create([
-                            'service_id' => $serviceTime->service_id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id,
+                            'service_id' => $serviceTime->service_id, 'transaction_id' => $serviceTime->transaction_id, 'cashier_id' => $cashier->id,
                             'amount' => $request->amount, 'paymentType' => 'Efectivo', 'type' => 'Ingreso'
                         ]);
                     } elseif ($request->payment_method == 'qr') {
                         ServiceTransaction::create([
-                            'service_id' => $serviceTime->service_id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id,
-                            'amount' => $request->amount, 'paymentType' => 'Qr', 'type' => 'Ingreso'
+                            'service_id' => $serviceTime->service_id, 'transaction_id' => $serviceTime->transaction_id, 'cashier_id' => $cashier->id,
+                            'amount' => $request->amount,
+                            'paymentType' => 'Qr',                                                                                      
+                            'type' => 'Ingreso'
                         ]);  
-                                              
-
                     } elseif ($request->payment_method == 'ambos') {
                         $request->validate([
                             'amount_efectivo' => 'required|numeric|min:0.01',
@@ -594,28 +593,28 @@ class ServiceController extends Controller
                             ServiceTransaction::create(['service_id' => $serviceTime->service_id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id, 'amount' => $request->amount_qr, 'paymentType' => 'Qr', 'type' => 'Ingreso']);
                         }
                     }
-                    $service->amount_room += $request->amount - $serviceTime->amount;
-                    $service->total_amount += $request->amount - $serviceTime->amount;
-
+                    // $service->amount_room += $request->amount - $serviceTime->amount;
+                    $service->amount_room += $request->amount;
+                    // $service->total_amount += $request->amount - $serviceTime->amount;
+                    $service->total_amount += $request->amount;
                 }
                 else
                 {   
                     // Si el monto es menor al adelanto
+                    return $serviceTime->amount - $request->amount;
                     ServiceTransaction::create([
                         'service_id' => $serviceTime->service_id, 
-                        'transaction_id' => $transaction->id, 
+                        'transaction_id' => $serviceTime->transaction_id, 
                         'cashier_id' => $cashier->id,
                         'amount' => ($serviceTime->amount - $request->amount), 
                         'paymentType' => 'Efectivo', 
                         'type' => 'Devolucion',
                         'observation' => 'Devolución de adelanto',
                     ]);
-
                     $service->amount_room -= $serviceTime->amount - $request->amount;
                     $service->total_amount -= $serviceTime->amount - $request->amount;
                 }
 
-                $serviceTime->transaction_id = $transaction->id;
                 $serviceTime->amount = $request->amount;
 
                 $service->save();
@@ -624,7 +623,6 @@ class ServiceController extends Controller
 
             $serviceTime->end_time = $endDateTime->toDateTimeString();
             $serviceTime->save();
-
             DB::commit();
 
             return redirect()->route('services.show', $service->room_id)->with([

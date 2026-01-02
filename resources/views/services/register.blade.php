@@ -593,6 +593,11 @@
             $('form').on('submit', function(e) {
                 let paymentMethod = $('#payment_method').val();
                 let total = parseFloat($('#summary-total').text().replace(' Bs.', '')) || 0;
+                
+                if (total <= 0) {
+                    return; // Permitir envío si no hay nada que pagar
+                }
+
                 let efectivo = parseFloat($('#amount_efectivo').val()) || 0;
                 let qr = parseFloat($('#amount_qr').val()) || 0;
 
@@ -603,9 +608,14 @@
                         toastr.error('El monto recibido no puede ser menor al total a pagar.', 'Error en el pago');
                     }
                 } else if (paymentMethod === 'ambos') {
-                    if ((efectivo + qr) < total) {
+                    if (efectivo <= 0 || qr <= 0) {
                         e.preventDefault();
-                        toastr.error('La suma de los montos en efectivo y QR no puede ser menor al total a pagar.', 'Error en el pago');
+                        toastr.error('Si el método de pago es "Ambos", debe ingresar un monto mayor a 0 para Efectivo y QR.', 'Error en el pago');
+                        return;
+                    }
+                    if (Math.abs((efectivo + qr) - total) > 0.001) {
+                        e.preventDefault();
+                        toastr.error('Si el método de pago es "Ambos", la suma de los montos debe ser exactamente igual al total a pagar.', 'Error en el pago');
                     }
                 }
             });

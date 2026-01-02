@@ -60,7 +60,7 @@
 
 @section('content')
     <div class="page-content browse container-fluid">
-        @include('voyager::alerts')
+        {{-- @include('voyager::alerts') --}}
         <div class="row">
             <div class="col-12">
                 <div class="panel details-panel rounded shadow-lg">
@@ -103,6 +103,14 @@
                     </div>
                 </div>
             </div>
+            @if (!$globalFuntion_cashierMoney['cashier'])
+                <div class="col-md-12 col-sm-12">
+                    <div class="panel panel-bordered alert alert-warning">
+                        <strong><i class="voyager-info-circled"></i> Advertencia:</strong>
+                        <p class="mt-1">No puedes realizar ventas porque no tienes una caja abierta.</p>
+                    </div>
+                </div>
+            @endif
             <form action="{{ route('services.rental.start') }}" method="POST">
                 @csrf
                 <input type="hidden" name="room_id" value="{{ $room->id }}">

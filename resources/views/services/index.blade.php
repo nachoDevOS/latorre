@@ -156,12 +156,23 @@
             transform: translateY(-2px);
         }
         .room-card-bg {
-            background-size: cover;
-            background-position: center;
             position: relative;
             color: #fff;
             /* Sombra de texto más pronunciada para mejorar la legibilidad en cualquier fondo */
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+            background-color: #2d3748; /* Fondo oscuro base para transparencia */
+        }
+        .room-bg-layer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.7; /* Imagen un poco transparente */
+            transition: transform 0.5s ease;
+            z-index: 0;
+        }
+        .room-card:hover .room-bg-layer {
+            transform: scale(1.1);
         }
         .room-card-bg::before {
             content: '';
@@ -170,6 +181,7 @@
             /* Gradiente para oscurecer áreas clave y mejorar contraste del texto sin tapar toda la imagen */
             background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.85) 100%);
             border-radius: 12px;
+            z-index: 1;
         }
         .room-card-bg .panel-heading, .room-card-bg .panel-body {
             position: relative;
@@ -237,10 +249,11 @@
             @forelse ($rooms as $room)
                 <div class="col-md-3 col-sm-6">
                     @php
-                        $bgStyle = $room->image ? "background-image: url('" . asset('storage/' . $room->image) . "');" : "background-image: url('" . asset('images/rooms/default.jpg') . "');";
+                        $imgUrl = $room->image ? asset('storage/' . $room->image) : asset('images/rooms/default.jpg');
                         $bgClass = "room-card-bg";
                     @endphp
-                    <div class="panel room-card {{ $bgClass }}" style="{{ $bgStyle }}">
+                    <div class="panel room-card {{ $bgClass }}">
+                        <div class="room-bg-layer" style="background-image: url('{{ $imgUrl }}');"></div>
                         <div class="panel-heading">
                             @php
                                 $icon = 'voyager-controller'; // Icono por defecto

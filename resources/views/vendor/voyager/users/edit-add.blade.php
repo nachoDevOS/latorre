@@ -143,7 +143,7 @@
                     </div>
                 </div>
 
-                <div class="col-md-4">
+                {{-- <div class="col-md-4">
                     <div class="panel panel panel-bordered panel-warning">
                         <div class="panel-body">
                             <div class="form-group">
@@ -154,7 +154,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> --}}
             </div>
 
             <button type="submit" class="btn btn-primary pull-right save">

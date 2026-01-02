@@ -924,7 +924,7 @@
                                             </div>
                                         </div>
                                         <div class="form-group col-md-6">
-                                            <label for="end_time">Fecha y Hora Fin (opcional)</label>
+                                            <label for="end_time">Fecha y Hora Fin</label>
                                             <div class="input-group">
                                                 <input type="date" name="end_date" id="end_date_additional"
                                                     class="form-control">

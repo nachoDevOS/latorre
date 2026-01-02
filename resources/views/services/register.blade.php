@@ -253,8 +253,8 @@
                                         <label for="amount_received" style="font-weight: bold;">Monto Recibido (Efectivo)</label>
                                         <input type="number" name="amount_received" id="amount_received" class="form-control" min="0" placeholder="0.00">
                                     </div>
-                                    <div class="summary-item" style="background-color: #f0f0f0; padding: 10px; border-radius: 5px;">
-                                        <strong style="font-size: 1.1rem;">Cambio a devolver:</strong>
+                                    <div id="change-section" class="summary-item" style="background-color: #f0f0f0; padding: 10px; border-radius: 5px;">
+                                        <strong id="change_label" style="font-size: 1.1rem;">Cambio a devolver:</strong>
                                         <strong class="amount" id="change_due" style="font-size: 1.2rem; color: #28a745;">0.00 Bs.</strong>
                                     </div>
                                 </div>
@@ -546,6 +546,11 @@
                 $('#payment-details').hide();
                 $('#calculator').hide();
 
+                // Reset change display when method changes
+                $('#change_label').text('Cambio a devolver:');
+                $('#change_due').text('0.00 Bs.').css('color', '#28a745');
+                $('#change-section').css({ 'background-color': '#f0f0f0', 'color': 'inherit' });
+
                 // Remove required and min attributes
                 $('#amount_efectivo').prop('required', false).prop('min', '');
                 $('#amount_qr').prop('required', false).prop('min', '');
@@ -565,12 +570,20 @@
             $('#amount_received, #amount_efectivo, #amount_qr').on('keyup change', function() {
                 let total = parseFloat($('#summary-total').text().replace(' Bs.', '')) || 0;
                 let paymentMethod = $('#payment_method').val();
-                let received = 0;
-                let change = 0;
 
                 if (paymentMethod === 'efectivo') {
-                    received = parseFloat($('#amount_received').val()) || 0;
-                    change = received - total;
+                    let received = parseFloat($('#amount_received').val()) || 0;
+                    let change = received - total;
+
+                    if (received > 0 && change < 0) {
+                        $('#change_label').text('Monto faltante:');
+                        $('#change_due').text(Math.abs(change).toFixed(2) + ' Bs.').css('color', 'red');
+                        $('#change-section').css({ 'background-color': '#f2dede', 'color': '#a94442' });
+                    } else {
+                        $('#change_label').text('Cambio a devolver:');
+                        $('#change_due').text((change < 0 ? 0 : change).toFixed(2) + ' Bs.').css('color', '#28a745');
+                        $('#change-section').css({ 'background-color': '#f0f0f0', 'color': 'inherit' });
+                    }
                 } else if (paymentMethod === 'ambos') {
                     let efectivo = parseFloat($('#amount_efectivo').val()) || 0;
                     let qr = parseFloat($('#amount_qr').val()) || 0;
@@ -585,9 +598,6 @@
                         }
                     }
                 }
-
-                if (change < 0) change = 0;
-                $('#change_due').text(change.toFixed(2) + ' Bs.');
             });
 
             $('form').on('submit', function(e) {

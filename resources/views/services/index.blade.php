@@ -189,8 +189,16 @@
             background-color: transparent;
             border-bottom: none;
         }
-        .room-card-bg .panel-title, .room-card-bg .room-icon {
+        .room-card-bg .panel-title {
+            color: #333;
+            /* Borde blanco para mejorar legibilidad */
+            text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+        }
+        .room-card-bg .room-icon {
             color: #fff;
+        }
+        .room-card-bg .room-type {
+            color: #f8f9fa;
         }
 
         /* Empty State */

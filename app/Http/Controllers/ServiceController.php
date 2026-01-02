@@ -223,6 +223,7 @@ class ServiceController extends Controller
 
     public function addItem(Request $request, Service $service)
     {
+        // return $request;
         $request->validate([
             'products' => 'required|array|min:1',
             'products.*.id' => 'required|exists:item_stocks,id',
@@ -243,7 +244,12 @@ class ServiceController extends Controller
 
         // Validaciones de pago
         if ($request->payment_method == 'efectivo') {
-            $request->validate(['amount_received' => 'nullable|numeric|min:'.$totalAmount]);
+            // return $totalAmount;
+            if($request->amount_received < $totalAmount)
+            {
+                return back()->with(['message' => 'El monto recibido debe ser igual o mayor al total de productos.', 'alert-type' => 'error'])->withInput();
+            }
+            // $request->validate(['amount_received' => 'nullable|numeric|min:'.$totalAmount]);
         } elseif ($request->payment_method == 'ambos') {
             $request->validate([
                 'amount_efectivo' => 'required|numeric|min:0.01',
@@ -281,10 +287,24 @@ class ServiceController extends Controller
 
             // Registrar transacciones de pago
             if ($request->payment_method == 'efectivo' || $request->payment_method == 'qr') {
-                ServiceTransaction::create(['service_id' => $service->id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id, 'amount' => $totalAmount, 'paymentType' => ucfirst($request->payment_method), 'type' => 'Ingreso']);
+                ServiceTransaction::create([
+                    'service_id' => $service->id, 
+                    'transaction_id' => $transaction->id, 
+                    'cashier_id' => $cashier->id, 
+                    'amount' => $totalAmount, 
+                    'paymentType' => ucfirst($request->payment_method), 
+                    'type' => 'Ingreso'
+                ]);
             } elseif ($request->payment_method == 'ambos') {
                 if ($request->amount_efectivo > 0) {
-                    ServiceTransaction::create(['service_id' => $service->id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id, 'amount' => $request->amount_efectivo, 'paymentType' => 'Efectivo', 'type' => 'Ingreso']);
+                    ServiceTransaction::create([
+                        'service_id' => $service->id, 
+                        'transaction_id' => $transaction->id, 
+                        'cashier_id' => $cashier->id, 
+                        'amount' => $request->amount_efectivo, 
+                        'paymentType' => 'Efectivo', 
+                        'type' => 'Ingreso'
+                    ]);
                 }
                 if ($request->amount_qr > 0) {
                     ServiceTransaction::create(['service_id' => $service->id, 'transaction_id' => $transaction->id, 'cashier_id' => $cashier->id, 'amount' => $request->amount_qr, 'paymentType' => 'Qr', 'type' => 'Ingreso']);

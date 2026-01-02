@@ -258,6 +258,13 @@
                                         <strong class="amount" id="change_due" style="font-size: 1.2rem; color: #28a745;">0.00 Bs.</strong>
                                     </div>
                                 </div>
+
+                                <div id="qr-info" style="display: none; margin-top: 15px; border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
+                                    <div class="summary-item" style="background-color: #f0f0f0; padding: 10px; border-radius: 5px;">
+                                        <strong style="font-size: 1.1rem;">Monto a cobrar por QR:</strong>
+                                        <strong class="amount" id="qr_amount_info" style="font-size: 1.2rem; color: #28a745;">0.00 Bs.</strong>
+                                    </div>
+                                </div>
                             </div>                            
                             
                             <button type="submit" class="btn btn-success btn-block btn-action"><i class="voyager-play"></i> Iniciar Alquiler</button>
@@ -518,6 +525,7 @@
             $('#summary-advance').text(advance.toFixed(2) + ' Bs.');
             $('#summary-consumption').text(consumption.toFixed(2) + ' Bs.');
             $('#summary-total').text(total.toFixed(2) + ' Bs.');
+            $('#qr_amount_info').text(total.toFixed(2) + ' Bs.');
 
             // Clear the inputs for "Ambos"
             $('#amount_efectivo').val('');
@@ -545,6 +553,7 @@
                 let paymentMethod = $(this).val();
                 $('#payment-details').hide();
                 $('#calculator').hide();
+                $('#qr-info').hide();
 
                 // Reset change display when method changes
                 $('#change_label').text('Cambio a devolver:');
@@ -562,6 +571,8 @@
                     $('#amount_qr').prop('required', true).prop('min', 0.01);
                 } else if (paymentMethod === 'efectivo') {
                     $('#calculator').show();
+                } else if (paymentMethod === 'qr') {
+                    $('#qr-info').show();
                 }
                 
                 $('#amount_received').val('').trigger('change');

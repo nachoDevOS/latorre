@@ -1333,10 +1333,12 @@
                     const durationDisplay = document.getElementById('duration_additional');
 
                     if (endTimeInput) {
-                        document.getElementById('clear-end-time-additional').addEventListener('click', function() {
+                        document.getElementById('clear-end-time-additional').addEventListener('click',
+                        function() {
                             endDateInput.value = '';
                             endTimeInput.value = '';
-                            updateAmountField();
+                            const event = new Event('change');
+                            endTimeInput.dispatchEvent(event);
                         });
 
                         function calculateDurationAdditional() {
@@ -1344,7 +1346,7 @@
                             const startTimeStr = startTimeInput.value;
                             const endDateStr = endDateInput.value;
                             const endTimeStr = endTimeInput.value;
-
+ 
                             if (startDateStr && startTimeStr && endDateStr && endTimeStr) {
                                 const startDate = new Date(`${startDateStr}T${startTimeStr}`);
                                 const endDate = new Date(`${endDateStr}T${endTimeStr}`);
@@ -1355,35 +1357,31 @@
                                     minutes -= days * 24 * 60;
                                     let hours = Math.floor(minutes / 60);
                                     minutes -= hours * 60;
-
-                                    durationDisplay.textContent = `${days} día(s), ${hours} hora(s) y ${minutes} minuto(s)`;
+ 
+                                    durationDisplay.textContent =
+                                        `${days} día(s), ${hours} hora(s) y ${minutes} minuto(s)`;
                                 } else {
                                     durationDisplay.textContent = 'La fecha fin debe ser mayor a la de inicio.';
                                 }
                             }
                         }
-
+ 
                         function updateAmountField() {
-                            if (endTimeInput.value) {
-                                if (startTimeInput.value && endTimeInput.value < startTimeInput.value) {
-                                    // Si la hora de fin es menor, asumimos que es del día siguiente
-                                    let nextDay = new Date(startDateInput.value);
-                                    nextDay.setDate(nextDay.getDate() +
-                                        2); // Se suma 2 por la forma en que JS maneja las fechas
-                                    endDateInput.value = nextDay.toISOString().split('T')[0];
-                                } else if (!endDateInput.value) {
-                                    endDateInput.value = startDateInput.value;
-                                } else if (new Date(endDateInput.value) < new Date(startDateInput.value)) {
-                                    toastr.warning('La fecha de fin no puede ser anterior a la de inicio.',
-                                        'Fecha inválida');
-                                    endDateInput.value = startDateInput.value;
+                            if (endTimeInput.value && endDateInput.value) {
+                                const startDateTime = new Date(
+                                    `${startDateInput.value}T${startTimeInput.value}`);
+                                const endDateTime = new Date(
+                                    `${endDateInput.value}T${endTimeInput.value}`);
+ 
+                                if (endDateTime < startDateTime) {
+                                    toastr.error(
+                                        'La fecha y hora de fin no puede ser anterior a la de inicio.',
+                                        'Error de Fecha');
+                                    endTimeInput.value = '';
+                                    endDateInput.value = startDateInput
+                                .value; // Resetear a la fecha de inicio
                                 }
-
-                                if (!endTimeInput.value) {
-                                    amountGroup.style.display = 'none';
-                                    paymentGroup.style.display = 'none';
-                                    durationGroup.style.display = 'none';
-                                }
+ 
                                 amountGroup.style.display = 'block';
                                 paymentGroup.style.display = 'block';
                                 durationGroup.style.display = 'block';
@@ -1401,16 +1399,27 @@
                             amountInput.value = '';
                             $('#payment_method_additional').val('').trigger('change');
                         }
-
+ 
+                        endTimeInput.addEventListener('change', function() {
+                            if (this.value && !endDateInput.value) {
+                                endDateInput.value = startDateInput.value;
+                            }
+                            updateAmountField();
+                        });
+                        endDateInput.addEventListener('change', updateAmountField);
+ 
+                        updateAmountField(); // Llamada inicial para establecer el estado correcto
+ 
                         $('#payment_method_additional').on('change', function() {
                             let paymentMethod = $(this).val();
                             $('#payment-details-additional').hide();
                             $('#calculator-additional').hide();
-
+ 
                             $('#amount_efectivo_additional').prop('required', false);
                             $('#amount_qr_additional').prop('required', false);
-                            $('#payment_method_additional').prop('required', endTimeInput.value ? true : false);
-
+                            $('#payment_method_additional').prop('required', endTimeInput.value ? true :
+                                false);
+ 
                             if (paymentMethod === 'ambos') {
                                 $('#payment-details-additional').show();
                                 $('#amount_efectivo_additional').prop('required', true);
@@ -1419,13 +1428,14 @@
                                 $('#calculator-additional').show();
                             }
                         });
-
+ 
                         function calculateChangeAdditional() {
                             let total = parseFloat($('#amount-additional').val()) || 0;
-                            let paymentMethod = $('#payment_method_additional').val();
+                            let paymentMethod = $('#payment_method_additional')
+                        .val();
                             let received = 0;
                             let change = 0;
-
+ 
                             if (paymentMethod === 'efectivo') {
                                 received = parseFloat($('#amount_received_additional').val()) || 0;
                                 change = received - total;
@@ -1433,12 +1443,14 @@
                                 let efectivo = parseFloat($('#amount_efectivo_additional').val()) || 0;
                                 let qr = parseFloat($('#amount_qr_additional').val()) || 0;
                                 let sum = efectivo + qr;
-
+ 
                                 if (sum > total) {
-                                    toastr.warning('La suma de los montos no puede ser mayor al total.', 'Monto excedido', {
-                                        timeOut: 1500
-                                    });
-
+                                    toastr.warning(
+                                        'La suma de los montos no puede ser mayor al total.',
+                                        'Monto excedido', {
+                                            timeOut: 1500
+                                        });
+ 
                                     // Resetea el campo que se acaba de cambiar si la suma excede el total
                                     if ($(document.activeElement).is('#amount_efectivo_additional')) {
                                         $('#amount_efectivo_additional').val((total - qr).toFixed(2));
@@ -1447,20 +1459,15 @@
                                     }
                                 }
                             }
-
+ 
                             if (change < 0) change = 0;
                             $('#change_due_additional').text(change.toFixed(2) + ' Bs.');
                         }
-
+ 
                         $('#amount-additional').on('keyup change', calculateChangeAdditional);
                         $('#amount_received_additional').on('keyup change', calculateChangeAdditional);
                         $('#amount_efectivo_additional').on('keyup change', calculateChangeAdditional);
                         $('#amount_qr_additional').on('keyup change', calculateChangeAdditional);
-
-                        endTimeInput.addEventListener('change', updateAmountField);
-                        endDateInput.addEventListener('change', updateAmountField);
-
-                        updateAmountField(); // Llamada inicial para establecer el estado correcto
                     }
 
                     // Lógica para los modales de "Finalizar Tiempo"

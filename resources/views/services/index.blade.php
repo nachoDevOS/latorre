@@ -195,10 +195,13 @@
             text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
         }
         .room-card-bg .room-icon {
-            color: #fff;
+            color: #333;
+            text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
         }
         .room-card-bg .room-type {
-            color: #f8f9fa;
+            color: #333;
+            font-weight: 600;
+            text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
         }
 
         /* Empty State */

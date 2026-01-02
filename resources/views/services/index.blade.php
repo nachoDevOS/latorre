@@ -246,11 +246,11 @@
 
         /* Estilo Glassmorphism Premium para el info del servicio */
         .service-info-glass {
-            background: rgba(255, 255, 255, 0.25);
+            background: rgba(20, 28, 148, 0.25);
             /* Vidrio claro */
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.6);
+            border: 1px solid rgb(255, 255, 255);
             /* Borde sutil brillante */
             padding: 12px;
             border-radius: 15px;
@@ -259,14 +259,14 @@
             /* Sombra profunda para dar elevación */
         }
 
-        .service-info-glass p {
-            color: #333;
+        /* .service-info-glass p {
+            color: #333333;
             font-weight: 700;
             margin: 2px 0;
-        }
+        } */
 
         .timer-text {
-            color: #c0392b;
+            color: #ff1900;
             /* Rojo intenso para urgencia */
             font-family: 'Courier New', Courier, monospace;
             /* Fuente tipo digital */

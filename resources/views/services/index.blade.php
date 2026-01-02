@@ -204,6 +204,30 @@
             text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
         }
 
+        /* Estilo Glassmorphism Premium para el info del servicio */
+        .service-info-glass {
+            background: rgba(255, 255, 255, 0.25); /* Vidrio claro */
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.6); /* Borde sutil brillante */
+            padding: 12px;
+            border-radius: 15px;
+            margin-top: 15px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); /* Sombra profunda para dar elevación */
+        }
+        .service-info-glass p {
+            color: #333;
+            font-weight: 700;
+            text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+            margin: 2px 0;
+        }
+        .timer-text {
+            color: #c0392b; /* Rojo intenso para urgencia */
+            text-shadow: 2px 2px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff; /* Borde blanco grueso */
+            font-family: 'Courier New', Courier, monospace; /* Fuente tipo digital */
+            letter-spacing: 1px;
+        }
+
         /* Empty State */
         .empty-state {
             border: 2px dashed var(--border-color);
@@ -291,16 +315,16 @@
                                             @php
                                                 $lastServiceTime = $room->service->serviceTimes->last();
                                             @endphp
-                                            <div id="service-info-{{ $room->id }}" style="background-color: rgba(0, 0, 0, 0.45); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 10px; border-radius: 8px; margin-top: 10px; color:white;" data-start-time="{{ date('Y-m-d H:i:s', strtotime($room->service->start_time)) }}" @if($lastServiceTime && $lastServiceTime->end_time) data-end-time="{{ date('Y-m-d H:i:s', strtotime($lastServiceTime->end_time)) }}" @endif>
-                                                <p style="margin-top: 0px; margin-bottom: 0px; font-size: 0.95em;">
+                                            <div id="service-info-{{ $room->id }}" class="service-info-glass" data-start-time="{{ date('Y-m-d H:i:s', strtotime($room->service->start_time)) }}" @if($lastServiceTime && $lastServiceTime->end_time) data-end-time="{{ date('Y-m-d H:i:s', strtotime($lastServiceTime->end_time)) }}" @endif>
+                                                <p style="font-size: 0.95em;">
                                                     <i class="voyager-watch"></i> Inicio: <strong>{{ date('d/m/y h:i A', strtotime($room->service->start_time)) }}</strong>
                                                 </p>
                                                 @if($lastServiceTime && $lastServiceTime->end_time)
-                                                    <p style="margin-bottom: 0px; font-size: 0.95em;">
+                                                    <p style="font-size: 0.95em;">
                                                         <i class="voyager-alarm-clock"></i> Fin: <strong>{{ date('d/m/y h:i A', strtotime($lastServiceTime->end_time)) }}</strong>
                                                     </p>
                                                 @endif
-                                                <div id="timer-{{ $room->id }}" style="font-size: 18px; font-weight: bold; margin-top: 5px;"></div>
+                                                <div id="timer-{{ $room->id }}" class="timer-text" style="font-size: 22px; font-weight: 900; margin-top: 5px;"></div>
                                             </div>
                                         @endif
                                     @endif

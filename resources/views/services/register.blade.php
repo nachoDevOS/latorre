@@ -63,7 +63,7 @@
         }
         .payment-method-card {
             flex: 1;
-            padding: 12px 10px;
+            padding: 5px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             text-align: center;
@@ -74,7 +74,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 5px;
         }
         .payment-method-card:hover {
             transform: translateY(-3px);
@@ -98,14 +98,14 @@
             display: block;
         }
         .payment-method-card i.method-icon {
-            font-size: 1.4rem;
+            font-size: 1.1rem;
             margin-bottom: 0;
             color: #555;
         }
         .payment-method-card span {
             font-weight: 500;
             color: #333;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">

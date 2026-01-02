@@ -54,6 +54,59 @@
         .summary-total .amount#summary-total {
             color: #007bff; /* Blue */
         }
+
+        /* --- Estilos para las nuevas tarjetas de pago --- */
+        #payment-method-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .payment-method-card {
+            flex: 1;
+            padding: 12px 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            background-color: #f9f9f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .payment-method-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-color: #c0c0c0;
+        }
+        .payment-method-card.active {
+            border-color: #22A7F0;
+            background-color: #e9f7ff;
+            box-shadow: 0 4px 12px rgba(34, 167, 240, 0.2);
+        }
+        .payment-method-card .voyager-check {
+            display: none;
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            color: #22A7F0;
+            font-size: 1.2rem;
+        }
+        .payment-method-card.active .voyager-check {
+            display: block;
+        }
+        .payment-method-card i.method-icon {
+            font-size: 1.4rem;
+            margin-bottom: 0;
+            color: #555;
+        }
+        .payment-method-card span {
+            font-weight: 500;
+            color: #333;
+            font-size: 0.9rem;
+        }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 @endsection
@@ -228,15 +281,26 @@
                                 </div>
                             </div>
                             <div id="payment-section-wrapper" style="display: none;">
-                                <div class="form-group">
-                                    <label for="payment_method">Método de Pago</label>
-                                    <select name="payment_method" id="payment_method" class="form-control" required>
-                                        <option value="" selected disabled>--Seleccione una opción--</option>
-                                        <option value="efectivo">Efectivo</option>
-                                        <option value="qr">QR</option>
-                                        <option value="ambos">Ambos</option>
-                                    </select>
+                                <label>Método de Pago</label>
+                                <input type="hidden" name="payment_method" id="payment_method_hidden">
+                                <div id="payment-method-selector">
+                                    <div class="payment-method-card" data-method="efectivo">
+                                        <i class="voyager-check"></i>
+                                        <i class="voyager-dollar method-icon"></i>
+                                        <span>Efectivo</span>
+                                    </div>
+                                    <div class="payment-method-card" data-method="qr">
+                                        <i class="voyager-check"></i>
+                                        <i class="fa-solid fa-qrcode method-icon"></i>
+                                        <span>QR</span>
+                                    </div>
+                                    <div class="payment-method-card" data-method="ambos">
+                                        <i class="voyager-check"></i>
+                                        <i class="voyager-credit-cards method-icon"></i>
+                                        <span>Ambos</span>
+                                    </div>
                                 </div>
+
                                 <div id="payment-details" style="display: none;">
                                     <div class="form-group">
                                         <label for="amount_efectivo">Monto en Efectivo</label>
@@ -551,10 +615,10 @@
             // Mostrar u ocultar la sección de pago
             if (total > 0) {
                 $('#payment-section-wrapper').show();
-                $('#payment_method').prop('required', true);
+                $('#payment_method_hidden').prop('required', true);
             } else {
                 $('#payment-section-wrapper').hide();
-                $('#payment_method').prop('required', false).val(''); // Limpiar y quitar requerido
+                $('#payment_method_hidden').prop('required', false).val(''); // Limpiar y quitar requerido
                 $('#payment_method').trigger('change'); // Disparar change para ocultar detalles
             }
 
@@ -566,8 +630,16 @@
             $('#amount').on('keyup change', updateTotalSummaries);
             updateTotalSummaries();
 
-            $('#payment_method').on('change', function() {
-                let paymentMethod = $(this).val();
+            $('.payment-method-card').on('click', function() {
+                let paymentMethod = $(this).data('method');
+
+                // Actualizar UI de tarjetas
+                $('.payment-method-card').removeClass('active');
+                $(this).addClass('active');
+
+                // Actualizar valor del input oculto
+                $('#payment_method_hidden').val(paymentMethod).prop('required', true);
+
                 $('#payment-details').hide();
                 $('#calculator').hide();
                 $('#qr-info').hide();
@@ -597,7 +669,7 @@
 
             $('#amount_received, #amount_efectivo, #amount_qr').on('keyup change', function() {
                 let total = parseFloat($('#summary-total').text().replace(' Bs.', '')) || 0;
-                let paymentMethod = $('#payment_method').val();
+                let paymentMethod = $('#payment_method_hidden').val();
 
                 if (paymentMethod === 'efectivo') {
                     let received = parseFloat($('#amount_received').val()) || 0;
@@ -642,7 +714,7 @@
             });
 
             $('form').on('submit', function(e) {
-                let paymentMethod = $('#payment_method').val();
+                let paymentMethod = $('#payment_method_hidden').val();
                 let total = parseFloat($('#summary-total').text().replace(' Bs.', '')) || 0;
                 
                 if (total <= 0) {

@@ -240,11 +240,11 @@
                                 <div id="payment-details" style="display: none;">
                                     <div class="form-group">
                                         <label for="amount_efectivo">Monto en Efectivo</label>
-                                        <input type="number" name="amount_efectivo" id="amount_efectivo" class="form-control" min="0" placeholder="0.00">
+                                        <input type="number" name="amount_efectivo" id="amount_efectivo" class="form-control" step="0.01" min="0" placeholder="0.00">
                                     </div>
                                     <div class="form-group">
                                         <label for="amount_qr">Monto con QR</label>
-                                        <input type="number" name="amount_qr" id="amount_qr" class="form-control" min="0" placeholder="0.00">
+                                        <input type="number" name="amount_qr" id="amount_qr" class="form-control" step="0.01" min="0" placeholder="0.00">
                                     </div>
                                 </div>
     
@@ -553,8 +553,8 @@
                 if (paymentMethod === 'ambos') {
                     $('#payment-details').show();
                     // Add required and min attributes
-                    $('#amount_efectivo').prop('required', true).prop('min', 1);
-                    $('#amount_qr').prop('required', true).prop('min', 1);
+                    $('#amount_efectivo').prop('required', true).prop('min', 0.01);
+                    $('#amount_qr').prop('required', true).prop('min', 0.01);
                 } else if (paymentMethod === 'efectivo') {
                     $('#calculator').show();
                 }
@@ -562,32 +562,32 @@
                 $('#amount_received').val('').trigger('change');
             });
 
-            $('#amount_received, #amount_efectivo').on('keyup change', function() {
+            $('#amount_received, #amount_efectivo, #amount_qr').on('keyup change', function() {
                 let total = parseFloat($('#summary-total').text().replace(' Bs.', '')) || 0;
                 let paymentMethod = $('#payment_method').val();
                 let received = 0;
+                let change = 0;
 
                 if (paymentMethod === 'efectivo') {
                     received = parseFloat($('#amount_received').val()) || 0;
+                    change = received - total;
                 } else if (paymentMethod === 'ambos') {
-                    received = parseFloat($('#amount_efectivo').val()) || 0;
+                    let efectivo = parseFloat($('#amount_efectivo').val()) || 0;
+                    let qr = parseFloat($('#amount_qr').val()) || 0;
+                    let sum = efectivo + qr;
+
+                    if (sum > total) {
+                        toastr.warning('La suma de los montos no puede ser mayor al total.', 'Monto excedido', {timeOut: 1500});
+                        if ($(document.activeElement).is('#amount_efectivo')) {
+                            $('#amount_efectivo').val((total - qr).toFixed(2));
+                        } else if ($(document.activeElement).is('#amount_qr')) {
+                            $('#amount_qr').val((total - efectivo).toFixed(2));
+                        }
+                    }
                 }
 
-                let change = received - total;
                 if (change < 0) change = 0;
-
                 $('#change_due').text(change.toFixed(2) + ' Bs.');
-            });
-
-            $('#amount_qr').on('keyup change', function() {
-                let total = parseFloat($('#summary-total').text().replace(' Bs.', '')) || 0;
-                let efectivo = parseFloat($('#amount_efectivo').val()) || 0;
-                let qr = parseFloat($('#amount_qr').val()) || 0;
-
-                if ((efectivo + qr) > total) {
-                    toastr.warning('El monto ingresado no puede ser mayor al total.', 'Monto excedido', {timeOut: 500});
-                    $(this).val('');
-                }
             });
 
             $('form').on('submit', function(e) {

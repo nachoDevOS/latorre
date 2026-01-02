@@ -246,6 +246,20 @@
                                         <label for="amount_qr">Monto con QR</label>
                                         <input type="number" name="amount_qr" id="amount_qr" class="form-control" step="0.01" min="0" placeholder="0.00">
                                     </div>
+                                    <div id="ambos-info" style="margin-top: 15px; border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
+                                        <div class="summary-item" style="background-color: #f0f0f0; padding: 10px; border-radius: 5px;">
+                                            <strong style="font-size: 1.1rem;">Total a cubrir:</strong>
+                                            <strong class="amount" id="ambos_total_info" style="font-size: 1.2rem; color: #007bff;">0.00 Bs.</strong>
+                                        </div>
+                                        <div style="margin-top: 10px; display: flex; justify-content: space-between; font-size: 1.1rem;">
+                                            <span>Suma ingresada:</span>
+                                            <strong id="ambos_current_sum" style="color: #dc3545;">0.00 Bs.</strong>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between; font-size: 1.1rem;">
+                                            <span>Faltante:</span>
+                                            <strong id="ambos_remaining" style="color: #dc3545;">0.00 Bs.</strong>
+                                        </div>
+                                    </div>
                                 </div>
     
                                 <div id="calculator" style="display: none; margin-top: 15px; border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
@@ -526,6 +540,9 @@
             $('#summary-consumption').text(consumption.toFixed(2) + ' Bs.');
             $('#summary-total').text(total.toFixed(2) + ' Bs.');
             $('#qr_amount_info').text(total.toFixed(2) + ' Bs.');
+            $('#ambos_total_info').text(total.toFixed(2) + ' Bs.');
+            $('#ambos_remaining').text(total.toFixed(2) + ' Bs.').css('color', '#dc3545');
+            $('#ambos_current_sum').text('0.00 Bs.').css('color', '#dc3545');
 
             // Clear the inputs for "Ambos"
             $('#amount_efectivo').val('');
@@ -607,7 +624,20 @@
                         } else if ($(document.activeElement).is('#amount_qr')) {
                             $('#amount_qr').val((total - efectivo).toFixed(2));
                         }
+                        // Recalcular suma después del ajuste
+                        efectivo = parseFloat($('#amount_efectivo').val()) || 0;
+                        qr = parseFloat($('#amount_qr').val()) || 0;
+                        sum = efectivo + qr;
                     }
+
+                    $('#ambos_current_sum').text(sum.toFixed(2) + ' Bs.');
+                    let remaining = total - sum;
+                    if (remaining < 0) remaining = 0;
+                    $('#ambos_remaining').text(remaining.toFixed(2) + ' Bs.');
+
+                    let color = (Math.abs(remaining) < 0.01) ? '#28a745' : '#dc3545';
+                    $('#ambos_current_sum').css('color', color);
+                    $('#ambos_remaining').css('color', color);
                 }
             });
 
